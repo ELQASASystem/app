@@ -1,0 +1,11 @@
+# Binaries for programs and plugins
+*.exe
+
+# dependencies
+node_modules
+
+# ELQASA System
+.idea/
+configs/configs.go
+build/
+*.lnk
