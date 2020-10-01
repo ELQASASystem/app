@@ -35,9 +35,9 @@ func expiredQuestion(qid uint64) bool {
 }
 
 // publishQuestion 发布问题开始答题
-func publishQuestion(q *Question) bool {
-	if q.TargetGroup != 0 {
-		classBot.SendGroupMsg(NewText(q.QuestionText).To(q.TargetGroup))
+func publishQuestion(gid uint64, q string) bool {
+	if gid != 0 {
+		classBot.SendGroupMsg(NewText(q).To(gid))
 		return true
 	}
 	return false

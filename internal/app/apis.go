@@ -145,13 +145,19 @@ func startAPI() {
 		Question.Get("/publish/{question_id}", func(c *context.Context) {
 
 			pa := c.Params()
-			aid, err := pa.GetUint64("question_id")
+			qid, err := pa.GetUint32("question_id")
 			if err != nil {
 				log.Error().Err(err).Msg("解析问题失败")
 			}
 
-			if q, _, ok := getQuestionByID(aid); ok {
-				publishQuestion(q)
+			if data, err := readQuestion(qid); data != nil {
+				if err != nil {
+					log.Error().Err(err).Msg("读取问题失败")
+					return
+				}
+
+				publishQuestion(uint64(data.ID), data.Question)
+
 				_, _ = c.JSON(iris.Map{"message": "yes"})
 			} else {
 				_, _ = c.JSON(iris.Map{"message": "no"})
