@@ -3,7 +3,7 @@ package class
 var (
 	// 答题数据储存池, key 为群号, value 为问题 ID
 	// 一群对应一个问题 ID
-	questionPool = make(map[uint64]Question)
+	questionPool []Question
 )
 
 // Question 问题数据
@@ -25,8 +25,8 @@ type Answer struct {
 // 注销问题, 返回是否注销成功
 func expiredQuestion(groupID uint64, aid uint64) bool {
 
-	if v, ok := questionPool[groupID]; ok && v.QuestionID == aid {
-		delete(questionPool, groupID)
+	if v, i, ok := getQuestionByGroup(groupID); ok && v.QuestionID == aid {
+		questionPool = append(questionPool[:i], questionPool[i+1:]...)
 		return true
 	} else {
 		return false
@@ -46,7 +46,7 @@ func publishQuestion(q *Question) bool {
 // uploadUserAnswer 上报用户答案
 func uploadUserAnswer(groupId uint64, ans *Answer) {
 
-	if v, ok := questionPool[groupId]; ok {
+	if v, _, ok := getQuestionByGroup(groupId); ok {
 		v.AnsweredUsers = append(v.AnsweredUsers, *ans)
 		// TODO: 记得再上报给 Web 端
 	}
@@ -57,7 +57,7 @@ func handleAnswer(m *QQMsg) {
 
 	groupId := m.Group.ID
 
-	if question, ok := questionPool[groupId]; ok {
+	if question, _, ok := getQuestionByGroup(groupId); ok {
 		if ans, ok := parseAnswer(m, question.QuestionID); ok {
 			uploadUserAnswer(m.Group.ID, ans)
 		}
