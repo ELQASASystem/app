@@ -1,8 +1,8 @@
 package class
 
 var (
-	// 答题数据储存池, key 为群号, value 为问题 ID
-	// 一群对应一个问题 ID
+	// 答题数据储存池
+	// 如需获取对应问题, 请使用 getQuestionByID 或 getQuestionByGroup 方法
 	questionPool []Question
 )
 
