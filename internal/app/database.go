@@ -16,10 +16,19 @@ type (
 		Market    bool   `json:"market"`     // 进入市场
 	}
 
-	// accountsList 帐号列表表
-	accountsList struct {
+	// accountsListTab 帐号列表表
+	accountsListTab struct {
 		ID       string `json:"id"`       // 唯一标识符
 		Password string `json:"password"` // 密码
+	}
+
+	// answerList 答题列表表
+	answerList struct {
+		SHA1       string `json:"sha1"`        // 散列值
+		QuestionID uint32 `json:"question_id"` // 问题唯一标识符
+		AnswererID uint64 `json:"answerer_id"` // 回答者
+		Answer     string `json:"answer"`      // 回答内容
+		Time       string `json:"time"`        // 回答时间
 	}
 )
 
@@ -42,9 +51,9 @@ func connectDB(u string) (err error) {
 
 }
 
-// readAccountsList 读取 accountsList 表。
+// readAccountsList 读取 accountsListTab 表。
 // u => 用户名
-func readAccountsList(u string) (data *accountsList, err error) {
+func readAccountsList(u string) (data *accountsListTab, err error) {
 
 	sq := fmt.Sprintf(
 		`SELECT accounts_list.* FROM accounts_list WHERE accounts_list.id = "%v"`,
@@ -60,7 +69,7 @@ func readAccountsList(u string) (data *accountsList, err error) {
 	if !row.Next() {
 		return
 	}
-	data = new(accountsList)
+	data = new(accountsListTab)
 	err = row.Scan(&data.ID, &data.Password)
 	if err != nil {
 		return
@@ -70,7 +79,7 @@ func readAccountsList(u string) (data *accountsList, err error) {
 
 }
 
-// readQuestionList 读取 questionList 表[教师方]。
+// readQuestionList 读取 questionListTab 表[教师方]。
 // u => 用户名
 func readQuestionList(u string) (tab []*questionListTab, err error) {
 
@@ -90,7 +99,7 @@ func readQuestionList(u string) (tab []*questionListTab, err error) {
 
 }
 
-// readQuestionMarket 读取 questionList 表[市场方]
+// readQuestionMarket 读取 questionListTab 表[市场方]
 func readQuestionMarket() (tab []*questionListTab, err error) {
 
 	rows, err := db.Query(`SELECT problem_list.* FROM problem_list WHERE problem_list.market = true ORDER BY problem_list.id DESC`)
@@ -127,7 +136,7 @@ func joinQuestionList(rows *sql.Rows) (tab []*questionListTab, err error) {
 
 }
 
-// writeQuestionList 写入 questionList 表
+// writeQuestionList 写入 questionListTab 表
 func writeQuestionList(d *questionListTab) (err error) {
 
 	i, err := db.Prepare(`INSERT INTO problem_list (id, question, creator_id, market) VALUES (?, ?, ?, ?)`)
@@ -137,6 +146,24 @@ func writeQuestionList(d *questionListTab) (err error) {
 	defer i.Close()
 
 	_, err = i.Exec(nil, d.Question, d.CreatorID, d.Market)
+	if err != nil {
+		return
+	}
+
+	return
+
+}
+
+// writeAnswerList 写入 answerList 表
+func writeAnswerList(d *answerList) (err error) {
+
+	i, err := db.Prepare(`INSERT INTO answer_list (sha1, question_id, answerer_id, answer, time) VALUES (?, ?, ?, ?, ?)`)
+	if err != nil {
+		return
+	}
+	defer i.Close()
+
+	_, err = i.Exec(d.SHA1, d.QuestionID, d.AnswererID, d.Answer, d.Time)
 	if err != nil {
 		return
 	}
