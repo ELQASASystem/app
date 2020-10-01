@@ -1,8 +1,6 @@
 package class
 
 import (
-	"strconv"
-
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"github.com/rs/zerolog/log"
@@ -52,7 +50,7 @@ func startAPI() {
 		// 获取群成员
 		Group.Get("/mem/{i}", func(c *context.Context) {
 
-			i, err := strconv.ParseInt(c.Params().Get("i"), 10, 64)
+			i, err := c.Params().GetInt64("i")
 			if err != nil {
 				log.Error().Err(err).Msg("解析群号失败")
 			}
