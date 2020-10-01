@@ -9,7 +9,7 @@ var (
 // Question 问题数据
 type Question struct {
 	QuestionID     uint64   // 问题 ID
-	QuestionText   uint64   // 问题发布时使用的文本
+	QuestionText   string   // 问题发布时使用的文本
 	QuestionAnswer string   // 问题的答案
 	TargetGroup    uint64   // 问题发布的目标群聊
 	AnsweredUsers  []Answer // 回答的答案
@@ -39,11 +39,20 @@ func createQuestion(groupID uint64, q *Question) bool {
 
 	if _, ok := questionPool[groupID]; !ok {
 		questionPool[groupID] = *q
+		publishQuestion(q)
 		return true
 	} else {
 		return false
 	}
 
+}
+
+func publishQuestion(q *Question) bool {
+	if q.TargetGroup != 0 {
+		classBot.SendGroupMsg(NewText(q.QuestionText).To(q.TargetGroup))
+		return true
+	}
+	return false
 }
 
 // uploadUserAnswer 上报用户答案
