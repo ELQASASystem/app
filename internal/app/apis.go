@@ -155,9 +155,35 @@ func startAPI() {
 
 		})
 
-		/*Question.Get("/delete/{id}", func(c *context.Context) {
+		Question.Get("/delete/{group_id}/{id}", func(c *context.Context) {
+			pa := c.Params()
 
-		} */
+			groupID, err := pa.GetUint64("group_id")
+			if err != nil {
+				log.Error().Err(err).Msg("解析群号失败")
+			}
+
+			id, err1 := pa.GetUint64("id")
+			if err1 != nil {
+				log.Error().Err(err1).Msg("解析问题ID失败")
+			}
+
+			// TODO: 调用数据库删除
+			expiredQuestion(groupID, id)
+		})
+
+		Question.Get("/publish/{group_id}", func(c *context.Context) {
+			pa := c.Params()
+
+			groupID, err := pa.GetUint64("group_id")
+			if err != nil {
+				log.Error().Err(err).Msg("解析群号失败")
+			}
+
+			q := questionPool[groupID]
+
+			publishQuestion(&q)
+		})
 
 	}
 

@@ -34,6 +34,7 @@ func expiredQuestion(groupID uint64, aid uint64) bool {
 
 }
 
+// publishQuestion 发布问题开始答题
 func publishQuestion(q *Question) bool {
 	if q.TargetGroup != 0 {
 		classBot.SendGroupMsg(NewText(q.QuestionText).To(q.TargetGroup))
