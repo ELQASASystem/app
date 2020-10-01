@@ -53,7 +53,7 @@ func connectDB(u string) (err error) {
 
 // readAccountsList 读取 accountsListTab 表。
 // u => 用户名
-func readAccountsList(u string) (tab *accountsListTab, err error) {
+func readAccountsList(u string) (data *accountsListTab, err error) {
 
 	sq := fmt.Sprintf(
 		`SELECT accounts_list.* FROM accounts_list WHERE accounts_list.id = "%v"`,
@@ -69,8 +69,8 @@ func readAccountsList(u string) (tab *accountsListTab, err error) {
 	if !row.Next() {
 		return
 	}
-	tab = new(accountsListTab)
-	err = row.Scan(&tab.ID, &tab.Password)
+	data = new(accountsListTab)
+	err = row.Scan(&data.ID, &data.Password)
 	if err != nil {
 		return
 	}
@@ -95,6 +95,34 @@ func readQuestionList(u string) (tab []*questionListTab, err error) {
 	defer rows.Close()
 
 	tab, err = joinQuestionList(rows)
+	return
+
+}
+
+// readQuestion 读取指定问题。
+// i => 问题ID
+func readQuestion(i uint32) (data *questionListTab, err error) {
+
+	sq := fmt.Sprintf(
+		`SELECT problem_list.* FROM problem_list WHERE problem_list.id = %v`,
+		i,
+	)
+
+	row, err := db.Query(sq)
+	if err != nil {
+		return
+	}
+	defer row.Close()
+
+	if !row.Next() {
+		return
+	}
+	data = new(questionListTab)
+	err = row.Scan(&data.ID, &data.Question, &data.CreatorID, &data.Market)
+	if err != nil {
+		return
+	}
+
 	return
 
 }
