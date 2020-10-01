@@ -25,9 +25,23 @@ func startAPI() {
 	Question := app.Party("question")
 	{
 
+		// 获取问题列表
 		Question.Get("/{u}", func(c *context.Context) {
 
 			res, err := readQuestionList(c.Params().Get("u"))
+			if err != nil {
+				log.Error().Err(err).Msg("读取问题列表时出错")
+				return
+			}
+
+			_, _ = c.JSON(res)
+
+		})
+
+		// 获取问题市场
+		Question.Get("/market", func(c *context.Context) {
+
+			res, err := readQuestionMarket()
 			if err != nil {
 				log.Error().Err(err).Msg("读取问题列表时出错")
 				return
