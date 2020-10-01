@@ -35,10 +35,10 @@ func expiredQuestion(groupID uint64, aid uint64) bool {
 }
 
 // 新建问题, 返回是否新建成功
-func createQuestion(groupID uint64, aid uint64) bool {
+func createQuestion(groupID uint64, q *Question) bool {
 
-	if v, ok := questionPool[groupID]; !ok {
-		v.QuestionID = aid
+	if _, ok := questionPool[groupID]; !ok {
+		questionPool[groupID] = *q
 		return true
 	} else {
 		return false
@@ -47,7 +47,13 @@ func createQuestion(groupID uint64, aid uint64) bool {
 }
 
 // uploadUserAnswer 上报用户答案
-func uploadUserAnswer(ans *Answer) {}
+func uploadUserAnswer(groupId uint64, ans *Answer) {
+
+	if v, ok := questionPool[groupId]; ok {
+		v.AnsweredUsers = append(v.AnsweredUsers, *ans)
+		// TODO: 记得再上报给 Web 端
+	}
+}
 
 // handleAnswer 处理消息中可能存在的答案
 func handleAnswer(m *QQMsg) {
@@ -56,7 +62,7 @@ func handleAnswer(m *QQMsg) {
 
 	if question, ok := questionPool[groupId]; ok {
 		if ans, ok := parseAnswer(m, question.QuestionID); ok {
-			uploadUserAnswer(ans)
+			uploadUserAnswer(m.Group.ID, ans)
 		}
 	}
 
