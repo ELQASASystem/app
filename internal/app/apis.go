@@ -123,11 +123,10 @@ func startAPI() {
 
 		})
 
-		// 新增答题
+		// 新增问题
 		Question.Get("/add/{question}/{creator_id}/{market}", func(c *context.Context) {
 
 			pa := c.Params()
-
 			err := writeQuestionList(&questionListTab{
 				Question:  pa.Get("question"),
 				CreatorID: pa.Get("creator_id"),
@@ -138,6 +137,43 @@ func startAPI() {
 				return
 			}
 
+			_, _ = c.JSON(iris.Map{"message": "yes"})
+
+		})
+
+		// 发布问题
+		Question.Get("/publish/{question_id}", func(c *context.Context) {
+
+			pa := c.Params()
+			groupID, err := pa.GetUint64("question_id")
+			if err != nil {
+				log.Error().Err(err).Msg("解析群号失败")
+			}
+
+			q := questionPool[groupID]
+
+			publishQuestion(&q)
+			_, _ = c.JSON(iris.Map{"message": "yes"})
+
+		})
+
+		// 删除问题
+		Question.Get("/delete/{question_id}/{id}", func(c *context.Context) {
+
+			pa := c.Params()
+
+			groupID, err := pa.GetUint64("question_id")
+			if err != nil {
+				log.Error().Err(err).Msg("解析群号失败")
+			}
+
+			id, err1 := pa.GetUint64("id")
+			if err1 != nil {
+				log.Error().Err(err1).Msg("解析问题ID失败")
+			}
+
+			// TODO: 调用数据库删除
+			expiredQuestion(groupID, id)
 			_, _ = c.JSON(iris.Map{"message": "yes"})
 
 		})
@@ -155,34 +191,16 @@ func startAPI() {
 
 		})
 
-		Question.Get("/delete/{group_id}/{id}", func(c *context.Context) {
-			pa := c.Params()
+	}
 
-			groupID, err := pa.GetUint64("group_id")
-			if err != nil {
-				log.Error().Err(err).Msg("解析群号失败")
-			}
+	Answer := app.Party("answer")
+	{
 
-			id, err1 := pa.GetUint64("id")
-			if err1 != nil {
-				log.Error().Err(err1).Msg("解析问题ID失败")
-			}
+		// 获取答题列表
+		Answer.Get("/list/{question_id}", func(c *context.Context) {
 
-			// TODO: 调用数据库删除
-			expiredQuestion(groupID, id)
-		})
+			// TODO 数据库拉取
 
-		Question.Get("/publish/{group_id}", func(c *context.Context) {
-			pa := c.Params()
-
-			groupID, err := pa.GetUint64("group_id")
-			if err != nil {
-				log.Error().Err(err).Msg("解析群号失败")
-			}
-
-			q := questionPool[groupID]
-
-			publishQuestion(&q)
 		})
 
 	}
