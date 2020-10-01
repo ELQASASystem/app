@@ -1,9 +1,12 @@
 package class
 
 import (
+	"strings"
+
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"github.com/rs/zerolog/log"
+	"github.com/unidoc/unioffice/document"
 )
 
 // startAPI 开启 API 服务
@@ -88,7 +91,7 @@ func startAPI() {
 
 			res, err := readQuestionList(c.Params().Get("u"))
 			if err != nil {
-				log.Error().Err(err).Msg("读取问题列表时出错")
+				log.Error().Err(err).Msg("读取问题列表失败")
 				return
 			}
 
@@ -101,11 +104,55 @@ func startAPI() {
 
 			res, err := readQuestionMarket()
 			if err != nil {
-				log.Error().Err(err).Msg("读取问题列表时出错")
+				log.Error().Err(err).Msg("读取问题列表失败")
 				return
 			}
 
 			_, _ = c.JSON(res)
+
+		})
+
+	}
+
+	Upload := app.Party("upload")
+	{
+
+		/*
+			Upload.Post("/docx", func(c *context.Context) {
+
+				c.SetMaxRequestBodySize(10485760) // 10MiB
+
+					file, _, err := c.FormFile("file")
+					if err != nil {
+						log.Error().Err(err).Msg("处理文件上传失败")
+						return
+					}
+
+
+			})
+		*/
+
+		Upload.Get("/docx/parse/{p}", func(c *context.Context) {
+
+			doc, err := document.Open("assets/temp/userUpload/" + c.Params().Get("p"))
+			if err != nil {
+				log.Error().Err(err).Msg("打开 Docx 失败")
+				return
+			}
+
+			var data []string
+			for _, v := range doc.Paragraphs() {
+
+				var data0 []string
+				for _, vv := range v.Runs() {
+					data0 = append(data0, vv.Text())
+				}
+
+				data = append(data, strings.Join(data0, ""))
+
+			}
+
+			_, _ = c.JSON(data)
 
 		})
 

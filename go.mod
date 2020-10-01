@@ -13,5 +13,6 @@ require (
 	github.com/onsi/gomega v1.10.2 // indirect
 	github.com/rs/zerolog v1.20.0
 	github.com/smartystreets/goconvey v1.6.4 // indirect
+	github.com/unidoc/unioffice v1.5.1
 	github.com/yudai/pp v2.0.1+incompatible // indirect
 )
