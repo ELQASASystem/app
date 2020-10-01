@@ -23,6 +23,29 @@ func startAPI() {
 
 	}
 
+	Login := app.Party("sign")
+	{
+
+		Login.Get("in/{u}/{p}", func(c *context.Context) {
+
+			pa := c.Params()
+			res, err := readAccountsList(pa.Get("u"))
+			if err != nil {
+				log.Error().Err(err).Msg("校验密码失败")
+				return
+			}
+
+			if pa.Get("p") != res.Password {
+				_, _ = c.JSON(iris.Map{"message": "no"})
+				return
+			}
+
+			_, _ = c.JSON(iris.Map{"message": "yes"})
+
+		})
+
+	}
+
 	Group := app.Party("group")
 	{
 

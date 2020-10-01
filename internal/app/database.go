@@ -10,10 +10,16 @@ import (
 type (
 	// questionListTab 问题列表表
 	questionListTab struct {
-		ID        string `json:"id"`         // 唯一标识符
+		ID        uint32 `json:"id"`         // 唯一标识符
 		Question  string `json:"question"`   // 问题
 		CreatorID string `json:"creator_id"` // 创建者
 		Market    bool   `json:"market"`     // 进入市场
+	}
+
+	// accountsList 帐号列表表
+	accountsList struct {
+		ID       string `json:"id"`       // 唯一标识符
+		Password string `json:"password"` // 密码
 	}
 )
 
@@ -30,6 +36,34 @@ func connectDB(u string) (err error) {
 	err = db.Ping()
 	if err != nil {
 		return err
+	}
+
+	return
+
+}
+
+// readAccountsList 读取 accountsList 表。
+// u => 用户名
+func readAccountsList(u string) (data *accountsList, err error) {
+
+	sq := fmt.Sprintf(
+		`SELECT accounts_list.* FROM accounts_list WHERE accounts_list.id = "%v"`,
+		u,
+	)
+
+	row, err := db.Query(sq)
+	if err != nil {
+		return
+	}
+	defer row.Close()
+
+	if !row.Next() {
+		return
+	}
+	data = new(accountsList)
+	err = row.Scan(&data.ID, &data.Password)
+	if err != nil {
+		return
 	}
 
 	return
