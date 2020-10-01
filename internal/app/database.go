@@ -22,8 +22,8 @@ type (
 		Password string `json:"password"` // 密码
 	}
 
-	// answerList 答题列表表
-	answerList struct {
+	// answerListTab 答题列表表
+	answerListTab struct {
 		SHA1       string `json:"sha1"`        // 散列值
 		QuestionID uint32 `json:"question_id"` // 问题唯一标识符
 		AnswererID uint64 `json:"answerer_id"` // 回答者
@@ -53,7 +53,7 @@ func connectDB(u string) (err error) {
 
 // readAccountsList 读取 accountsListTab 表。
 // u => 用户名
-func readAccountsList(u string) (data *accountsListTab, err error) {
+func readAccountsList(u string) (tab *accountsListTab, err error) {
 
 	sq := fmt.Sprintf(
 		`SELECT accounts_list.* FROM accounts_list WHERE accounts_list.id = "%v"`,
@@ -69,8 +69,8 @@ func readAccountsList(u string) (data *accountsListTab, err error) {
 	if !row.Next() {
 		return
 	}
-	data = new(accountsListTab)
-	err = row.Scan(&data.ID, &data.Password)
+	tab = new(accountsListTab)
+	err = row.Scan(&tab.ID, &tab.Password)
 	if err != nil {
 		return
 	}
@@ -154,8 +154,42 @@ func writeQuestionList(d *questionListTab) (err error) {
 
 }
 
-// writeAnswerList 写入 answerList 表
-func writeAnswerList(d *answerList) (err error) {
+// readAnswerList 写入 answerListTab 表
+func readAnswerList(i uint32) (tab []*answerListTab, err error) {
+
+	sq := fmt.Sprintf(
+		`SELECT answer_list.* FROM answer_list WHERE answer_list.question_id = %v ORDER BY answer_list.time DESC`,
+		i,
+	)
+
+	rows, err := db.Query(sq)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	var data []*answerListTab
+	for rows.Next() {
+
+		data0 := new(answerListTab)
+		err = rows.Scan(
+			&data0.SHA1, &data0.QuestionID, &data0.AnswererID, &data0.Answer, &data0.Time,
+		)
+		if err != nil {
+			return
+		}
+
+		data = append(data, data0)
+
+	}
+
+	tab = data
+	return
+
+}
+
+// writeAnswerList 写入 answerListTab 表
+func writeAnswerList(d *answerListTab) (err error) {
 
 	i, err := db.Prepare(`INSERT INTO answer_list (sha1, question_id, answerer_id, answer, time) VALUES (?, ?, ?, ?, ?)`)
 	if err != nil {
