@@ -34,18 +34,6 @@ func expiredQuestion(groupID uint64, aid uint64) bool {
 
 }
 
-// 新建问题, 返回是否新建成功
-func createQuestion(groupID uint64, q *Question) bool {
-
-	if _, ok := questionPool[groupID]; !ok {
-		questionPool[groupID] = *q
-		return true
-	} else {
-		return false
-	}
-
-}
-
 func publishQuestion(q *Question) bool {
 	if q.TargetGroup != 0 {
 		classBot.SendGroupMsg(NewText(q.QuestionText).To(q.TargetGroup))

@@ -26,6 +26,7 @@ func startAPI() {
 	Login := app.Party("sign")
 	{
 
+		// 登录
 		Login.Get("in/{u}/{p}", func(c *context.Context) {
 
 			pa := c.Params()
@@ -119,6 +120,25 @@ func startAPI() {
 			}
 
 			_, _ = c.JSON(res)
+
+		})
+
+		// 新增答题
+		Question.Get("/add/{question}/{creator_id}/{market}", func(c *context.Context) {
+
+			pa := c.Params()
+
+			err := writeQuestionList(&questionListTab{
+				Question:  pa.Get("question"),
+				CreatorID: pa.Get("creator_id"),
+				Market:    pa.GetBoolDefault("market", false),
+			})
+			if err != nil {
+				log.Error().Err(err).Msg("新增答题失败")
+				return
+			}
+
+			_, _ = c.JSON(iris.Map{"message": "yes"})
 
 		})
 
