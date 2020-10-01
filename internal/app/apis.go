@@ -199,7 +199,19 @@ func startAPI() {
 		// 获取答题列表
 		Answer.Get("/list/{question_id}", func(c *context.Context) {
 
-			// TODO 数据库拉取
+			i, err := c.Params().GetUint32("question_id")
+			if err != nil {
+				log.Error().Err(err).Msg("解析问题ID失败")
+				return
+			}
+
+			res, err := readAnswerList(i)
+			if err != nil {
+				log.Error().Err(err).Msg("读取答题列表失败")
+				return
+			}
+
+			_, _ = c.JSON(res)
 
 		})
 
