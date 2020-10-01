@@ -11,7 +11,6 @@ func startAPI() {
 
 	app := iris.New()
 
-	// hello
 	Hello := app.Party("hello")
 	{
 
@@ -21,7 +20,35 @@ func startAPI() {
 
 	}
 
-	// question
+	Group := app.Party("group")
+	{
+
+		// 获取群列表
+		Group.Get("/", func(c *context.Context) {
+
+			err := classBot.c.ReloadGroupList()
+			if err != nil {
+				log.Error().Err(err).Msg("重新载入群列表失败")
+				return
+			}
+
+			type groupList struct {
+				ID       uint64 `json:"id"`
+				Name     string `json:"name"`
+				MemCount uint16 `json:"mem_count"`
+			}
+
+			var data []groupList
+			for _, v := range classBot.c.GroupList {
+				data = append(data, groupList{uint64(v.Uin), v.Name, v.MemberCount})
+			}
+
+			_, _ = c.JSON(data)
+
+		})
+
+	}
+
 	Question := app.Party("question")
 	{
 
