@@ -1,6 +1,8 @@
 package class
 
 import (
+	"strconv"
+
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"github.com/rs/zerolog/log"
@@ -24,7 +26,7 @@ func startAPI() {
 	{
 
 		// 获取群列表
-		Group.Get("/", func(c *context.Context) {
+		Group.Get("/list", func(c *context.Context) {
 
 			err := classBot.c.ReloadGroupList()
 			if err != nil {
@@ -33,14 +35,45 @@ func startAPI() {
 			}
 
 			type groupList struct {
-				ID       uint64 `json:"id"`
-				Name     string `json:"name"`
-				MemCount uint16 `json:"mem_count"`
+				ID       uint64 `json:"id"`        // 群号
+				Name     string `json:"name"`      // 群名
+				MemCount uint16 `json:"mem_count"` // 群成员数
 			}
 
 			var data []groupList
 			for _, v := range classBot.c.GroupList {
 				data = append(data, groupList{uint64(v.Uin), v.Name, v.MemberCount})
+			}
+
+			_, _ = c.JSON(data)
+
+		})
+
+		// 获取群成员
+		Group.Get("/mem/{i}", func(c *context.Context) {
+
+			i, err := strconv.ParseInt(c.Params().Get("i"), 10, 64)
+			if err != nil {
+				log.Error().Err(err).Msg("解析群号失败")
+			}
+
+			type memList struct {
+				ID   uint64 `json:"id"`   // 群员帐号
+				Name string `json:"name"` // 群员名片
+			}
+
+			var data []memList
+			for _, v := range classBot.c.FindGroupByUin(i).Members {
+
+				var name string
+				if n := v.CardName; n != "" {
+					name = n
+				} else {
+					name = v.Nickname
+				}
+
+				data = append(data, memList{uint64(v.Uin), name})
+
 			}
 
 			_, _ = c.JSON(data)
@@ -53,7 +86,7 @@ func startAPI() {
 	{
 
 		// 获取问题列表
-		Question.Get("/{u}", func(c *context.Context) {
+		Question.Get("/list/{u}", func(c *context.Context) {
 
 			res, err := readQuestionList(c.Params().Get("u"))
 			if err != nil {
