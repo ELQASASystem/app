@@ -39,7 +39,6 @@ func createQuestion(groupID uint64, q *Question) bool {
 
 	if _, ok := questionPool[groupID]; !ok {
 		questionPool[groupID] = *q
-		publishQuestion(q)
 		return true
 	} else {
 		return false

@@ -85,7 +85,7 @@ func readQuestionList(u string) (tab []*questionListTab, err error) {
 	}
 	defer rows.Close()
 
-	tab, err = writeQuestionList(rows)
+	tab, err = joinQuestionList(rows)
 	return
 
 }
@@ -99,13 +99,13 @@ func readQuestionMarket() (tab []*questionListTab, err error) {
 	}
 	defer rows.Close()
 
-	tab, err = writeQuestionList(rows)
+	tab, err = joinQuestionList(rows)
 	return
 
 }
 
-// writeQuestionList 复用
-func writeQuestionList(rows *sql.Rows) (tab []*questionListTab, err error) {
+// joinQuestionList 复用
+func joinQuestionList(rows *sql.Rows) (tab []*questionListTab, err error) {
 
 	var data []*questionListTab
 	for rows.Next() {
@@ -123,6 +123,24 @@ func writeQuestionList(rows *sql.Rows) (tab []*questionListTab, err error) {
 	}
 
 	tab = data
+	return
+
+}
+
+// writeQuestionList 写入 questionList 表
+func writeQuestionList(d *questionListTab) (err error) {
+
+	i, err := db.Prepare(`INSERT INTO problem_list (id, question, creator_id, market) VALUES (?, ?, ?, ?)`)
+	if err != nil {
+		return
+	}
+	defer i.Close()
+
+	_, err = i.Exec(nil, d.Question, d.CreatorID, d.Market)
+	if err != nil {
+		return
+	}
+
 	return
 
 }
