@@ -155,6 +155,10 @@ func startAPI() {
 
 		})
 
+		/*Question.Get("/delete/{id}", func(c *context.Context) {
+
+		} */
+
 	}
 
 	Upload := app.Party("upload")

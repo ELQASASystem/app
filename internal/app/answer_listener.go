@@ -63,30 +63,3 @@ func handleAnswer(m *QQMsg) {
 	}
 
 }
-
-// parseAnswer 解析消息中的答案, 并返回 Answer 结构体
-func parseAnswer(m *QQMsg, aid uint64) (*Answer, bool) {
-
-	s := chainToString(m.Chain)
-
-	if isValidAnswer(s) && !isAnswered(m.Group.ID, m.User.ID) {
-		return &Answer{s, m.User.ID, aid}, true
-	} else {
-		return nil, false
-	}
-
-}
-
-// isAnswered 检查对应 QQ 号用户是否已经答题过了
-func isAnswered(gid uint64, qid uint64) bool {
-
-	if question, ok := questionPool[gid]; ok {
-		for _, user := range question.AnsweredUsers {
-			if user.Sender == qid {
-				return true
-			}
-		}
-	}
-	return false
-
-}
