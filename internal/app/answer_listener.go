@@ -73,7 +73,7 @@ func parseAnswer(m *QQMsg, aid uint64) (*Answer, bool) {
 
 	s := chainToString(m.Chain)
 
-	if isLegitAnswer(s) && isAnswered(m.Group.ID, m.User.ID) {
+	if isValidAnswer(s) && !isAnswered(m.Group.ID, m.User.ID) {
 		return &Answer{s, m.User.ID, aid}, true
 	} else {
 		return nil, false
