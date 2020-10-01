@@ -23,9 +23,9 @@ type Answer struct {
 }
 
 // 注销问题, 返回是否注销成功
-func expiredQuestion(groupID uint64, aid uint64) bool {
+func expiredQuestion(qid uint64) bool {
 
-	if v, i, ok := getQuestionByGroup(groupID); ok && v.QuestionID == aid {
+	if v, i, ok := getQuestionByID(qid); ok && v.QuestionID == qid {
 		questionPool = append(questionPool[:i], questionPool[i+1:]...)
 		return true
 	} else {

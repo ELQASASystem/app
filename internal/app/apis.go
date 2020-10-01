@@ -145,35 +145,32 @@ func startAPI() {
 		Question.Get("/publish/{question_id}", func(c *context.Context) {
 
 			pa := c.Params()
-			groupID, err := pa.GetUint64("question_id")
+			aid, err := pa.GetUint64("question_id")
 			if err != nil {
-				log.Error().Err(err).Msg("解析群号失败")
+				log.Error().Err(err).Msg("解析问题失败")
 			}
 
-			q := questionPool[groupID]
-
-			publishQuestion(&q)
-			_, _ = c.JSON(iris.Map{"message": "yes"})
+			if q, _, ok := getQuestionByID(aid); ok {
+				publishQuestion(q)
+				_, _ = c.JSON(iris.Map{"message": "yes"})
+			} else {
+				_, _ = c.JSON(iris.Map{"message": "no"})
+			}
 
 		})
 
 		// 删除问题
-		Question.Get("/delete/{question_id}/{id}", func(c *context.Context) {
+		Question.Get("/delete/{question_id}", func(c *context.Context) {
 
 			pa := c.Params()
 
-			groupID, err := pa.GetUint64("question_id")
+			qid, err := pa.GetUint64("question_id")
 			if err != nil {
-				log.Error().Err(err).Msg("解析群号失败")
-			}
-
-			id, err1 := pa.GetUint64("id")
-			if err1 != nil {
-				log.Error().Err(err1).Msg("解析问题ID失败")
+				log.Error().Err(err).Msg("解析问题ID失败")
 			}
 
 			// TODO: 调用数据库删除
-			expiredQuestion(groupID, id)
+			expiredQuestion(qid)
 			_, _ = c.JSON(iris.Map{"message": "yes"})
 
 		})

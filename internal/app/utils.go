@@ -40,7 +40,7 @@ func parseAnswer(m *QQMsg, aid uint64) (*Answer, bool) {
 // isAnswered 检查对应 QQ 号用户是否已经答题过了
 func isAnswered(aid uint64, qid uint64) bool {
 
-	if question, ok := getQuestionByID(aid); ok {
+	if question, _, ok := getQuestionByID(aid); ok {
 		for _, user := range question.AnsweredUsers {
 			if user.Sender == qid {
 				return true
@@ -52,13 +52,13 @@ func isAnswered(aid uint64, qid uint64) bool {
 }
 
 // getQuestionByID 通过问题 ID 获取问题实体
-func getQuestionByID(aid uint64) (*Question, bool) {
-	for _, question := range questionPool {
+func getQuestionByID(aid uint64) (*Question, int, bool) {
+	for i, question := range questionPool {
 		if question.QuestionID == aid {
-			return &question, true
+			return &question, i, true
 		}
 	}
-	return nil, false
+	return nil, 0, false
 }
 
 // getQuestionByGroup 通过群号获取问题实体
