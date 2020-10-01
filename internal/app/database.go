@@ -73,7 +73,7 @@ func readQuestionMarket() (tab []*questionListTab, err error) {
 // writeQuestionList 复用
 func writeQuestionList(rows *sql.Rows) (tab []*questionListTab, err error) {
 
-	data := make([]*questionListTab, 0)
+	var data []*questionListTab
 	for rows.Next() {
 
 		data0 := new(questionListTab)
