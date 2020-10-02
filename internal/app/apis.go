@@ -123,6 +123,25 @@ func startAPI() {
 
 		})
 
+		// 获取问题
+		Question.Get("/a/{i}", func(c *context.Context) {
+
+			i, err := c.Params().GetUint32("i")
+			if err != nil {
+				log.Error().Err(err).Msg("解析问题ID失败")
+				return
+			}
+
+			res, err := readQuestion(i)
+			if err != nil {
+				log.Error().Err(err).Msg("读取问题失败")
+				return
+			}
+
+			_, _ = c.JSON(res)
+
+		})
+
 		// 新增问题
 		Question.Get("/add/{question}/{creator_id}/{market}", func(c *context.Context) {
 
