@@ -3,6 +3,8 @@ package class
 import (
 	"strings"
 
+	"github.com/ELQASASystem/app/internal/app/database"
+
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"github.com/rs/zerolog/log"
@@ -30,7 +32,7 @@ func startAPI() {
 		Login.Get("in/{u}/{p}", func(c *context.Context) {
 
 			pa := c.Params()
-			res, err := readAccountsList(pa.Get("u"))
+			res, err := database.Class.Account.ReadAccountsList(pa.Get("u"))
 			if err != nil {
 				log.Error().Err(err).Msg("校验密码失败")
 				return
@@ -113,7 +115,7 @@ func startAPI() {
 		// 获取问题列表
 		Question.Get("/list/{u}", func(c *context.Context) {
 
-			res, err := readQuestionList(c.Params().Get("u"))
+			res, err := database.Class.Question.ReadQuestionList(c.Params().Get("u"))
 			if err != nil {
 				log.Error().Err(err).Msg("读取问题列表失败")
 				return
@@ -132,7 +134,7 @@ func startAPI() {
 				return
 			}
 
-			res, err := readQuestion(i)
+			res, err := database.Class.Question.ReadQuestion(i)
 			if err != nil {
 				log.Error().Err(err).Msg("读取问题失败")
 				return
@@ -146,7 +148,7 @@ func startAPI() {
 		Question.Get("/add/{question}/{creator_id}/{market}", func(c *context.Context) {
 
 			pa := c.Params()
-			err := writeQuestionList(&questionListTab{
+			err := database.Class.Question.WriteQuestionList(&database.QuestionListTab{
 				Question:  pa.Get("question"),
 				CreatorID: pa.Get("creator_id"),
 				Market:    pa.GetBoolDefault("market", false),
@@ -169,7 +171,7 @@ func startAPI() {
 				log.Error().Err(err).Msg("解析问题失败")
 			}
 
-			if data, err := readQuestion(qid); data != nil {
+			if data, err := database.Class.Question.ReadQuestion(qid); data != nil {
 				if err != nil {
 					log.Error().Err(err).Msg("读取问题失败")
 					return
@@ -203,33 +205,9 @@ func startAPI() {
 		// 获取问题市场
 		Question.Get("/market", func(c *context.Context) {
 
-			res, err := readQuestionMarket()
+			res, err := database.Class.Question.ReadQuestionMarket()
 			if err != nil {
 				log.Error().Err(err).Msg("读取问题列表失败")
-				return
-			}
-
-			_, _ = c.JSON(res)
-
-		})
-
-	}
-
-	Answer := app.Party("answer")
-	{
-
-		// 获取答题列表
-		Answer.Get("/list/{question_id}", func(c *context.Context) {
-
-			i, err := c.Params().GetUint32("question_id")
-			if err != nil {
-				log.Error().Err(err).Msg("解析问题ID失败")
-				return
-			}
-
-			res, err := readAnswerList(i)
-			if err != nil {
-				log.Error().Err(err).Msg("读取答题列表失败")
 				return
 			}
 
@@ -257,6 +235,7 @@ func startAPI() {
 			})
 		*/
 
+		// 解析 docx 文件
 		Upload.Get("/docx/parse/{p}", func(c *context.Context) {
 
 			doc, err := document.Open("assets/temp/userUpload/" + c.Params().Get("p"))

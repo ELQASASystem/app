@@ -2,6 +2,7 @@ package class
 
 import (
 	"github.com/ELQASASystem/app/configs"
+	"github.com/ELQASASystem/app/internal/app/database"
 	"github.com/rs/zerolog/log"
 )
 
@@ -18,7 +19,7 @@ func New() {
 
 	classBot = r
 
-	if connectDB(c.DatabaseUrl) != nil {
+	if database.Class.ConnectDB(c.DatabaseUrl) != nil {
 		log.Panic().Msg("数据库连接失败")
 	}
 	r.regEventHandle()
