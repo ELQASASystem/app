@@ -84,7 +84,7 @@ func readAccountsList(u string) (data *accountsListTab, err error) {
 func readQuestionList(u string) (tab []*questionListTab, err error) {
 
 	sq := fmt.Sprintf(
-		`SELECT problem_list.* FROM problem_list WHERE problem_list.creator_id = "%v" ORDER BY problem_list.id DESC`,
+		`SELECT question_list.* FROM question_list WHERE question_list.creator_id = "%v" ORDER BY question_list.id DESC`,
 		u,
 	)
 
@@ -104,7 +104,7 @@ func readQuestionList(u string) (tab []*questionListTab, err error) {
 func readQuestion(i uint32) (data *questionListTab, err error) {
 
 	sq := fmt.Sprintf(
-		`SELECT problem_list.* FROM problem_list WHERE problem_list.id = %v`,
+		`SELECT question_list.* FROM question_list WHERE question_list.id = %v`,
 		i,
 	)
 
@@ -130,7 +130,7 @@ func readQuestion(i uint32) (data *questionListTab, err error) {
 // readQuestionMarket 读取 questionListTab 表[市场方]
 func readQuestionMarket() (tab []*questionListTab, err error) {
 
-	rows, err := db.Query(`SELECT problem_list.* FROM problem_list WHERE problem_list.market = true ORDER BY problem_list.id DESC`)
+	rows, err := db.Query(`SELECT question_list.* FROM question_list WHERE question_list.market = true ORDER BY question_list.id DESC`)
 	if err != nil {
 		return
 	}
@@ -167,7 +167,7 @@ func joinQuestionList(rows *sql.Rows) (tab []*questionListTab, err error) {
 // writeQuestionList 写入 questionListTab 表
 func writeQuestionList(d *questionListTab) (err error) {
 
-	i, err := db.Prepare(`INSERT INTO problem_list (id, question, creator_id, market) VALUES (?, ?, ?, ?)`)
+	i, err := db.Prepare(`INSERT INTO question_list (id, question, creator_id, market) VALUES (?, ?, ?, ?)`)
 	if err != nil {
 		return
 	}
