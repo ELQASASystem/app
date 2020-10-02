@@ -1,5 +1,7 @@
 package class
 
+import "github.com/rs/zerolog/log"
+
 var (
 	// 答题数据储存池
 	// 如需获取对应问题, 请使用 getQuestionByID 或 getQuestionByGroup 方法
@@ -48,6 +50,14 @@ func uploadUserAnswer(groupId uint64, ans *Answer) {
 
 	if v, _, ok := getQuestionByGroup(groupId); ok {
 		v.AnsweredUsers = append(v.AnsweredUsers, *ans)
+
+		// 检查是否有客户端正在监听此问题
+		if conn, ok := getConnByQID(uint32(v.QuestionID)); ok {
+			if err := conn.conn.WriteMessage(conn.mt, hashSHA1(v.AnsweredUsers)); err != nil {
+				log.Warn().Err(err).Msg("上报答案失败")
+			}
+		}
+
 		// TODO: 记得再上报给 Web 端
 	}
 }

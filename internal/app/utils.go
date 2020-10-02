@@ -72,11 +72,11 @@ func getQuestionByGroup(qid uint64) (*Question, int, bool) {
 }
 
 // hashSHA1 将答题数据散列
-func hashSHA1(data *Question) string {
+func hashSHA1(data interface{}) []byte {
 
 	s := sha1.New()
 
 	s.Write([]byte(fmt.Sprintf("%v", data)))
 
-	return fmt.Sprintf("%x", s.Sum(nil))
+	return s.Sum(nil)
 }
