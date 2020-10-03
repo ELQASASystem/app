@@ -144,14 +144,25 @@ func startAPI() {
 					return
 				}
 
+				type Question struct {
+					*database.QuestionListTab
+					Answer []*database.AnswerListTab `json:"answer"`
+				}
+
 				res, err := database.Class.Question.ReadQuestion(i)
 				if err != nil {
 					log.Error().Err(err).Msg("读取问题失败")
 					return
 				}
 
+				res2, err := database.Class.Answer.ReadAnswerList(i)
+				if err != nil {
+					log.Error().Err(err).Msg("读取回答失败")
+					return
+				}
+
 				c.Header("Access-Control-Allow-Origin", "*")
-				_, _ = c.JSON(res)
+				_, _ = c.JSON(Question{res, res2})
 
 			})
 
