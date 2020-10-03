@@ -248,6 +248,18 @@ func startAPI() {
 		Upload := API.Party("upload")
 		{
 
+			// 上传 Docx 前预检请求
+			Upload.Options("/docx", func(c *context.Context) {
+
+				c.Header("Access-Control-Allow-Origin", "*")
+				c.Header("Access-Control-Allow-Headers", "Origin, x-requested-with, Content-Type, Accept")
+				c.Header("Access-Control-Allow-Methods", "POST")
+
+				_, _ = c.HTML("")
+
+			})
+
+			// 上传 Docx
 			Upload.Post("/docx", func(c *context.Context) {
 
 				c.SetMaxRequestBodySize(10485760) // 10MiB
@@ -265,13 +277,14 @@ func startAPI() {
 
 				encodedName = string(hashSHA1(fileHeader.Filename + " " + uploadTime.String()))
 
-				dest := filepath.Join("assets/temp/userUpload", encodedName)
+				dest := filepath.Join("assets/temp/userUpload/", encodedName)
 
 				if _, err := c.SaveFormFile(fileHeader, dest); err != nil {
 					log.Error().Err(err).Msg("保存上传文件失败")
 					return
 				}
 
+				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(iris.Map{"fileName": encodedName})
 			})
 
