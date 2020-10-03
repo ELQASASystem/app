@@ -1,6 +1,7 @@
 package class
 
 import (
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -287,6 +288,13 @@ func startAPI() {
 
 				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(iris.Map{"fileName": encodedName})
+
+				// 在一分钟后删除该文件
+				time.AfterFunc(time.Minute, func() {
+					if err := os.Remove(dest); err != nil {
+						log.Error().Err(err).Msg("删除文件时发生了意外")
+					}
+				})
 			})
 
 			// 解析 docx 文件
