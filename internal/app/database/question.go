@@ -18,7 +18,6 @@ func (q Question) ReadQuestionList(u string) (tab []*QuestionListTab, err error)
 	if err != nil {
 		return
 	}
-	defer rows.Close()
 
 	tab, err = joinQuestionList(rows)
 	return
@@ -45,7 +44,7 @@ func (q Question) ReadQuestion(i uint32) (data *QuestionListTab, err error) {
 		return
 	}
 	data = new(QuestionListTab)
-	err = row.Scan(&data.ID, &data.Question, &data.CreatorID, &data.Market)
+	err = row.Scan(&data.ID, &data.Question, &data.CreatorID, &data.Status, &data.Market)
 	if err != nil {
 		return
 	}
@@ -64,7 +63,6 @@ func (q Question) ReadQuestionMarket() (tab []*QuestionListTab, err error) {
 	if err != nil {
 		return
 	}
-	defer rows.Close()
 
 	tab, err = joinQuestionList(rows)
 	return
@@ -74,12 +72,13 @@ func (q Question) ReadQuestionMarket() (tab []*QuestionListTab, err error) {
 // joinQuestionList 复用
 func joinQuestionList(rows *sql.Rows) (tab []*QuestionListTab, err error) {
 
+	defer rows.Close()
 	var data []*QuestionListTab
 	for rows.Next() {
 
 		data0 := new(QuestionListTab)
 		err = rows.Scan(
-			&data0.ID, &data0.Question, &data0.CreatorID, &data0.Market,
+			&data0.ID, &data0.Question, &data0.CreatorID, &data0.Status, &data0.Market,
 		)
 		if err != nil {
 			return
@@ -106,7 +105,7 @@ func (q Question) WriteQuestionList(tab *QuestionListTab) (err error) {
 	}
 	defer i.Close()
 
-	_, err = i.Exec(nil, tab.Question, tab.CreatorID, tab.Market) // ID 自增无需输入
+	_, err = i.Exec(nil, tab.Question, tab.CreatorID, tab.Status, tab.Market) // ID 自增无需输入
 	if err != nil {
 		return
 	}

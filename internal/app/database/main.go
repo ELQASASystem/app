@@ -43,6 +43,7 @@ type (
 		ID        uint32 `json:"id"`         // 唯一标识符
 		Question  string `json:"question"`   // 问题
 		CreatorID string `json:"creator_id"` // 创建者
+		Status    uint8  `json:"status"`     // 状态
 		Market    bool   `json:"market"`     // 进入市场
 	}
 
