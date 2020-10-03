@@ -1,7 +1,9 @@
 package class
 
 import (
+	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/ELQASASystem/app/internal/app/database"
 
@@ -235,20 +237,32 @@ func startAPI() {
 		Upload := API.Party("upload")
 		{
 
-			/*
-				Upload.Post("/docx", func(c *context.Context) {
+			Upload.Post("/docx", func(c *context.Context) {
 
-					c.SetMaxRequestBodySize(10485760) // 10MiB
+				c.SetMaxRequestBodySize(10485760) // 10MiB
 
-						file, _, err := c.FormFile("file")
-						if err != nil {
-							log.Error().Err(err).Msg("处理文件上传失败")
-							return
-						}
+				_, fileHeader, err := c.FormFile("file")
 
+				encodedName := ""
 
-				})
-			*/
+				if err != nil {
+					log.Error().Err(err).Msg("处理文件上传失败")
+					return
+				}
+
+				uploadTime := time.Now()
+
+				encodedName = string(hashSHA1(fileHeader.Filename + " " + uploadTime.String()))
+
+				dest := filepath.Join("assets/temp/userUpload", encodedName)
+
+				if _, err := c.SaveFormFile(fileHeader, dest); err != nil {
+					log.Error().Err(err).Msg("保存上传文件失败")
+					return
+				}
+
+				_, _ = c.JSON(iris.Map{"fileName": encodedName})
+			})
 
 			// 解析 docx 文件
 			Upload.Get("/docx/parse/{p}", func(c *context.Context) {
