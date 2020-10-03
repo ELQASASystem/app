@@ -23,6 +23,7 @@ func startAPI() {
 		{
 
 			Hello.Get("/", func(c *context.Context) {
+				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(iris.Map{"message": "hello"})
 			})
 
@@ -46,6 +47,7 @@ func startAPI() {
 					return
 				}
 
+				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(iris.Map{"message": "yes"})
 
 			})
@@ -75,6 +77,7 @@ func startAPI() {
 					data = append(data, groupList{uint64(v.Uin), v.Name, v.MemberCount})
 				}
 
+				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(data)
 
 			})
@@ -106,6 +109,7 @@ func startAPI() {
 
 				}
 
+				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(data)
 
 			})
@@ -124,6 +128,7 @@ func startAPI() {
 					return
 				}
 
+				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(res)
 
 			})
@@ -143,6 +148,7 @@ func startAPI() {
 					return
 				}
 
+				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(res)
 
 			})
@@ -161,6 +167,7 @@ func startAPI() {
 					return
 				}
 
+				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(iris.Map{"message": "yes"})
 
 			})
@@ -182,8 +189,10 @@ func startAPI() {
 
 					publishQuestion(uint64(data.ID), data.Question)
 
+					c.Header("Access-Control-Allow-Origin", "*")
 					_, _ = c.JSON(iris.Map{"message": "yes"})
 				} else {
+					c.Header("Access-Control-Allow-Origin", "*")
 					_, _ = c.JSON(iris.Map{"message": "no"})
 				}
 
@@ -201,6 +210,8 @@ func startAPI() {
 
 				// TODO: 调用数据库删除 QJNKSM:这个先咕咕
 				expiredQuestion(qid)
+
+				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(iris.Map{"message": "yes"})
 
 			})
@@ -214,6 +225,7 @@ func startAPI() {
 					return
 				}
 
+				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(res)
 
 			})
@@ -259,6 +271,7 @@ func startAPI() {
 
 				}
 
+				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(data)
 
 			})
