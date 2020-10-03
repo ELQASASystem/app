@@ -105,7 +105,9 @@ func (q Question) WriteQuestionList(tab *QuestionListTab) (err error) {
 	}
 	defer i.Close()
 
-	_, err = i.Exec(nil, tab.Question, tab.CreatorID, tab.Status, tab.Market) // ID 自增无需输入
+	// ID 自增无需输入
+	// Status 默认为 0
+	_, err = i.Exec(nil, tab.Question, tab.CreatorID, 0, tab.Market)
 	if err != nil {
 		return
 	}
