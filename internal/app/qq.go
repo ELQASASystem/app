@@ -300,6 +300,19 @@ func (m *Message) AddAudio(p string) *Message {
 
 }
 
+// AddTTSAudio 添加 TTS 音频
+func (m *Message) AddTTSAudio(text string) *Message {
+	v, err := classBot.c.GetTts(text)
+
+	if err != nil {
+		log.Error().Err(err).Msg("转换文本为语音失败")
+		return m
+	}
+
+	m.chain.Append(&m2.VoiceElement{Data: v})
+	return m
+}
+
 // AddJSON 添加 JSON 卡片
 func (m *Message) AddJSON(s string) *Message { m.chain.Append(m2.NewLightApp(s)); return m }
 
