@@ -44,7 +44,9 @@ type (
 		Question  string `json:"question"`   // 问题
 		CreatorID string `json:"creator_id"` // 创建者
 		Status    uint8  `json:"status"`     // 状态
-		Market    bool   `json:"market"`     // 进入市场
+		Options   string `json:"options"`    // 选项
+		Key       string `json:"key"`        // 答案
+		Market    bool   `json:"market"`     // 存在市场
 	}
 
 	// AnswerListTab 回答
