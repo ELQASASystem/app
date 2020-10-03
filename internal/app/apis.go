@@ -254,32 +254,26 @@ func startAPI() {
 			Upload.Options("/docx", func(c *context.Context) {
 
 				c.Header("Access-Control-Allow-Origin", "*")
-				c.Header("Access-Control-Allow-Headers", "Origin, x-requested-with, Content-Type, Accept")
+				c.Header("Access-Control-Allow-Headers", "x-requested-with")
 				c.Header("Access-Control-Allow-Methods", "POST")
-
-				_, _ = c.HTML("")
 
 			})
 
 			// 上传 Docx
 			Upload.Post("/docx", func(c *context.Context) {
 
-				c.SetMaxRequestBodySize(10485760) // 10MiB
+				c.SetMaxRequestBodySize(10485760) // 限制最大上传大小为 10MiB
 
 				_, fileHeader, err := c.FormFile("file")
-
-				encodedName := ""
-
 				if err != nil {
-					log.Error().Err(err).Msg("处理文件上传失败")
+					log.Error().Err(err).Msg("文件上传失败")
 					return
 				}
 
-				uploadTime := time.Now().Unix()
-
-				encodedName = hashSHA1(fileHeader.Filename + strconv.FormatInt(uploadTime, 10))
-
+				encodedName := hashSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + ".docx"
 				dest := filepath.Join("assets/temp/userUpload/", encodedName)
+
+				log.Info().Str("文件名", encodedName).Msg("API：上传文件")
 
 				if _, err := c.SaveFormFile(fileHeader, dest); err != nil {
 					log.Error().Err(err).Msg("保存上传文件失败")
@@ -291,9 +285,12 @@ func startAPI() {
 
 				// 在一分钟后删除该文件
 				time.AfterFunc(time.Minute, func() {
+
+					log.Info().Str("文件名", encodedName).Msg("API：删除上传的文件")
 					if err := os.Remove(dest); err != nil {
 						log.Error().Err(err).Msg("删除文件时发生了意外")
 					}
+
 				})
 			})
 
