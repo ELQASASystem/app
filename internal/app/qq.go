@@ -264,6 +264,12 @@ func NewImage(p string) *Message { m := &Message{chain: m2.SendingMessage{}}; re
 // NewAudio 新建音频消息结构体
 func NewAudio(p string) *Message { m := &Message{chain: m2.SendingMessage{}}; return m.AddAudio(p) }
 
+// NewTTSAudio 新建文字转语音消息结构体
+func NewTTSAudio(t string) *Message {
+	m := &Message{chain: m2.SendingMessage{}}
+	return m.AddTTSAudio(t)
+}
+
 // NewJSON 新建 JSON 卡片消息结构体
 func NewJSON(s string) *Message { m := &Message{chain: m2.SendingMessage{}}; return m.AddJSON(s) }
 
@@ -301,16 +307,18 @@ func (m *Message) AddAudio(p string) *Message {
 }
 
 // AddTTSAudio 添加 TTS 音频
-func (m *Message) AddTTSAudio(text string) *Message {
-	v, err := classBot.c.GetTts(text)
+func (m *Message) AddTTSAudio(t string) *Message {
 
+	v, err := classBot.c.GetTts(t)
 	if err != nil {
-		log.Error().Err(err).Msg("转换文本为语音失败")
+		log.Error().Err(err).Msg("文本转语音失败")
 		return m
 	}
 
 	m.chain.Append(&m2.VoiceElement{Data: v})
+
 	return m
+
 }
 
 // AddJSON 添加 JSON 卡片
