@@ -44,7 +44,8 @@ func (q Question) ReadQuestion(i uint32) (data *QuestionListTab, err error) {
 		return
 	}
 	data = new(QuestionListTab)
-	err = row.Scan(&data.ID, &data.Question, &data.CreatorID, &data.Status, &data.Options, &data.Key, &data.Market)
+	err = row.Scan(&data.ID, &data.Type, &data.Question, &data.CreatorID, &data.Status, &data.Options, &data.Key,
+		&data.Market)
 	if err != nil {
 		return
 	}
@@ -78,8 +79,8 @@ func joinQuestionList(rows *sql.Rows) (tab []*QuestionListTab, err error) {
 
 		data0 := new(QuestionListTab)
 		err = rows.Scan(
-			&data0.ID, &data0.Question, &data0.CreatorID, &data0.Status, &data0.Options, &data0.Key, &data0.Market,
-		)
+			&data0.ID, &data0.Type, &data0.Question, &data0.CreatorID, &data0.Status, &data0.Options, &data0.Key,
+			&data0.Market)
 		if err != nil {
 			return
 		}
@@ -98,7 +99,8 @@ func joinQuestionList(rows *sql.Rows) (tab []*QuestionListTab, err error) {
 func (q Question) WriteQuestionList(tab *QuestionListTab) (err error) {
 
 	i, err := Class.DB.Prepare(
-		`INSERT INTO question_list (id, question, creator_id, status, options, key, market) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		`INSERT INTO question_list 
+(id, type, question, creator_id, status, options, key, market) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 	)
 	if err != nil {
 		return
@@ -107,7 +109,7 @@ func (q Question) WriteQuestionList(tab *QuestionListTab) (err error) {
 
 	// ID 自增无需输入
 	// Status 默认为 0
-	_, err = i.Exec(nil, tab.Question, tab.CreatorID, 0, tab.Options, tab.Key, tab.Market)
+	_, err = i.Exec(nil, tab.Type, tab.Question, tab.CreatorID, 0, tab.Options, tab.Key, tab.Market)
 	if err != nil {
 		return
 	}

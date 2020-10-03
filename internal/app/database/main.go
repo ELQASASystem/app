@@ -41,6 +41,7 @@ type (
 	// QuestionListTab 问题
 	QuestionListTab struct {
 		ID        uint32 `json:"id"`         // 唯一标识符
+		Type      uint   `json:"type"`       // 类型
 		Question  string `json:"question"`   // 问题
 		CreatorID string `json:"creator_id"` // 创建者
 		Status    uint8  `json:"status"`     // 状态
