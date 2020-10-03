@@ -2,6 +2,7 @@ package class
 
 import (
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -273,9 +274,9 @@ func startAPI() {
 					return
 				}
 
-				uploadTime := time.Now()
+				uploadTime := time.Now().Unix()
 
-				encodedName = string(hashSHA1(fileHeader.Filename + " " + uploadTime.String()))
+				encodedName = hashSHA1(fileHeader.Filename + strconv.FormatInt(uploadTime, 10))
 
 				dest := filepath.Join("assets/temp/userUpload/", encodedName)
 

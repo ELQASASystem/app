@@ -2,6 +2,7 @@ package class
 
 import (
 	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"regexp"
 )
@@ -72,11 +73,11 @@ func getQuestionByGroup(qid uint64) (*Question, int, bool) {
 }
 
 // hashSHA1 将答题数据散列
-func hashSHA1(data interface{}) []byte {
+func hashSHA1(data interface{}) string {
 
-	s := sha1.New()
+	h := sha1.New()
 
-	s.Write([]byte(fmt.Sprintf("%v", data)))
+	h.Write([]byte(fmt.Sprintf("%v", data)))
 
-	return s.Sum(nil)
+	return hex.EncodeToString(h.Sum(nil))
 }
