@@ -1,8 +1,9 @@
 package database
 
-/*
-// ReadAnswerList 读取 AnswerListTab 表
-// 暂时无用
+import "fmt"
+
+// ReadAnswerList 使用 i：问题ID(ID) 查询 AnswerListTab 表
+// 回答信息
 func (a Answer) ReadAnswerList(i uint32) (tab []*AnswerListTab, err error) {
 
 	sq := fmt.Sprintf(
@@ -35,7 +36,6 @@ func (a Answer) ReadAnswerList(i uint32) (tab []*AnswerListTab, err error) {
 	return
 
 }
-*/
 
 // WriteAnswerList 写入 AnswerListTab 表。
 // 写入回答
