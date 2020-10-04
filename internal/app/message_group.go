@@ -1,7 +1,5 @@
 package class
 
-import "strings"
-
 // monitorGroup 监听群消息
 func monitorGroup() {
 	for {
@@ -18,17 +16,6 @@ func processGroup(m *QQMsg) {
 
 	if m.Chain[0].Text == ".hello" {
 		classBot.SendGroupMsg(NewText("Hello, Client!").To(m.Group.ID))
-		return
-	}
-
-	if strings.HasPrefix(m.Chain[0].Text, ".tts") {
-		textSlice := strings.Split(m.Chain[0].Text, "")
-
-		if len(textSlice) > 0 {
-			ttsWord := textSlice[1]
-			classBot.SendGroupMsg(NewMsg().AddTTSAudio(ttsWord).To(m.Group.ID))
-		}
-
 		return
 	}
 
