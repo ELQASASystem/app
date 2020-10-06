@@ -65,9 +65,7 @@ func uploadUserAnswer(groupId uint64, ans *Answer) {
 // handleAnswer 处理消息中可能存在的答案
 func handleAnswer(m *QQMsg) {
 
-	groupId := m.Group.ID
-
-	if question, _, ok := getQuestionByGroup(groupId); ok {
+	if question, _, ok := getQuestionByGroup(m.Group.ID); ok {
 		if ans, ok := parseAnswer(m, question.QuestionID); ok {
 			uploadUserAnswer(m.Group.ID, ans)
 		}
