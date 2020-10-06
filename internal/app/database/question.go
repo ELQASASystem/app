@@ -25,7 +25,6 @@ func (q Question) ReadQuestionList(u string) (tab []*QuestionListTab, err error)
 }
 
 // ReadQuestion 使用 i：问题ID(ID) 查询 QuestionListTab 表。
-// TODO 联表查询 定义问题结构体
 // 答题信息
 func (q Question) ReadQuestion(i uint32) (data *QuestionListTab, err error) {
 
