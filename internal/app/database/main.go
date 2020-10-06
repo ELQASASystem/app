@@ -44,6 +44,7 @@ type (
 		Type      uint   `json:"type"`       // 类型
 		Question  string `json:"question"`   // 问题
 		CreatorID string `json:"creator_id"` // 创建者
+		Target    uint64 `json:"target"`     // 目标
 		Status    uint8  `json:"status"`     // 状态
 		Options   string `json:"options"`    // 选项
 		Key       string `json:"key"`        // 答案
