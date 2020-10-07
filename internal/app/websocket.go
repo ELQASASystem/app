@@ -2,11 +2,12 @@ package class
 
 import (
 	"flag"
+	"net/http"
+	"strconv"
+	
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
-	"net/http"
-	"strconv"
 )
 
 // 使用 gorilla/websocket, 文档见 https://godoc.org/github.com/gorilla/websocket
