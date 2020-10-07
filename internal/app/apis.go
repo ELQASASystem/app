@@ -202,7 +202,7 @@ func startAPI() {
 						return
 					}
 
-					publishQuestion(uint64(data.ID), data.Question)
+					publishQuestion(makeQuestion(uint64(data.ID), data.Target, data.Question))
 
 					c.Header("Access-Control-Allow-Origin", "*")
 					_, _ = c.JSON(iris.Map{"message": "yes"})
@@ -243,6 +243,48 @@ func startAPI() {
 				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(res)
 
+			})
+
+			// 准备 / 终止答题
+			Question.Get("/control/{question_id}/{status}", func(c *context.Context) {
+				pa := c.Params()
+
+				qid, err := pa.GetUint64("question_id")
+				if err != nil {
+					log.Error().Err(err).Msg("解析问题ID失败")
+					return
+				}
+
+				status, err := pa.GetUint("status")
+
+				switch status {
+				case 0:
+					{
+						// 执行准备操作
+						_, _ = c.JSON(iris.Map{"message": "yes"})
+					}
+				case 1:
+					{
+						// 执行终止操作
+						_, ok := expiredQuestion(qid)
+						_, _ = c.JSON(iris.Map{"message": ok})
+					}
+				}
+			})
+
+			// 发布答题
+			Question.Get("/post/{question_id}", func(c *context.Context) {
+				pa := c.Params()
+
+				qid, err := pa.GetUint64("question_id")
+				if err != nil {
+					log.Error().Err(err).Msg("解析问题ID失败")
+					return
+				}
+
+				if q, _, ok := getQuestionByID(qid); ok {
+					publishQuestion(q)
+				}
 			})
 
 		}

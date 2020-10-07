@@ -24,22 +24,22 @@ type Answer struct {
 	AnswerID uint64 // 问题 ID
 }
 
-// 注销问题, 返回是否注销成功
-func expiredQuestion(qid uint64) bool {
+// 注销问题, 返回该问题和是否注销成功
+func expiredQuestion(qid uint64) (q *Question, ok bool) {
 
 	if v, i, ok := getQuestionByID(qid); ok && v.QuestionID == qid {
 		questionPool = append(questionPool[:i], questionPool[i+1:]...)
-		return true
+		return v, ok
 	} else {
-		return false
+		return
 	}
 
 }
 
 // publishQuestion 发布问题开始答题
-func publishQuestion(gid uint64, q string) bool {
-	if gid != 0 {
-		classBot.SendGroupMsg(NewText(q).To(gid))
+func publishQuestion(q *Question) bool {
+	if q != nil {
+		classBot.SendGroupMsg(NewText(q.QuestionText).To(q.TargetGroup))
 		return true
 	}
 	return false

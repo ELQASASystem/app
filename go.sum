@@ -8,8 +8,6 @@ github.com/CloudyKit/jet/v5 v5.0.3/go.mod h1:dmmuzWBdd8bDyJYGZVFdhD21ptN+mjyigFu
 github.com/DataDog/zstd v1.4.1/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=
 github.com/Joker/hpp v1.0.0 h1:65+iuJYdRXv/XyN62C1uEmmOx3432rNG/rKlX6V7Kkc=
 github.com/Joker/hpp v1.0.0/go.mod h1:8x5n+M1Hp5hC0g8okX3sR3vFQwynaX/UgSOM9MeBKzY=
-github.com/Mrs4s/MiraiGo v0.0.0-20201003051902-8a968656c116 h1:GQHsohWh9LxaWmHIVS2tKzZZSysJBrnS+Sh5jXZ+5zk=
-github.com/Mrs4s/MiraiGo v0.0.0-20201003051902-8a968656c116/go.mod h1:cwYPI2uq6nxNbx0nA6YuAKF1V5szSs6FPlGVLQvRUlo=
 github.com/Mrs4s/MiraiGo v0.0.0-20201005155759-f9b3c399e5e0 h1:sduD7+a96T7ANQSjvqvmjSREq1eXhm4RQVuHeoV/QQo=
 github.com/Mrs4s/MiraiGo v0.0.0-20201005155759-f9b3c399e5e0/go.mod h1:cwYPI2uq6nxNbx0nA6YuAKF1V5szSs6FPlGVLQvRUlo=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=

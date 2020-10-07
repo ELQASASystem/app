@@ -81,3 +81,12 @@ func hashSHA1(data interface{}) string {
 
 	return hex.EncodeToString(h.Sum(nil))
 }
+
+// makeQuestion 制作一个 Question 结构类
+func makeQuestion(qid uint64, gid uint64, text string) *Question {
+	return &Question{
+		QuestionID:   qid,
+		QuestionText: text,
+		TargetGroup:  gid,
+	}
+}
