@@ -1,5 +1,10 @@
 package class
 
+import (
+	"github.com/rs/zerolog/log"
+	"strings"
+)
+
 // monitorGroup 监听群消息
 func monitorGroup() {
 	for {
@@ -17,6 +22,34 @@ func processGroup(m *QQMsg) {
 	if m.Chain[0].Text == ".hello" {
 		classBot.SendGroupMsg(NewText("Hello, Client!").To(m.Group.ID))
 		return
+	}
+
+	if strings.HasPrefix(m.Chain[0].Text, ".fenci ") {
+
+		res, err := classBot.c.GetWordSegmentation(m.Chain[0].Text[7:])
+		if err != nil {
+			log.Error().Err(err).Msg("分词时出错")
+			return
+		}
+
+		for k, v := range res {
+			res[k] = strings.ReplaceAll(v, "\u0000", "")
+		}
+
+		classBot.SendGroupMsg(NewText(strings.Join(res, " | ")).To(m.Group.ID))
+		return
+
+	}
+
+	if strings.HasPrefix(m.Chain[0].Text, ".tts ") {
+
+		classBot.SendGroupMsg(NewTTSAudio(m.Chain[0].Text[5:]).To(m.Group.ID))
+		return
+
+	}
+
+	if m.Chain[0].Text == "" {
+
 	}
 
 	// 处理答案
