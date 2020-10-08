@@ -15,25 +15,22 @@ type Message struct {
 }
 
 // NewMsg 新建消息结构体
-func NewMsg() *Message { return &Message{chain: m2.SendingMessage{}} }
+func (r *Rina) NewMsg() *Message { return &Message{super: r, chain: m2.SendingMessage{}} }
 
 // NewText 新建文本消息结构体
-func NewText(t string) *Message { m := &Message{chain: m2.SendingMessage{}}; return m.AddText(t) }
+func (r Rina) NewText(t string) *Message { return r.NewMsg().AddText(t) }
 
 // NewImage 新建图片消息结构体
-func NewImage(p string) *Message { m := &Message{chain: m2.SendingMessage{}}; return m.AddImage(p) }
+func (r Rina) NewImage(p string) *Message { return r.NewMsg().AddImage(p) }
 
 // NewAudio 新建音频消息结构体
-func NewAudio(p string) *Message { m := &Message{chain: m2.SendingMessage{}}; return m.AddAudio(p) }
+func (r Rina) NewAudio(p string) *Message { return r.NewMsg().AddAudio(p) }
 
 // NewTTSAudio 新建文字转语音消息结构体
-func NewTTSAudio(t string) *Message {
-	m := &Message{chain: m2.SendingMessage{}}
-	return m.AddTTSAudio(t)
-}
+func (r Rina) NewTTSAudio(t string) *Message { return r.NewMsg().AddTTSAudio(t) }
 
 // NewJSON 新建 JSON 卡片消息结构体
-func NewJSON(s string) *Message { m := &Message{chain: m2.SendingMessage{}}; return m.AddJSON(s) }
+func (r Rina) NewJSON(s string) *Message { return r.NewMsg().AddJSON(s) }
 
 // AddText 添加文本
 func (m *Message) AddText(t string) *Message { m.chain.Append(m2.NewText(t)); return m }
