@@ -1,6 +1,7 @@
-package class
+package http
 
 import (
+	"github.com/ELQASASystem/app/internal/app"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -15,8 +16,8 @@ import (
 	"github.com/unidoc/unioffice/document"
 )
 
-// startAPI 开启 API 服务
-func startAPI() {
+// StartAPI 开启 API 服务
+func StartAPI() {
 
 	app := iris.New()
 	API := app.Party("apis/")
@@ -64,7 +65,7 @@ func startAPI() {
 			// 获取群列表
 			Group.Get("/list", func(c *context.Context) {
 
-				err := classBot.C.ReloadGroupList()
+				err := class.ClassBot.C.ReloadGroupList()
 				if err != nil {
 					log.Error().Err(err).Msg("重新载入群列表失败")
 					return
@@ -77,7 +78,7 @@ func startAPI() {
 				}
 
 				var data []groupList
-				for _, v := range classBot.C.GroupList {
+				for _, v := range class.ClassBot.C.GroupList {
 					data = append(data, groupList{uint64(v.Uin), v.Name, v.MemberCount})
 				}
 
@@ -100,7 +101,7 @@ func startAPI() {
 				}
 
 				var data []memList
-				for _, v := range classBot.C.FindGroupByUin(i).Members {
+				for _, v := range class.ClassBot.C.FindGroupByUin(i).Members {
 
 					var name string
 					if n := v.CardName; n != "" {
@@ -202,7 +203,7 @@ func startAPI() {
 						return
 					}
 
-					publishQuestion(makeQuestion(uint64(data.ID), data.Target, data.Question))
+					class.PublishQuestion(class.MakeQuestion(uint64(data.ID), data.Target, data.Question))
 
 					c.Header("Access-Control-Allow-Origin", "*")
 					_, _ = c.JSON(iris.Map{"message": "yes"})
@@ -224,7 +225,7 @@ func startAPI() {
 				}
 
 				// TODO: 调用数据库删除 QJNKSM:这个先咕咕
-				expiredQuestion(qid)
+				class.ExpiredQuestion(qid)
 
 				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(iris.Map{"message": "yes"})
@@ -266,7 +267,7 @@ func startAPI() {
 				case 1:
 					{
 						// 执行终止操作
-						_, ok := expiredQuestion(qid)
+						_, ok := class.ExpiredQuestion(qid)
 						_, _ = c.JSON(iris.Map{"message": ok})
 					}
 				}
@@ -282,8 +283,8 @@ func startAPI() {
 					return
 				}
 
-				if q, _, ok := getQuestionByID(qid); ok {
-					publishQuestion(q)
+				if q, _, ok := class.GetQuestionByID(qid); ok {
+					class.PublishQuestion(q)
 				}
 			})
 
@@ -312,7 +313,7 @@ func startAPI() {
 					return
 				}
 
-				encodedName := hashSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + ".docx"
+				encodedName := class.HashSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + ".docx"
 				dest := filepath.Join("assets/temp/userUpload/", encodedName)
 
 				log.Info().Str("文件名", encodedName).Msg("API：上传文件")

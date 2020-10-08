@@ -10,7 +10,7 @@ import (
 // monitorGroup 监听群消息
 func monitorGroup() {
 	for {
-		go processGroup(<-*classBot.MsgChan)
+		go processGroup(<-*ClassBot.MsgChan)
 	}
 }
 
@@ -22,13 +22,13 @@ func processGroup(m *qq.Msg) {
 	}
 
 	if m.Chain[0].Text == ".hello" {
-		classBot.SendGroupMsg(classBot.NewText("Hello, Client!").To(m.Group.ID))
+		ClassBot.SendGroupMsg(ClassBot.NewText("Hello, Client!").To(m.Group.ID))
 		return
 	}
 
 	if strings.HasPrefix(m.Chain[0].Text, ".fenci ") {
 
-		res, err := classBot.C.GetWordSegmentation(m.Chain[0].Text[7:])
+		res, err := ClassBot.C.GetWordSegmentation(m.Chain[0].Text[7:])
 		if err != nil {
 			log.Error().Err(err).Msg("分词时出错")
 			return
@@ -38,14 +38,14 @@ func processGroup(m *qq.Msg) {
 			res[k] = strings.ReplaceAll(v, "\u0000", "")
 		}
 
-		classBot.SendGroupMsg(classBot.NewText(strings.Join(res, " | ")).To(m.Group.ID))
+		ClassBot.SendGroupMsg(ClassBot.NewText(strings.Join(res, " | ")).To(m.Group.ID))
 		return
 
 	}
 
 	if strings.HasPrefix(m.Chain[0].Text, ".tts ") {
 
-		classBot.SendGroupMsg(classBot.NewTTSAudio(m.Chain[0].Text[5:]).To(m.Group.ID))
+		ClassBot.SendGroupMsg(ClassBot.NewTTSAudio(m.Chain[0].Text[5:]).To(m.Group.ID))
 		return
 
 	}

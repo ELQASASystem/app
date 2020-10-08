@@ -8,7 +8,7 @@ import (
 
 var (
 	// 答题数据储存池
-	// 如需获取对应问题, 请使用 getQuestionByID 或 getQuestionByGroup 方法
+	// 如需获取对应问题, 请使用 GetQuestionByID 或 getQuestionByGroup 方法
 	questionPool []Question
 )
 
@@ -29,9 +29,9 @@ type Answer struct {
 }
 
 // 注销问题, 返回该问题和是否注销成功
-func expiredQuestion(qid uint64) (q *Question, ok bool) {
+func ExpiredQuestion(qid uint64) (q *Question, ok bool) {
 
-	if v, i, ok := getQuestionByID(qid); ok && v.QuestionID == qid {
+	if v, i, ok := GetQuestionByID(qid); ok && v.QuestionID == qid {
 		questionPool = append(questionPool[:i], questionPool[i+1:]...)
 		return v, ok
 	} else {
@@ -40,10 +40,10 @@ func expiredQuestion(qid uint64) (q *Question, ok bool) {
 
 }
 
-// publishQuestion 发布问题开始答题
-func publishQuestion(q *Question) bool {
+// PublishQuestion 发布问题开始答题
+func PublishQuestion(q *Question) bool {
 	if q != nil {
-		classBot.SendGroupMsg(classBot.NewText(q.QuestionText).To(q.TargetGroup))
+		ClassBot.SendGroupMsg(ClassBot.NewText(q.QuestionText).To(q.TargetGroup))
 		return true
 	}
 	return false
@@ -57,7 +57,7 @@ func uploadUserAnswer(groupId uint64, ans *Answer) {
 
 		// 检查是否有客户端正在监听此问题
 		if conn, ok := getConnByQID(uint32(v.QuestionID)); ok {
-			if err := conn.conn.WriteMessage(conn.mt, []byte(hashSHA1(v.AnsweredUsers))); err != nil {
+			if err := conn.conn.WriteMessage(conn.mt, []byte(HashSHA1(v.AnsweredUsers))); err != nil {
 				log.Warn().Err(err).Msg("上报答案失败")
 			}
 		}

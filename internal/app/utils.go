@@ -43,7 +43,7 @@ func parseAnswer(m *qq.Msg, aid uint64) (*Answer, bool) {
 // isAnswered 检查对应 QQ 号用户是否已经答题过了
 func isAnswered(aid uint64, qid uint64) bool {
 
-	if question, _, ok := getQuestionByID(aid); ok {
+	if question, _, ok := GetQuestionByID(aid); ok {
 		for _, user := range question.AnsweredUsers {
 			if user.Sender == qid {
 				return true
@@ -54,8 +54,8 @@ func isAnswered(aid uint64, qid uint64) bool {
 
 }
 
-// getQuestionByID 通过问题 ID 获取问题实体
-func getQuestionByID(aid uint64) (*Question, int, bool) {
+// GetQuestionByID 通过问题 ID 获取问题实体
+func GetQuestionByID(aid uint64) (*Question, int, bool) {
 	for i, question := range questionPool {
 		if question.QuestionID == aid {
 			return &question, i, true
@@ -74,8 +74,8 @@ func getQuestionByGroup(qid uint64) (*Question, int, bool) {
 	return nil, 0, false
 }
 
-// hashSHA1 将答题数据散列
-func hashSHA1(data interface{}) string {
+// HashSHA1 将答题数据散列
+func HashSHA1(data interface{}) string {
 
 	h := sha1.New()
 
@@ -84,8 +84,8 @@ func hashSHA1(data interface{}) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// makeQuestion 制作一个 Question 结构类
-func makeQuestion(qid uint64, gid uint64, text string) *Question {
+// MakeQuestion 制作一个 Question 结构类
+func MakeQuestion(qid uint64, gid uint64, text string) *Question {
 	return &Question{
 		QuestionID:   qid,
 		QuestionText: text,

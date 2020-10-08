@@ -2,12 +2,12 @@ package main
 
 import (
 	_ "github.com/ELQASASystem/app/cmd/class/basic" // 全局初始化
-	"github.com/ELQASASystem/app/internal/app"
+	"github.com/ELQASASystem/app/internal"
 )
 
 func main() {
 
-	class.New()
+	internal.Main()
 	select {}
 
 }

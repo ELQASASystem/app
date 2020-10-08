@@ -8,7 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var classBot *qq.Rina // classBot 机器人对象
+var ClassBot *qq.Rina // ClassBot 机器人对象
 
 // New 新建一个机器人
 func New() {
@@ -19,13 +19,12 @@ func New() {
 		r  = qq.NewRina(c.QQID, c.QQPassword, &ch)
 	)
 
-	classBot = r
+	ClassBot = r
 
 	if database.Class.ConnectDB(c.DatabaseUrl) != nil {
 		log.Panic().Msg("数据库连接失败")
 	}
 	r.RegEventHandle()
 	go monitorGroup()
-	go startAPI()
 
 }
