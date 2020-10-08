@@ -1,10 +1,9 @@
-package class
+package qq
 
 import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"os"
 	"time"
@@ -17,12 +16,13 @@ import (
 type (
 	// Rina Rina QQ 客户端
 	Rina struct {
-		c       *client.QQClient // 客户端
-		msgChan *chan *QQMsg     // 消息管道
+		Message Message          // 消息
+		C       *client.QQClient // 客户端
+		MsgChan *chan *Msg       // 消息管道
 	}
 
-	// QQMsg 接收的 QQ 消息
-	QQMsg struct {
+	// Msg 接收的 QQ 消息
+	Msg struct {
 		Chain []Chain           // 消息链
 		Call  map[string]string // 参数
 		Group struct {
@@ -42,16 +42,10 @@ type (
 		URL  string // image
 		QQ   uint64 // at
 	}
-
-	// Message 返回的 QQ 消息
-	Message struct {
-		target uint64            // 目标
-		chain  m2.SendingMessage // 消息链
-	}
 )
 
-// newRina 新增 Rina
-func newRina(i uint64, p string, ch *chan *QQMsg) (r *Rina) {
+// NewRina 新增 Rina
+func NewRina(i uint64, p string, ch *chan *Msg) (r *Rina) {
 
 	err := client.SystemDeviceInfo.ReadJson([]byte("{\"display\":\"MIRAI.373480.001\",\"product\":\"mirai\",\"device\":\"mirai\",\"board\":\"mirai\",\"model\":\"mirai\",\"finger_print\":\"mamoe/mirai/mirai:10/MIRAI.200122.001/6671789:user/release-keys\",\"boot_id\":\"7794a02c-d854-18ac-649e-35fedfd0b37a\",\"proc_version\":\"Linux version 3.0.31-47Fxpwhn (android-build@xxx.xxx.xxx.xxx.com)\",\"protocol\":0,\"imei\":\"678319144775066\"}"))
 	if err != nil {
@@ -63,14 +57,17 @@ func newRina(i uint64, p string, ch *chan *QQMsg) (r *Rina) {
 	c.OnLog(func(q *client.QQClient, e *client.LogEvent) {
 		switch e.Type {
 		case "INFO":
-			log.Info().Str("信息", e.Message).Msg("协议")
+			log.Info().Str("信息", e.Message).Msg("协议信息")
 
 		case "ERROR":
-			log.Error().Str("信息", e.Message).Msg("协议")
+			log.Error().Str("信息", e.Message).Msg("协议错误")
 		}
 	})
 
-	r = &Rina{c: c, msgChan: ch}
+	self := &Rina{C: c, MsgChan: ch}
+	self.Message.super = self
+
+	r = self
 	if err := r.login(); err != nil {
 		log.Panic().Msg("登录失败")
 	}
@@ -82,7 +79,7 @@ func newRina(i uint64, p string, ch *chan *QQMsg) (r *Rina) {
 // login 登录
 func (r Rina) login() (err error) {
 
-	res, err := r.c.Login()
+	res, err := r.C.Login()
 	if err != nil {
 		return
 	}
@@ -90,7 +87,7 @@ func (r Rina) login() (err error) {
 
 		switch res.Error {
 		case client.NeedCaptcha:
-			_, err := r.c.SubmitCaptcha(r.needCap(res), res.CaptchaSign)
+			_, err := r.C.SubmitCaptcha(r.needCap(res), res.CaptchaSign)
 			if err != nil {
 				log.Error().Err(err).Msg("提交验证码错误")
 				continue
@@ -102,22 +99,22 @@ func (r Rina) login() (err error) {
 
 	}
 
-	log.Info().Msg("登录成功：" + r.c.Nickname)
+	log.Info().Msg("登录成功：" + r.C.Nickname)
 
-	err = r.c.ReloadGroupList()
+	err = r.C.ReloadGroupList()
 	if err != nil {
 		log.Error().Err(err).Msg("加载群列表失败")
 		return
 	}
 
-	err = r.c.ReloadFriendList()
+	err = r.C.ReloadFriendList()
 	if err != nil {
 		log.Error().Err(err).Msg("加载好友列表失败")
 		return
 	}
 
-	log.Info().Int("个数", len(r.c.GroupList)).Msg("加载群列表成功")
-	log.Info().Int("个数", len(r.c.FriendList)).Msg("加载好友列表成功")
+	log.Info().Int("个数", len(r.C.GroupList)).Msg("加载群列表成功")
+	log.Info().Int("个数", len(r.C.FriendList)).Msg("加载好友列表成功")
 
 	return
 
@@ -147,14 +144,14 @@ func (r Rina) needCap(res *client.LoginResponse) string {
 
 }
 
-// regEventHandle 注册基本监听事件
-func (r Rina) regEventHandle() {
+// RegEventHandle 注册基本监听事件
+func (r Rina) RegEventHandle() {
 
-	r.c.OnGroupMessage(r.onGroupMsg)
-	r.c.OnPrivateMessage(r.onFriendMsg)
+	r.C.OnGroupMessage(r.onGroupMsg)
+	r.C.OnPrivateMessage(r.onFriendMsg)
 
 	// 断线重连
-	r.c.OnDisconnected(func(q *client.QQClient, e *client.ClientDisconnectedEvent) {
+	r.C.OnDisconnected(func(q *client.QQClient, e *client.ClientDisconnectedEvent) {
 		for {
 
 			log.Warn().Msg("啊哦连接丢失了，准备重连中...1s")
@@ -170,7 +167,7 @@ func (r Rina) regEventHandle() {
 	})
 
 	// 更新服务器
-	r.c.OnServerUpdated(func(q *client.QQClient, e *client.ServerUpdatedEvent) {
+	r.C.OnServerUpdated(func(q *client.QQClient, e *client.ServerUpdatedEvent) {
 		log.Warn().Interface("数据", e.Servers).Msg("更新服务器")
 
 		if len(e.Servers) < 1 {
@@ -186,7 +183,7 @@ func (r Rina) regEventHandle() {
 			})
 		}
 
-		r.c.SetCustomServer(a)
+		r.C.SetCustomServer(a)
 	})
 
 }
@@ -194,7 +191,7 @@ func (r Rina) regEventHandle() {
 // onGroupMsg 触发群消息
 func (r Rina) onGroupMsg(_ *client.QQClient, m *m2.GroupMessage) {
 
-	msg := &QQMsg{
+	msg := &Msg{
 		Chain: []Chain{},
 		Group: struct {
 			ID   uint64
@@ -235,104 +232,26 @@ func (r Rina) onGroupMsg(_ *client.QQClient, m *m2.GroupMessage) {
 		}
 	}
 
-	log.Info().
-		Str("群名", msg.Group.Name).
-		Str("昵称", msg.User.Name).
-		Interface("原文", msg.Chain).
+	log.Info().Str("群名", msg.Group.Name).Str("昵称", msg.User.Name).Interface("原文", msg.Chain).
 		Msg("收到群消息")
 
-	*r.msgChan <- msg
+	*r.MsgChan <- msg
 
 }
 
 // onFriendMsg 触发好友消息
-func (r Rina) onFriendMsg(_ *client.QQClient, m *m2.PrivateMessage) {
+func (r Rina) onFriendMsg(_ *client.QQClient, _ *m2.PrivateMessage) {
 
 	// TODO 好友消息
 
 }
-
-// NewMsg 新建消息结构体
-func NewMsg() *Message { return &Message{chain: m2.SendingMessage{}} }
-
-// NewText 新建文本消息结构体
-func NewText(t string) *Message { m := &Message{chain: m2.SendingMessage{}}; return m.AddText(t) }
-
-// NewImage 新建图片消息结构体
-func NewImage(p string) *Message { m := &Message{chain: m2.SendingMessage{}}; return m.AddImage(p) }
-
-// NewAudio 新建音频消息结构体
-func NewAudio(p string) *Message { m := &Message{chain: m2.SendingMessage{}}; return m.AddAudio(p) }
-
-// NewTTSAudio 新建文字转语音消息结构体
-func NewTTSAudio(t string) *Message {
-	m := &Message{chain: m2.SendingMessage{}}
-	return m.AddTTSAudio(t)
-}
-
-// NewJSON 新建 JSON 卡片消息结构体
-func NewJSON(s string) *Message { m := &Message{chain: m2.SendingMessage{}}; return m.AddJSON(s) }
-
-// AddText 添加文本
-func (m *Message) AddText(t string) *Message { m.chain.Append(m2.NewText(t)); return m }
-
-// AddImage 添加图片
-func (m *Message) AddImage(p string) *Message {
-
-	b, err := ioutil.ReadFile(p)
-	if err != nil {
-		log.Error().Err(err).Msg("读取图片失败")
-		return m
-	}
-
-	m.chain.Append(m2.NewImage(b))
-
-	return m
-
-}
-
-// AddAudio 添加音频
-func (m *Message) AddAudio(p string) *Message {
-
-	b, err := ioutil.ReadFile(p)
-	if err != nil {
-		log.Error().Err(err).Msg("读取语音失败")
-		return m
-	}
-
-	m.chain.Append(&m2.VoiceElement{Data: b})
-
-	return m
-
-}
-
-// AddTTSAudio 添加 TTS 音频
-func (m *Message) AddTTSAudio(t string) *Message {
-
-	v, err := classBot.c.GetTts(t)
-	if err != nil {
-		log.Error().Err(err).Msg("文本转语音失败")
-		return m
-	}
-
-	m.chain.Append(&m2.VoiceElement{Data: v})
-
-	return m
-
-}
-
-// AddJSON 添加 JSON 卡片
-func (m *Message) AddJSON(s string) *Message { m.chain.Append(m2.NewLightApp(s)); return m }
-
-// To 发送的目标
-func (m *Message) To(i uint64) *Message { m.target = i; return m }
 
 // SendGroupMsg 发送群消息
 func (r Rina) SendGroupMsg(m *Message) {
 
 	for k, v := range m.chain.Elements {
 		if nm, ok := v.(*m2.ImageElement); ok {
-			am, err := r.c.UploadGroupImage(int64(m.target), nm.Data)
+			am, err := r.C.UploadGroupImage(int64(m.target), nm.Data)
 			if err != nil {
 				log.Error().Err(err).Msg("上传图片失败")
 			} else {
@@ -342,7 +261,7 @@ func (r Rina) SendGroupMsg(m *Message) {
 		}
 
 		if nm, ok := v.(*m2.VoiceElement); ok {
-			am, err := r.c.UploadGroupPtt(int64(m.target), nm.Data)
+			am, err := r.C.UploadGroupPtt(int64(m.target), nm.Data)
 			if err != nil {
 				log.Error().Err(err).Msg("上传语音失败")
 			} else {
@@ -353,6 +272,6 @@ func (r Rina) SendGroupMsg(m *Message) {
 
 	log.Info().Msg("发送群消息")
 
-	r.c.SendGroupMessage(int64(m.target), &m.chain)
+	r.C.SendGroupMessage(int64(m.target), &m.chain)
 
 }

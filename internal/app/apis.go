@@ -64,7 +64,7 @@ func startAPI() {
 			// 获取群列表
 			Group.Get("/list", func(c *context.Context) {
 
-				err := classBot.c.ReloadGroupList()
+				err := classBot.C.ReloadGroupList()
 				if err != nil {
 					log.Error().Err(err).Msg("重新载入群列表失败")
 					return
@@ -77,7 +77,7 @@ func startAPI() {
 				}
 
 				var data []groupList
-				for _, v := range classBot.c.GroupList {
+				for _, v := range classBot.C.GroupList {
 					data = append(data, groupList{uint64(v.Uin), v.Name, v.MemberCount})
 				}
 
@@ -100,7 +100,7 @@ func startAPI() {
 				}
 
 				var data []memList
-				for _, v := range classBot.c.FindGroupByUin(i).Members {
+				for _, v := range classBot.C.FindGroupByUin(i).Members {
 
 					var name string
 					if n := v.CardName; n != "" {

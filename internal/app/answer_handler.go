@@ -1,6 +1,10 @@
 package class
 
-import "github.com/rs/zerolog/log"
+import (
+	"github.com/ELQASASystem/app/internal/app/qq"
+
+	"github.com/rs/zerolog/log"
+)
 
 var (
 	// 答题数据储存池
@@ -31,7 +35,7 @@ func expiredQuestion(qid uint64) (q *Question, ok bool) {
 		questionPool = append(questionPool[:i], questionPool[i+1:]...)
 		return v, ok
 	} else {
-		return
+		return nil, false
 	}
 
 }
@@ -39,7 +43,7 @@ func expiredQuestion(qid uint64) (q *Question, ok bool) {
 // publishQuestion 发布问题开始答题
 func publishQuestion(q *Question) bool {
 	if q != nil {
-		classBot.SendGroupMsg(NewText(q.QuestionText).To(q.TargetGroup))
+		classBot.SendGroupMsg(classBot.NewText(q.QuestionText).To(q.TargetGroup))
 		return true
 	}
 	return false
@@ -63,7 +67,7 @@ func uploadUserAnswer(groupId uint64, ans *Answer) {
 }
 
 // handleAnswer 处理消息中可能存在的答案
-func handleAnswer(m *QQMsg) {
+func handleAnswer(m *qq.Msg) {
 
 	if question, _, ok := getQuestionByGroup(m.Group.ID); ok {
 		if ans, ok := parseAnswer(m, question.QuestionID); ok {

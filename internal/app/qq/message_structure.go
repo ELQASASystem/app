@@ -66,7 +66,7 @@ func (m *Message) AddAudio(p string) *Message {
 // AddTTSAudio 添加 TTS 音频
 func (m *Message) AddTTSAudio(t string) *Message {
 
-	v, err := m.super.c.GetTts(t)
+	v, err := m.super.C.GetTts(t)
 	if err != nil {
 		log.Error().Err(err).Msg("文本转语音失败")
 		return m

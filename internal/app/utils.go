@@ -5,10 +5,12 @@ import (
 	"encoding/hex"
 	"fmt"
 	"regexp"
+
+	"github.com/ELQASASystem/app/internal/app/qq"
 )
 
 // chainToString 消息链转文本
-func chainToString(chain []Chain) (fullText string) {
+func chainToString(chain []qq.Chain) (fullText string) {
 
 	for _, element := range chain {
 		fullText += element.Text
@@ -26,7 +28,7 @@ func isValidAnswer(answer string) (ok bool) {
 }
 
 // parseAnswer 解析消息中的答案, 并返回 Answer 结构体
-func parseAnswer(m *QQMsg, aid uint64) (*Answer, bool) {
+func parseAnswer(m *qq.Msg, aid uint64) (*Answer, bool) {
 
 	s := chainToString(m.Chain)
 
