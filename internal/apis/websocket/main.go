@@ -1,10 +1,10 @@
-package class
+package websocket
 
 import (
 	"flag"
 	"net/http"
 	"strconv"
-	
+
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
@@ -14,11 +14,11 @@ import (
 
 // 连接结构体
 type NewConn struct {
-	conn      websocket.Conn // 连接
+	Conn      websocket.Conn // 连接
 	uuid      string         // 客户端 UUID
 	isActive  bool           // 是否活跃
 	listenQID uint32         // 需监听问题的 ID
-	mt        int            // 消息类型
+	Mt        int            // 消息类型
 }
 
 var (
@@ -38,7 +38,7 @@ func addConn(wsconn *websocket.Conn, uuid string) (*NewConn, bool) {
 	}
 
 	newConn := NewConn{
-		conn:      *wsconn,
+		Conn:      *wsconn,
 		uuid:      uuid,
 		isActive:  true,
 		listenQID: 0,
@@ -49,7 +49,7 @@ func addConn(wsconn *websocket.Conn, uuid string) (*NewConn, bool) {
 	return &newConn, true
 }
 
-func getConnByQID(qid uint32) (*NewConn, bool) {
+func GetConnByQID(qid uint32) (*NewConn, bool) {
 	for _, ele := range connPool {
 		if ele.listenQID == qid {
 			return &ele, true

@@ -1,6 +1,7 @@
 package class
 
 import (
+	"github.com/ELQASASystem/app/internal/apis/websocket"
 	"github.com/ELQASASystem/app/internal/app/qq"
 
 	"github.com/rs/zerolog/log"
@@ -43,7 +44,7 @@ func ExpiredQuestion(qid uint64) (q *Question, ok bool) {
 // PublishQuestion 发布问题开始答题
 func PublishQuestion(q *Question) bool {
 	if q != nil {
-		ClassBot.SendGroupMsg(ClassBot.NewText(q.QuestionText).To(q.TargetGroup))
+		Bot.SendGroupMsg(Bot.NewText(q.QuestionText).To(q.TargetGroup))
 		return true
 	}
 	return false
@@ -56,8 +57,8 @@ func uploadUserAnswer(groupId uint64, ans *Answer) {
 		v.AnsweredUsers = append(v.AnsweredUsers, *ans)
 
 		// 检查是否有客户端正在监听此问题
-		if conn, ok := getConnByQID(uint32(v.QuestionID)); ok {
-			if err := conn.conn.WriteMessage(conn.mt, []byte(HashSHA1(v.AnsweredUsers))); err != nil {
+		if conn, ok := websocket.GetConnByQID(uint32(v.QuestionID)); ok {
+			if err := conn.Conn.WriteMessage(conn.Mt, []byte(HashSHA1(v.AnsweredUsers))); err != nil {
 				log.Warn().Err(err).Msg("上报答案失败")
 			}
 		}
