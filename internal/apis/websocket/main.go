@@ -1,7 +1,6 @@
 package websocket
 
 import (
-	"flag"
 	"net/http"
 	"strconv"
 
@@ -21,14 +20,20 @@ type NewConn struct {
 	Mt        int            // 消息类型
 }
 
-var (
-	// 设置服务器地址
-	addr = flag.String("addr", "localhost:8081", "Websocket service address")
-	// Websocket 升级器, 用于将 Http 连接升级为 Websocket 处理
-	upgrader = websocket.Upgrader{}
-	// 连接用户储存池, key 为 UUID, value 为请求监听的答题ID
-	connPool []NewConn
-)
+var connPool []NewConn // 连接用户储存池, key 为 UUID, value 为请求监听的答题ID
+
+func StartWebsocketAPI() error {
+
+	http.HandleFunc("/q", connHandler)
+	err := http.ListenAndServe(":4041", nil)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
 
 func addConn(wsconn *websocket.Conn, uuid string) (*NewConn, bool) {
 	for _, conn := range connPool {
@@ -61,7 +66,7 @@ func GetConnByQID(qid uint32) (*NewConn, bool) {
 
 func connHandler(w http.ResponseWriter, r *http.Request) {
 	// 将 HTTP 连接升级至 Websocket
-	wsconn, err := upgrader.Upgrade(w, r, nil)
+	wsconn, err := new(websocket.Upgrader).Upgrade(w, r, nil)
 
 	if err != nil {
 		log.Error().Err(err).Msg("处理 WebSocket 连接时出现异常")
@@ -104,14 +109,4 @@ func connHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Log().Msg("客户端 " + u.String() + " 已断开")
-}
-
-func main() {
-	flag.Parse()
-	http.HandleFunc("/q", connHandler)
-	err := http.ListenAndServe(*addr, nil)
-
-	if err != nil {
-		log.Error().Err(err).Msg("Websocket 出现异常")
-	}
 }
