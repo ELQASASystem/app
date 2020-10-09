@@ -367,7 +367,7 @@ func StartAPI() {
 
 	}
 
-	if err := app.Listen(":8080"); err != nil {
+	if err := app.Listen(":4040"); err != nil {
 		log.Panic().Err(err).Msg("启动 API 服务失败")
 	}
 
