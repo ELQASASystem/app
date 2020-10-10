@@ -57,7 +57,8 @@ func uploadUserAnswer(groupId uint64, ans *Answer) {
 		v.AnsweredUsers = append(v.AnsweredUsers, *ans)
 
 		// 检查是否有客户端正在监听此问题
-		if conn, ok := websocket.GetConnByQID(uint32(v.QuestionID)); ok {
+		// 如果有则上报给客户端
+		if conn, _, ok := websocket.GetConnByQID(uint32(v.QuestionID)); ok {
 			if err := conn.Conn.WriteMessage(conn.Mt, []byte(HashSHA1(v.AnsweredUsers))); err != nil {
 				log.Warn().Err(err).Msg("上报答案失败")
 			}

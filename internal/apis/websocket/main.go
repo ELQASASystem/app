@@ -22,6 +22,7 @@ type NewConn struct {
 
 var connPool []NewConn // 连接用户储存池, key 为 UUID, value 为请求监听的答题ID
 
+// StartWebsocketAPI 启动 Websocket 服务器
 func StartWebsocketAPI() error {
 
 	http.HandleFunc("/q", connHandler)
@@ -35,11 +36,10 @@ func StartWebsocketAPI() error {
 
 }
 
+// addConn 新增一个连入的客户端
 func addConn(wsconn *websocket.Conn, uuid string) (*NewConn, bool) {
-	for _, conn := range connPool {
-		if conn.uuid == uuid {
-			return nil, false
-		}
+	if _, _, ok := getConn(uuid); ok {
+		return nil, false
 	}
 
 	newConn := NewConn{
@@ -54,16 +54,39 @@ func addConn(wsconn *websocket.Conn, uuid string) (*NewConn, bool) {
 	return &newConn, true
 }
 
-func GetConnByQID(qid uint32) (*NewConn, bool) {
-	for _, ele := range connPool {
-		if ele.listenQID == qid {
-			return &ele, true
+// remConn 移出一个连入的客户端
+func remConn(uuid string) bool {
+	if _, i, ok := getConn(uuid); !ok {
+		return false
+	} else {
+		connPool = append(connPool[:i], connPool[i+1:]...)
+		return true
+	}
+}
+
+// getConn 通过 UUID 获取连接信息
+func getConn(uuid string) (*NewConn, int, bool) {
+	for i, ele := range connPool {
+		if ele.uuid == uuid {
+			return &ele, i, true
 		}
 	}
 
-	return nil, false
+	return nil, -1, false
 }
 
+// getConnByQID 通过问题 ID 获取连接信息
+func GetConnByQID(qid uint32) (*NewConn, int, bool) {
+	for i, ele := range connPool {
+		if ele.listenQID == qid {
+			return &ele, i, true
+		}
+	}
+
+	return nil, -1, false
+}
+
+// connHandler Websocket 连接处理器
 func connHandler(w http.ResponseWriter, r *http.Request) {
 	// 将 HTTP 连接升级至 Websocket
 	wsconn, err := new(websocket.Upgrader).Upgrade(w, r, nil)
@@ -80,6 +103,7 @@ func connHandler(w http.ResponseWriter, r *http.Request) {
 	conn, _ := addConn(wsconn, u.String())
 	log.Log().Msg("客户端 " + u.String() + " 已连接")
 
+	// 持续接收客户端传入的字段
 	for {
 		mt, msg, err := wsconn.ReadMessage()
 		if err != nil {
@@ -87,26 +111,29 @@ func connHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
+		// 获取从 Websocket 传入的字段
 		action := string(msg)
 
 		log.Debug().Msg("收到消息: " + action)
 
 		result := "添加问题ID成功"
 
-		if conn.listenQID == 0 {
-			if qid, err := strconv.Atoi(action); qid != 0 {
-				conn.listenQID = uint32(qid)
-			} else if err != nil {
-				result = "无法解析需监听的问题ID"
-			}
+		// 获取传入字段是否为合法的问题ID
+		// 目前仅做监听/取消监听操作
+		if qid, err := strconv.Atoi(action); qid != 0 {
+			conn.listenQID = uint32(qid)
+		} else if err != nil {
+			result = "无法解析需监听的问题ID"
+		}
 
-			err = wsconn.WriteMessage(mt, []byte(result))
-			if err != nil {
-				log.Error().Err(err).Msg("写入消息时出现问题")
-				break
-			}
+		// 向客户端发送操作结果
+		err = wsconn.WriteMessage(mt, []byte(result))
+		if err != nil {
+			log.Error().Err(err).Msg("写入消息时出现问题")
+			break
 		}
 	}
 
+	remConn(u.String())
 	log.Log().Msg("客户端 " + u.String() + " 已断开")
 }
