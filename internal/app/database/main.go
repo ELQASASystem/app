@@ -36,6 +36,7 @@ type (
 	AccountsListTab struct {
 		ID       string `json:"id"`       // 唯一标识符
 		Password string `json:"password"` // 密码
+		Class    string `json:"class"`    // 班级
 	}
 
 	// QuestionListTab 问题

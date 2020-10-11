@@ -21,7 +21,7 @@ func (a Account) ReadAccountsList(u string) (data *AccountsListTab, err error) {
 		return
 	}
 	data = new(AccountsListTab)
-	err = row.Scan(&data.ID, &data.Password)
+	err = row.Scan(&data.ID, &data.Password, &data.Class)
 	if err != nil {
 		return
 	}
