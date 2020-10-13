@@ -39,33 +39,34 @@
 .banner {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 40px;
     height: 400px;
 }
 
-.bannerText {
+.banner-text {
     display: flex;
     flex-flow: column;
     justify-content: center;
 }
 
-.bannerText > h1 {
+.banner-text > h1 {
     margin: 8px 0;
     font-size: 40px;
     font-weight: 1000;
     color: #161E2E;
 }
 
-.bannerText > span {
+.banner-text > span {
     margin-bottom: 64px;
     font-size: 16px;
     color: #6B7280;
 }
 
-.bannerBtn {
+.banner-btn {
     display: flex;
 }
 
-.bannerBtn > a > a {
+.banner-btn > a > a {
     margin: 0 8px;
     padding: 8px 40px;
     border-radius: 8px;
@@ -73,23 +74,47 @@
     font-weight: 1000;
 }
 
-.bannerBtn1 {
+.banner-btn1 {
     color: #FFF;
     background-color: #1C64F2;
 }
 
-.bannerBtn2 {
+.banner-btn2 {
     color: #1A56DB;
     background-color: #E1EFFE;
 }
 
-.bannerImg {
+.banner-img {
     display: flex;
     justify-content: center;
 }
 
-.bannerImg > img {
+.banner-img > img {
     height: 100%;
+}
+
+.login {
+    display: flex;
+    box-sizing: border-box;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    background-color: #f0f8ff;
+    border-radius: 8px;
+}
+
+.login-form {
+    text-align: center;
+    width: 100%;
+    max-width: 800px;
+}
+
+.login-banner {
+    width: 100%;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 1000;
+    color: #1A56DB;
 }
 
 .features {
