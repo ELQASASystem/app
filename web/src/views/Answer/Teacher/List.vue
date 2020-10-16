@@ -65,14 +65,7 @@ export default {
       return {0: '未开始', 1: '答题中', 2: '已结束'}[s]
     },
     tipColor(s) {
-
-      const status = {
-        0: '#87d068',
-        1: '#2db7f5',
-        2: '#f50',
-      }
-      return status[s]
-
+      return {0: '#87d068', 1: '#2db7f5', 2: '#f50'}[s]
     }
   },
   mounted() {
@@ -81,4 +74,12 @@ export default {
 }
 </script>
 
-<style scoped src="./List.css"/>
+<style scoped>
+.list {
+  padding: 0 24px;
+}
+
+.ant-list-item-meta {
+  margin: 0;
+}
+</style>
