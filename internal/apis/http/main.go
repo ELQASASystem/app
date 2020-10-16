@@ -40,10 +40,13 @@ func StartAPI() {
 			// 登录
 			Login.Get("in/{u}/{p}", func(c *context.Context) {
 
+				c.Header("Access-Control-Allow-Origin", "*")
+
 				pa := c.Params()
 				res, err := database.Class.Account.ReadAccountsList(pa.Get("u"))
 				if err != nil {
 					log.Error().Err(err).Msg("校验密码失败")
+					_, _ = c.JSON(iris.Map{"message": "no"})
 					return
 				}
 
@@ -52,7 +55,6 @@ func StartAPI() {
 					return
 				}
 
-				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(iris.Map{"message": "yes"})
 
 			})
