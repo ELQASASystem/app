@@ -1,0 +1,33 @@
+.detail {
+    padding: 0 24px;
+}
+
+.question-info {
+    margin-bottom: 16px;
+}
+
+.question-info > h3 {
+    margin-top: 8px;
+}
+
+.question-type {
+    font-size: 14px;
+}
+
+.question-status {
+    margin-bottom: 48px;
+}
+
+.question-status-change {
+    box-sizing: border-box;
+    padding: 0 24px;
+}
+
+.question-time {
+
+}
+
+.data-chart {
+    display: flex;
+    justify-content: space-around;
+}
