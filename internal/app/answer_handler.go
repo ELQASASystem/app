@@ -3,6 +3,7 @@ package class
 import (
 	"github.com/ELQASASystem/app/internal/apis/websocket"
 	"github.com/ELQASASystem/app/internal/app/qq"
+	"strconv"
 
 	"github.com/rs/zerolog/log"
 )
@@ -53,16 +54,28 @@ func PublishQuestion(q *Question) bool {
 // uploadUserAnswer 上报用户答案
 func uploadUserAnswer(groupId uint64, ans *Answer) {
 
-	if v, _, ok := getQuestionByGroup(groupId); ok {
-		v.AnsweredUsers = append(v.AnsweredUsers, *ans)
+	if q, _, ok := getQuestionByGroup(groupId); ok {
+		q.AnsweredUsers = append(q.AnsweredUsers, *ans)
 
 		// 检查是否有客户端正在监听此问题
 		// 如果有则上报给客户端
-		if conn, _, ok := websocket.GetConnByQID(uint32(v.QuestionID)); ok {
-			if err := conn.Conn.WriteMessage(conn.Mt, []byte(HashSHA1(v.AnsweredUsers))); err != nil {
-				log.Warn().Err(err).Msg("上报答案失败")
+		go func() {
+			for qid, conns := range websocket.ConnPool {
+				answerData := []byte(HashSHA1(q))
+				if qid == strconv.FormatUint(q.QuestionID, 10) {
+					// 遍历对应问题 ID 下的所有连接并发送答题数据
+					for _, conn := range conns {
+						if typ, _, err := conn.ReadMessage(); err == nil {
+							if err := conn.WriteMessage(typ, answerData); err != nil {
+								log.Warn().Err(err).Msg("上报答案失败")
+							}
+						} else {
+							log.Warn().Err(err).Msg("上报答案失败")
+						}
+					}
+				}
 			}
-		}
+		}()
 
 		// TODO: 记得再上报给 Web 端
 	}
