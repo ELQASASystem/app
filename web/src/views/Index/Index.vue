@@ -125,6 +125,7 @@ export default {
 
         } else {
           console.log("登录失败")
+          this.$notification.error({message: '登录失败，请检查帐号密码'})
         }
 
       }).catch(err => {
