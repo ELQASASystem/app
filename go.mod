@@ -7,6 +7,7 @@ require (
 	github.com/Mrs4s/MiraiGo v0.0.0-20201012045500-03913806a223
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gorilla/websocket v1.4.2
+	github.com/json-iterator/go v1.1.10
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/kataras/iris/v12 v12.2.0-alpha.0.20200930073625-5017e3c986be
 	github.com/mattn/go-colorable v0.1.8 // indirect
