@@ -27,7 +27,9 @@ func StartQA(i string) error {
 
 // PrepareQA 使用 i：问题ID(ID) 开始准备作答
 func PrepareQA(i string) error {
-	if q, err := getQuestion(i); err != nil {
+	q, err := getQuestion(i)
+
+	if err != nil {
 		return err
 	} else {
 		q.Status = 0
