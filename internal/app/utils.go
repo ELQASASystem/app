@@ -19,20 +19,15 @@ func chainToString(chain []qq.Chain) (fullText string) {
 
 }
 
-// isValidAnswer 是否为合法答案 [选择题]
-func isValidAnswer(answer string) (ok bool) {
-
-	ok, _ = regexp.MatchString("[a-zA-Z]", answer)
+// isAnswer 是否为合法答案 [选择题]
+func isAnswer(answer string) (ok bool) {
+	ok, _ = regexp.MatchString(`[a-zA-Z]`, answer)
 	return
-
 }
 
 // HashSHA1 将答题数据散列
 func HashSHA1(data interface{}) string {
-
 	h := sha1.New()
-
 	h.Write([]byte(fmt.Sprintf("%v", data)))
-
 	return hex.EncodeToString(h.Sum(nil))
 }
