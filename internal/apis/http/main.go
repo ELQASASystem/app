@@ -220,29 +220,42 @@ func StartAPI() {
 
 			})
 
-			// 发布问题
-			Question.Get("/publish/{question_id}", func(c *context.Context) {
+			// 开始问答
+			Question.Get("/{question_id}/start", func(c *context.Context) {
+
+				c.Header("Access-Control-Allow-Origin", "*")
 
 				pa := c.Params()
 				qid, err := pa.GetUint32("question_id")
 				if err != nil {
-					log.Error().Err(err).Msg("解析问题失败")
-				}
-
-				if data, err := database.Class.Question.ReadQuestion(qid); data != nil {
-					if err != nil {
-						log.Error().Err(err).Msg("读取问题失败")
-						return
-					}
-
-					//class.StartQA(class.MakeQuestion(uint64(data.ID), data.Target, data.Question))
-
-					c.Header("Access-Control-Allow-Origin", "*")
-					_, _ = c.JSON(iris.Map{"message": "yes"})
-				} else {
-					c.Header("Access-Control-Allow-Origin", "*")
+					log.Error().Err(err).Msg("解析问题 ID 失败")
 					_, _ = c.JSON(iris.Map{"message": "no"})
 				}
+
+				err = class.StartQA(qid)
+				if err != nil {
+					log.Error().Err(err).Msg("开启问答失败")
+					_, _ = c.JSON(iris.Map{"message": "no"})
+				}
+
+				_, _ = c.JSON(iris.Map{"message": "yes"})
+
+			})
+
+			// 停止问答
+			Question.Get("/{question_id}/stop", func(c *context.Context) {
+
+				c.Header("Access-Control-Allow-Origin", "*")
+
+				pa := c.Params()
+				qid, err := pa.GetUint32("question_id")
+				if err != nil {
+					log.Error().Err(err).Msg("解析问题 ID 失败")
+					_, _ = c.JSON(iris.Map{"message": "no"})
+				}
+
+				class.StopQA(qid)
+				_, _ = c.JSON(iris.Map{"message": "yes"})
 
 			})
 
@@ -251,13 +264,13 @@ func StartAPI() {
 
 				pa := c.Params()
 
-				qid, err := pa.GetUint64("question_id")
+				_, err := pa.GetUint64("question_id")
 				if err != nil {
 					log.Error().Err(err).Msg("解析问题ID失败")
 				}
 
 				// TODO: 调用数据库删除 QJNKSM:这个先咕咕
-				class.StopQA(qid)
+				//database.Class.Question.RemoveQuestion(qid)
 
 				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(iris.Map{"message": "yes"})
@@ -276,50 +289,6 @@ func StartAPI() {
 				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(res)
 
-			})
-
-			// 准备 / 终止答题
-			Question.Get("/control/{question_id}/{status}", func(c *context.Context) {
-				pa := c.Params()
-
-				qid, err := pa.GetUint64("question_id")
-				if err != nil {
-					log.Error().Err(err).Msg("解析问题ID失败")
-					return
-				}
-
-				status, err := pa.GetUint("status")
-
-				switch status {
-				case 0:
-					{
-						// 执行准备操作
-						_, _ = c.JSON(iris.Map{"message": "yes"})
-					}
-				case 1:
-					{
-						// 执行终止操作
-						ok := class.StopQA(qid)
-						_, _ = c.JSON(iris.Map{"message": ok})
-					}
-				}
-			})
-
-			// 发布答题
-			Question.Get("/post/{question_id}", func(c *context.Context) {
-				pa := c.Params()
-
-				_, err := pa.GetUint64("question_id")
-				if err != nil {
-					log.Error().Err(err).Msg("解析问题ID失败")
-					return
-				}
-
-				/*
-					if q, _, ok := class.GetQuestionByID(qid); ok {
-						class.StartQA(q)
-					}
-				*/
 			})
 
 		}
