@@ -49,6 +49,9 @@ func (m *Message) AddImage(p string) *Message {
 
 }
 
+// AddJSON 添加提醒
+func (m *Message) AddAt(id uint64) *Message { m.chain.Append(m2.NewAt(int64(id))); return m }
+
 // AddAudio 添加音频
 func (m *Message) AddAudio(p string) *Message {
 
@@ -79,8 +82,6 @@ func (m *Message) AddTTSAudio(t string) *Message {
 
 // AddJSON 添加 JSON 卡片
 func (m *Message) AddJSON(s string) *Message { m.chain.Append(m2.NewLightApp(s)); return m }
-
-func (m *Message) AddAt(id int64) *Message { m.chain.Append(m2.NewAt(id)); return m }
 
 // To 发送的目标
 func (m *Message) To(i uint64) *Message { m.target = i; return m }
