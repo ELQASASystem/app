@@ -49,7 +49,7 @@ func (a Answer) WriteAnswerList(d *AnswerListTab) (err error) {
 	}
 	defer i.Close()
 
-	_, err = i.Exec(d.ID, d.QuestionID, d.AnswererID, d.Answer, d.Time)
+	_, err = i.Exec(nil, d.QuestionID, d.AnswererID, d.Answer, d.Time)
 	if err != nil {
 		return
 	}
