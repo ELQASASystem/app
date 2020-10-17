@@ -268,6 +268,17 @@ func (r Rina) SendGroupMsg(m *Message) {
 				m.chain.Elements[k] = am
 			}
 		}
+
+		if nm, ok := v.(*m2.AtElement); ok {
+			mem := r.C.FindGroupByUin(int64(m.target)).FindMember(nm.Target)
+			if c := mem.CardName; c != "" {
+				nm.Display = "@" + c
+			} else {
+				nm.Display = "@" + mem.Nickname
+			}
+			m.chain.Elements[k] = nm
+		}
+
 	}
 
 	log.Info().Msg("发送群消息")
