@@ -80,5 +80,7 @@ func (m *Message) AddTTSAudio(t string) *Message {
 // AddJSON 添加 JSON 卡片
 func (m *Message) AddJSON(s string) *Message { m.chain.Append(m2.NewLightApp(s)); return m }
 
+func (m *Message) AddAt(id int64) *Message { m.chain.Append(m2.NewAt(id)); return m }
+
 // To 发送的目标
 func (m *Message) To(i uint64) *Message { m.target = i; return m }

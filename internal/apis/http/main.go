@@ -121,6 +121,43 @@ func StartAPI() {
 
 			})
 
+			// 激励
+			Group.Get("/praise", func(c *context.Context) {
+				target := c.URLParam("target")
+				mem := c.URLParam("mem")
+
+				c.Header("Access-Control-Allow-Origin", "*")
+
+				if len(target) <= 0 && len(mem) <= 0 {
+					_, _ = c.JSON(iris.Map{"message": "no"})
+					return
+				} else {
+					if gid, err := strconv.ParseUint(mem, 10, 64); err != nil {
+						_, _ = c.JSON(iris.Map{"message": "no"})
+						return
+					} else {
+						mem = strings.TrimPrefix(mem, "[")
+						mem = strings.TrimSuffix(mem, "]")
+						ids := strings.Split(mem, ",")
+
+						if class.Bot.C.FindGroup(int64(gid)) == nil {
+							_, _ = c.JSON(iris.Map{"message": "no"})
+							return
+						} else {
+							msgToSend := class.Bot.NewMsg().AddText("表扬以下答对的同学:\n")
+							for _, id := range ids {
+								if id, err := strconv.ParseInt(id, 10, 64); err == nil {
+									msgToSend.AddAt(id)
+								}
+							}
+							class.Bot.SendGroupMsg(msgToSend.AddText("\n希望同学们再接再厉!").To(gid))
+							_, _ = c.JSON(iris.Map{"message": "yes"})
+							return
+						}
+					}
+				}
+			})
+
 		}
 
 		Question := API.Party("question")
