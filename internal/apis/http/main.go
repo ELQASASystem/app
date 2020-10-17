@@ -1,15 +1,16 @@
 package http
 
 import (
-	"github.com/ELQASASystem/app/internal/app"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/ELQASASystem/app/internal/app"
 	"github.com/ELQASASystem/app/internal/app/database"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"
 	"github.com/rs/zerolog/log"
@@ -123,39 +124,31 @@ func StartAPI() {
 
 			// 激励
 			Group.Get("/praise", func(c *context.Context) {
-				target := c.URLParam("target")
-				mem := c.URLParam("mem")
 
 				c.Header("Access-Control-Allow-Origin", "*")
 
-				if len(target) <= 0 && len(mem) <= 0 {
+				gid, err := strconv.ParseUint(c.URLParam("target"), 10, 64)
+				if err != nil {
+					log.Error().Err(err).Msg("解析目标群失败")
 					_, _ = c.JSON(iris.Map{"message": "no"})
 					return
-				} else {
-					if gid, err := strconv.ParseUint(mem, 10, 64); err != nil {
-						_, _ = c.JSON(iris.Map{"message": "no"})
-						return
-					} else {
-						mem = strings.TrimPrefix(mem, "[")
-						mem = strings.TrimSuffix(mem, "]")
-						ids := strings.Split(mem, ",")
-
-						if class.Bot.C.FindGroup(int64(gid)) == nil {
-							_, _ = c.JSON(iris.Map{"message": "no"})
-							return
-						} else {
-							msgToSend := class.Bot.NewMsg().AddText("表扬以下答对的同学:\n")
-							for _, id := range ids {
-								if id, err := strconv.ParseInt(id, 10, 64); err == nil {
-									msgToSend.AddAt(id)
-								}
-							}
-							class.Bot.SendGroupMsg(msgToSend.AddText("\n希望同学们再接再厉!").To(gid))
-							_, _ = c.JSON(iris.Map{"message": "yes"})
-							return
-						}
-					}
 				}
+
+				var ids []uint64
+				err = jsoniter.ConfigCompatibleWithStandardLibrary.UnmarshalFromString(c.URLParam("mem"), &ids)
+				if err != nil {
+					log.Error().Err(err).Msg("解析目标成员失败")
+					_, _ = c.JSON(iris.Map{"message": "no"})
+					return
+				}
+
+				m := class.Bot.NewMsg().AddText("表扬以下答对的同学:\n")
+				for _, id := range ids {
+					m.AddAt(id)
+				}
+				class.Bot.SendGroupMsg(m.AddText("\n希望同学们再接再厉!").To(gid))
+				_, _ = c.JSON(iris.Map{"message": "yes"})
+
 			})
 
 		}
@@ -242,7 +235,7 @@ func StartAPI() {
 						return
 					}
 
-					class.PublishQuestion(class.MakeQuestion(uint64(data.ID), data.Target, data.Question))
+					//class.StartQA(class.MakeQuestion(uint64(data.ID), data.Target, data.Question))
 
 					c.Header("Access-Control-Allow-Origin", "*")
 					_, _ = c.JSON(iris.Map{"message": "yes"})
@@ -264,7 +257,7 @@ func StartAPI() {
 				}
 
 				// TODO: 调用数据库删除 QJNKSM:这个先咕咕
-				class.ExpiredQuestion(qid)
+				class.StopQA(qid)
 
 				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(iris.Map{"message": "yes"})
@@ -306,7 +299,7 @@ func StartAPI() {
 				case 1:
 					{
 						// 执行终止操作
-						_, ok := class.ExpiredQuestion(qid)
+						ok := class.StopQA(qid)
 						_, _ = c.JSON(iris.Map{"message": ok})
 					}
 				}
@@ -316,15 +309,17 @@ func StartAPI() {
 			Question.Get("/post/{question_id}", func(c *context.Context) {
 				pa := c.Params()
 
-				qid, err := pa.GetUint64("question_id")
+				_, err := pa.GetUint64("question_id")
 				if err != nil {
 					log.Error().Err(err).Msg("解析问题ID失败")
 					return
 				}
 
-				if q, _, ok := class.GetQuestionByID(qid); ok {
-					class.PublishQuestion(q)
-				}
+				/*
+					if q, _, ok := class.GetQuestionByID(qid); ok {
+						class.StartQA(q)
+					}
+				*/
 			})
 
 		}
