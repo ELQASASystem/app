@@ -6,6 +6,5 @@ node_modules
 
 # ELQASA System
 .idea/
-configs/configs.go
 build/
 *.lnk
