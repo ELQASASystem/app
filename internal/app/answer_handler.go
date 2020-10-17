@@ -1,108 +1,134 @@
 package class
 
 import (
+	"time"
+
 	"github.com/ELQASASystem/app/internal/app/database"
 	"github.com/ELQASASystem/app/internal/app/qq"
+
+	jsoniter "github.com/json-iterator/go"
 	"github.com/rs/zerolog/log"
-	"strconv"
-	"time"
 )
 
-// 问答基本服务线程池
-var QABasicSrvPoll = map[uint64]database.QuestionListTab{}
+var QABasicSrvPoll = map[uint64]*database.QuestionListTab{} // QABasicSrvPoll 问答基本服务线程池
 
 // StartQA 使用 i：问题ID(ID) 开始监听问题
-func StartQA(i string) error {
-	if q, err := getQuestion(i); err != nil {
-		return err
-	} else {
-		QABasicSrvPoll[uint64(q.ID)] = *q
+func StartQA(i uint32) (err error) {
 
-		// 发送群消息
-		m := Bot.NewMsg().AddText("问题:\n").AddText(q.Question).AddText("\n选项:\n").AddText(q.Options).AddText("\n直接回复答案即可作答").To(q.Target)
-		Bot.SendGroupMsg(m)
-	}
-	return nil
-}
-
-// PrepareQA 使用 i：问题ID(ID) 开始准备作答
-func PrepareQA(i string) error {
 	q, err := getQuestion(i)
-
 	if err != nil {
-		return err
-	} else {
-		q.Status = 0
-		if err := database.Class.Question.WriteQuestionList(q); err != nil {
-			return err
-		}
+		return
 	}
 
-	return nil
+	var (
+		options []struct {
+			Type string `json:"type"` // 选项号
+			Body string `json:"body"` // 选项内容
+		}
+		m = Bot.NewMsg().AddText("问题:\n").AddText(q.Question).AddText("\n选项:\n")
+	)
+
+	if err = jsoniter.ConfigCompatibleWithStandardLibrary.UnmarshalFromString(q.Options, &options); err != nil {
+		log.Error().Err(err).Msg("解析选项失败")
+		return
+	}
+	for _, v := range options {
+		m.AddText(v.Type + ". " + v.Body + "\n")
+	}
+
+	if q.Type == 0 {
+		m.AddText("\n回复选项即可作答")
+	} else {
+		m.AddText("\n@+回答内容即可作答")
+	}
+
+	Bot.SendGroupMsg(m.To(q.Target))
+	QABasicSrvPoll[q.Target] = q
+
+	return
 }
 
 // reportUserAnswer 上报用户答案
 func reportUserAnswer(q *database.QuestionListTab, m *qq.Msg) {
-	if err := database.Class.Answer.WriteAnswerList(&database.AnswerListTab{
+
+	err := database.Class.Answer.WriteAnswerList(&database.AnswerListTab{
 		QuestionID: q.ID,
 		AnswererID: m.User.ID,
 		Answer:     m.Chain[0].Text,
 		Time:       time.Now().Format("2006-01-02 15:04:05"),
-	}); err != nil {
-		log.Warn().Err(err).Msg("写入答案时出现异常")
+	})
+	if err != nil {
+		log.Warn().Err(err).Msg("写入答案失败")
 		return
 	}
+
+	log.Info().Msg("成功写入回答")
 
 	// TODO: Websocket 上报
 }
 
 // handleAnswer 处理消息中可能存在的答案
 func handleAnswer(m *qq.Msg) {
-	if q, ok := QABasicSrvPoll[m.Group.ID]; !ok {
+
+	q, ok := QABasicSrvPoll[m.Group.ID]
+	if !ok {
 		return
-	} else {
-		if ans, err := database.Class.Answer.ReadAnswerList(q.ID); err != nil {
-			log.Warn().Err(err).Msg("读取答案列表时出现异常")
+	}
+
+	ans, err := database.Class.Answer.ReadAnswerList(q.ID)
+	if err != nil {
+		log.Warn().Err(err).Msg("读取答案列表失败")
+		return
+	}
+
+	for _, v := range ans {
+		if v.AnswererID == m.User.ID {
 			return
-		} else {
-			for _, an := range ans {
-				if an.AnswererID == m.User.ID {
-					return
-				}
-			}
-
-			if !isValidAnswer(m.Chain[0].Text) {
-				return
-			}
-
-			reportUserAnswer(&q, m)
 		}
 	}
-}
 
-// StopQA 注销问题, 返回该问题和是否注销成功
-func StopQA(qid uint64) (ok bool) {
-	// 检查该问题 ID 对应问题是否在服务线程池中
-	if _, ok := QABasicSrvPoll[qid]; !ok {
-		return false
+	if isAnswer(m.Chain[0].Text) {
+		reportUserAnswer(q, m)
 	}
 
-	// 如果存在则删除
-	delete(QABasicSrvPoll, qid)
-	return true
 }
 
-// getQuestion 通过问题ID(ID) 获取问题 复用
-func getQuestion(i string) (*database.QuestionListTab, error) {
-	id, err := strconv.ParseUint(i, 10, 32)
+// StopQA 使用 i：问题ID(ID) 停止问答
+func StopQA(i uint32) {
 
+	q, err := getQuestion(i)
 	if err != nil {
-		return nil, err
+		log.Error().Err(err).Msg("失败")
 	}
 
-	if q, err := database.Class.Question.ReadQuestion(uint32(id)); err != nil {
-		return nil, err
-	} else {
-		return q, nil
+	delete(QABasicSrvPoll, q.Target)
+
+	// TODO 更改数据库 status 字段
+
+}
+
+// PrepareQA 使用 i：问题ID(ID) 开始准备作答
+func PrepareQA(i uint32) (err error) {
+
+	q, err := getQuestion(i)
+	if err != nil {
+		return
 	}
+
+	q.Status = 0 // FIXME 有问题
+	err = database.Class.Question.WriteQuestionList(q)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// getQuestion 使用 i：问题ID(ID) 获取问题
+func getQuestion(i uint32) (q *database.QuestionListTab, err error) {
+	q, err = database.Class.Question.ReadQuestion(i)
+	if err != nil {
+		return
+	}
+	return
 }
