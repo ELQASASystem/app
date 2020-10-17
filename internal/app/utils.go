@@ -5,19 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"regexp"
-
-	"github.com/ELQASASystem/app/internal/app/qq"
 )
-
-// chainToString 消息链转文本
-func chainToString(chain []qq.Chain) (fullText string) {
-
-	for _, element := range chain {
-		fullText += element.Text
-	}
-	return
-
-}
 
 // isAnswer 是否为合法答案 [选择题]
 func isAnswer(answer string) (ok bool) {
