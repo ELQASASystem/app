@@ -34,6 +34,8 @@ export default {
                 rightCount: 0, // 正确人数
                 wrongRate: 0, // 错误率
                 wrongCount: 0, // 错误人数
+                rightStus: [], // 回答正确的学生
+                wrongStus: {} // 回答错误的学生
             },
 
             CHARTData: {}
@@ -122,16 +124,36 @@ export default {
         calc() {
 
             const answer = this.Question.object.answer
+            const options = this.Question.options
 
             for (let i = 0; i < answer.length; i++) {
 
                 if (answer[i].answer === this.Question.key) {
                     this.Statistics.rightCount++
+                    this.Statistics.rightStus.push(answer[i].answerer_id)
                 } else {
                     this.Statistics.wrongCount++
+
+                    // 寻找错误的选项
+                    for (let ii = 0; ii < options.length; ii++) {
+                        if (options[ii].type !== answer[i].answer) {
+                            continue
+                        }
+
+                        let list = this.Statistics.wrongStus[options[ii].type]
+                        if (list === undefined) {
+                            list = []
+                        }
+
+                        list.push(answer[i].answerer_id)
+                        this.Statistics.wrongStus[options[ii].type] = list
+                    }
                 }
 
             }
+
+            console.log(this.Statistics.rightStus)
+            console.log(this.Statistics.wrongStus)
 
             this.Statistics.rightRate = parseInt(this.Statistics.rightCount / this.Status.answererCount * 100)
             this.Statistics.wrongRate = 100 - this.Statistics.rightRate
@@ -167,6 +189,14 @@ export default {
         },
         cancelChangeStatus() {
             this.Status.sliderValue = this.Status.status
+        },
+
+        praise() {
+            Axios.get(`http://localhost:4040/apis/group/praise?target=${this.Question.object.target}&mem=${JSON.stringify(this.Statistics.rightStus)}`).then(() => {
+                this.$notification.success({message: '表扬成功'})
+            }).catch(err => {
+                console.error('激励失败：' + err)
+            })
         }
 
     },

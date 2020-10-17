@@ -80,40 +80,77 @@
       <a-tabs default-active-key="1">
         <a-tab-pane key="1" tab="统计">
 
-          <h2>正确</h2>
-          <div class="data-chart">
+          <div class="detail-block">
+            <h2>正确</h2>
+            <div class="data-chart">
 
-            <a-progress
-                type="circle"
-                :percent="Statistics.rightRate"
-                status="success"
-                :format="p => { return '正确率 ' + p + '%' }"
-            />
+              <a-progress
+                  type="circle"
+                  :percent="Statistics.rightRate"
+                  status="success"
+                  :format="p => { return '正确率 ' + p + '%' }"
+              />
 
-            <div id="data-chart-right_count"/>
+              <div id="data-chart-right_count"/>
+
+            </div>
+            <a-collapse :bordered="false">
+              <a-collapse-panel header="回答正确的学生">
+                <a-button slot="extra" @click="praise">
+                  <a-icon type="like"/>
+                  表扬他们
+                </a-button>
+
+                <a-list item-layout="horizontal" :data-source="Statistics.rightStus">
+                  <a-list-item slot="renderItem" slot-scope="item">
+                    <span>{{ groupMemList[item].name }}</span>
+                  </a-list-item>
+                </a-list>
+
+
+              </a-collapse-panel>
+
+            </a-collapse>
           </div>
 
+          <div class="detail-block">
+            <h2>错误</h2>
+            <div class="data-chart">
 
-          <h2>错误</h2>
-          <div class="data-chart">
+              <a-progress
+                  type="circle"
+                  :percent="Statistics.wrongRate"
+                  status="exception"
+                  :format="p => { return '错误率 ' + p + '%' }"
+              />
 
-            <a-progress
-                type="circle"
-                :percent="Statistics.wrongRate"
-                status="exception"
-                :format="p => { return '错误率 ' + p + '%' }"
-            />
+              <div id="data-chart-wrong_count"/>
+            </div>
 
-            <div id="data-chart-wrong_count"/>
+            <a-collapse :bordered="false">
+              <a-collapse-panel header="回答错误的学生">
+
+                <a-collapse v-for="(item, key) in Statistics.wrongStus" :key="item.length" :bordered="false">
+                  <a-collapse-panel :header="key">
+
+                    <a-list item-layout="horizontal" :data-source="item">
+                      <a-list-item slot="renderItem" slot-scope="item">
+                        <span>{{ groupMemList[item].name }}</span>
+                      </a-list-item>
+                    </a-list>
+
+                  </a-collapse-panel>
+                </a-collapse>
+
+              </a-collapse-panel>
+            </a-collapse>
           </div>
-
 
         </a-tab-pane>
 
-
         <a-tab-pane key="2" tab="全部信息">
 
-          <a-list item-layout="vertical" :data-source="Question.object.answer">
+          <a-list item-layout="horizontal" :data-source="Question.object.answer">
             <a-list-item slot="renderItem" slot-scope="item">
               <div>
                 <p>
