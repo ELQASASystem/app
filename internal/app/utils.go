@@ -21,7 +21,7 @@ func chainToString(chain []qq.Chain) (fullText string) {
 
 // isAnswer 是否为合法答案 [选择题]
 func isAnswer(answer string) (ok bool) {
-	ok, _ = regexp.MatchString(`[a-zA-Z]`, answer)
+	ok, _ = regexp.MatchString("^[A-Za-z]$", answer)
 	return
 }
 
