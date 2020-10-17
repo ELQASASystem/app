@@ -21,6 +21,9 @@ func init() {
 
 	log.Info().Msg("Copyright (C) 2020-present  CCServe  AGPL-3.0 License | version：" + configs.CommitId)
 
-	configs.ReadConfigs()
+	err := configs.ReadConfigs()
+	if err != nil {
+		log.Panic().Err(err).Msg("读取配置文件失败")
+	}
 
 }
