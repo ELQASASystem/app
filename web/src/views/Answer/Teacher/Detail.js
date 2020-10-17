@@ -178,10 +178,39 @@ export default {
 
         changeStatus() {
 
-            console.log(this.Status.status)
+            const text = ['准备答题', '发布答题', '停止答题']
+
+            console.log(text[this.Status.sliderValue])
+            if (this.Status.sliderValue === 1) {
+
+                Axios.get(`http://localhost:4040/apis/question/${this.Question.id}/start`).then(res => {
+                    if (res.data.message === 'yes') {
+                        this.$notification.success({message: '成功发布答题'})
+                    } else {
+                        this.$notification.error({message: '发布答题失败'})
+                    }
+                }).catch(err => {
+                    console.error("发布答题失败：" + err)
+                    this.$notification.error({message: '发布答题失败'})
+                })
+
+            } else if (this.Status.sliderValue === 2) {
+
+                Axios.get(`http://localhost:4040/apis/question/${this.Question.id}/stop`).then(res => {
+                    if (res.data.message === 'yes') {
+                        this.$notification.success({message: '成功停止答题'})
+                    } else {
+                        this.$notification.error({message: '停止答题失败'})
+                    }
+                }).catch(err => {
+                    console.error("停止答题失败：" + err)
+                    this.$notification.error({message: '停止答题失败'})
+                })
+
+            }
 
             this.$notification.info({
-                message: '正在中...'
+                message: `正在${text[this.Status.sliderValue]}中...`
             })
 
             this.Status.status = this.Status.sliderValue
