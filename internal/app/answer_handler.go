@@ -1,6 +1,7 @@
 package class
 
 import (
+	"strings"
 	"time"
 
 	"github.com/ELQASASystem/app/internal/app/database"
@@ -54,7 +55,7 @@ func reportUserAnswer(q *database.QuestionListTab, m *qq.Msg) {
 	err := database.Class.Answer.WriteAnswerList(&database.AnswerListTab{
 		QuestionID: q.ID,
 		AnswererID: m.User.ID,
-		Answer:     m.Chain[0].Text,
+		Answer:     strings.ToUpper(m.Chain[0].Text),
 		Time:       time.Now().Format("2006-01-02 15:04:05"),
 	})
 	if err != nil {
