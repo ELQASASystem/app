@@ -16,4 +16,5 @@ require (
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/unidoc/unioffice v1.5.1
 	github.com/yudai/pp v2.0.1+incompatible // indirect
+	gopkg.in/yaml.v2 v2.3.0
 )
