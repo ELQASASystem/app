@@ -14,7 +14,7 @@
     </a-page-header>
 
     <div class="list">
-      <a-list item-layout="vertical" :data-source="questionList" :loading="questionListLoad">
+      <a-list item-layout="horizontal" :data-source="questionList" :loading="questionListLoad">
         <a-list-item slot="renderItem" slot-scope="item">
           <a-list-item-meta>
 
@@ -77,9 +77,5 @@ export default {
 <style scoped>
 .list {
   padding: 0 24px;
-}
-
-.ant-list-item-meta {
-  margin: 0;
 }
 </style>
