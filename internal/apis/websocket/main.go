@@ -34,7 +34,14 @@ func (w *srv) start() {
 
 	http.HandleFunc("/question", func(writer http.ResponseWriter, r *http.Request) {
 
-		wsconn, err := new(websocket.Upgrader).Upgrade(writer, r, nil)
+		upgrader := websocket.Upgrader{
+			// 解决跨域问题
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		}
+
+		wsconn, err := upgrader.Upgrade(writer, r, nil)
 		if err != nil {
 			log.Error().Err(err).Msg("处理 WebSocket 连接时出现异常")
 			return
