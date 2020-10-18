@@ -20,7 +20,7 @@
     <div class="upload">
       <a-upload-dragger
           accept=".docx"
-          action="http://localhost:4040/apis/upload/docx"
+          action="/apis/upload/docx"
           @change="uploadDocx"
       >
         <p class="ant-upload-drag-icon">

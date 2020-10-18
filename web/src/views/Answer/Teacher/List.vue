@@ -45,7 +45,7 @@ export default {
   methods: {
     fetchQuestionList() {
 
-      Axios.get(`http://localhost:4040/apis/question/list/${this.$cookies.get('account')}`).then(res => {
+      Axios.get(`/apis/question/list/${this.$cookies.get('account')}`).then(res => {
 
         this.questionList = res.data
         this.questionListLoad = false

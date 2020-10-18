@@ -111,7 +111,7 @@ export default {
 
     login(u, p) {
 
-      Axios.get(`http://localhost:4040/apis/signin/${u}/${p}`).then(res => {
+      Axios.get(`/apis/signin/${u}/${p}`).then(res => {
 
         console.log("登录返回信息：")
         console.log(res.data)
