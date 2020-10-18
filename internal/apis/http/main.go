@@ -30,6 +30,7 @@ func StartAPI() {
 
 			Hello.Get("/", func(c *context.Context) {
 				c.Header("Access-Control-Allow-Origin", "*")
+
 				_, _ = c.JSON(iris.Map{"message": "hello"})
 			})
 
@@ -232,7 +233,7 @@ func StartAPI() {
 
 			})
 
-			// 停止问答
+			// 停止答题
 			Question.Get("/{question_id}/stop", func(c *context.Context) {
 
 				c.Header("Access-Control-Allow-Origin", "*")
@@ -244,7 +245,12 @@ func StartAPI() {
 					_, _ = c.JSON(iris.Map{"message": "no"})
 				}
 
-				class.StopQA(qid)
+				err = class.StopQA(qid)
+				if err != nil {
+					log.Error().Err(err).Msg("停止答题失败")
+					_, _ = c.JSON(iris.Map{"message": "no"})
+					return
+				}
 				_, _ = c.JSON(iris.Map{"message": "yes"})
 
 			})
