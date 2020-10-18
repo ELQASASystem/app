@@ -50,9 +50,7 @@ func processGroup(m *qq.Msg) {
 
 	}
 
-	// 处理答案
-	handleAnswer(m)
-
+	handleAnswer(m) // 处理答案
 }
 
 // block 阻止可能的意外
