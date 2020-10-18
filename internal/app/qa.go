@@ -110,7 +110,13 @@ func reportUserAnswer(q *database.QuestionListTab, m *qq.Msg) {
 
 	log.Info().Msg("成功写入回答")
 
-	// TODO: Websocket 上报
+	res, err := ReadQuestion(q.ID)
+	if err != nil {
+		log.Error().Err(err).Msg("读取问题信息失败")
+	}
+
+	qch <- res
+
 }
 
 // handleAnswer 处理消息中可能存在的答案

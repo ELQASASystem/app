@@ -4,23 +4,33 @@ import (
 	"net/http"
 	"strconv"
 
+	class "github.com/ELQASASystem/app/internal/app"
+
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
 )
 
-// 文档： https://godoc.org/github.com/gorilla/websocket
-
-type websocketSrv struct {
-	connPool map[uint64][]*websocket.Conn // 已连接的客户端
+// srv Websocket 服务。文档： https://godoc.org/github.com/gorilla/websocket
+type srv struct {
+	connPool map[uint64][]*websocket.Conn // connPool 已连接的客户端
+	qch      chan *class.Question         // qch 问题管道
 }
 
-// New 新建
-func New() *websocketSrv {
-	return &websocketSrv{}
+// New 新建 Websocket 服务
+func New() chan *class.Question {
+
+	var (
+		qch = make(chan *class.Question, 10)
+		s   = &srv{qch: qch}
+	)
+
+	go s.start()
+
+	return qch
 }
 
 // start 启动 Websocket 服务
-func (w *websocketSrv) start() (err error) {
+func (w *srv) start() {
 
 	http.HandleFunc("/question", func(writer http.ResponseWriter, r *http.Request) {
 
@@ -31,20 +41,21 @@ func (w *websocketSrv) start() (err error) {
 		}
 		defer wsconn.Close()
 
-		go w.questionHandler(wsconn)
+		w.questionHandler(wsconn)
 
 	})
-	err = http.ListenAndServe(":4041", nil)
 
+	err := http.ListenAndServe(":4041", nil)
 	if err != nil {
-		return
+		log.Error().Err(err).Msg("")
 	}
 
-	return
+	go w.sendQuestion()
+
 }
 
 // addConn 使用 i：问题ID(ID) 新增一个连入的客户端
-func (w *websocketSrv) addConn(i uint64, c *websocket.Conn) {
+func (w *srv) addConn(i uint64, c *websocket.Conn) {
 
 	if _, ok := w.connPool[i]; !ok {
 		w.connPool[i] = []*websocket.Conn{c}
@@ -55,7 +66,7 @@ func (w *websocketSrv) addConn(i uint64, c *websocket.Conn) {
 }
 
 // rmConn 移出一个连入的客户端
-func (w *websocketSrv) rmConn(qid uint64, conn *websocket.Conn) {
+func (w *srv) rmConn(qid uint64, conn *websocket.Conn) {
 
 	conns := w.connPool[qid]
 
@@ -72,38 +83,21 @@ func (w *websocketSrv) rmConn(qid uint64, conn *websocket.Conn) {
 }
 
 // questionHandler 问题处理器
-func (w *websocketSrv) questionHandler(wsconn *websocket.Conn) {
+func (w *srv) questionHandler(wsconn *websocket.Conn) {
 
-	for {
-		_, msg, err := wsconn.ReadMessage()
-		if err != nil {
-			log.Error().Err(err).Msg("读取消息失败")
-			break
-		}
-
-		action := string(msg)
-		log.Info().Str("消息", action).Msg("收到 Websocket 消息")
-
-		// 获取传入字段是否为合法的问题ID
-		// 目前仅做监听/取消监听操作
-
-		qid, err := strconv.ParseUint(action, 10, 64)
-		if err != nil {
-			break
-		}
-
-		log.Info().Uint64("问题ID", qid).Msg("成功添加WS问题监听")
-
-		// 向客户端发送操作结果
-		/*
-			err = wsconn.WriteMessage(mt, []byte(result))
-			if err != nil {
-				log.Error().Err(err).Msg("写入消息时出现问题")
-				break
-			}
-		*/
-
+	_, msg, err := wsconn.ReadMessage()
+	if err != nil {
+		log.Error().Err(err).Msg("读取消息失败")
+		return
 	}
 
-	w.rmConn(uint64(0), wsconn)
+	action := string(msg)
+	log.Info().Str("消息", action).Msg("收到 Websocket 消息")
+
+	i, _ := strconv.ParseUint(action, 10, 64)
+
+	log.Info().Uint64("问题ID", i).Msg("成功添加WS问题监听")
+
+	w.addConn(i, wsconn)
+
 }

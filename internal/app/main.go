@@ -9,9 +9,10 @@ import (
 )
 
 var Bot *qq.Rina // Bot 机器人对象
+var qch chan *Question
 
 // New 新建一个机器人
-func New() {
+func New(qc chan *Question) {
 
 	var (
 		c  = configs.GetAllConf()
@@ -20,6 +21,7 @@ func New() {
 	)
 
 	Bot = r
+	qch = qc
 
 	if database.Class.ConnectDB(c.DatabaseUrl) != nil {
 		log.Panic().Msg("数据库连接失败")

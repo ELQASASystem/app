@@ -7,7 +7,8 @@ import (
 )
 
 func Main() {
-	class.New()
+
+	class.New(websocket.New())
 	go http.StartAPI()
-	go websocket.New()
+
 }
