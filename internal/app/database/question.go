@@ -106,8 +106,7 @@ func (q Question) WriteQuestionList(tab *QuestionListTab) (err error) {
 	}
 	defer i.Close()
 
-	// ID 自增无需输入
-	// Status 默认为 0
+	// Tips： ID 自增无需输入、Status 默认为 0
 	_, err = i.Exec(nil, tab.Type, tab.Question, tab.CreatorID, tab.Target, 0, tab.Options, tab.Key, tab.Market)
 	if err != nil {
 		return
@@ -115,4 +114,22 @@ func (q Question) WriteQuestionList(tab *QuestionListTab) (err error) {
 
 	return
 
+}
+
+// UpdateQuestion 使用 i：问题ID(ID) 、 s：状态码(Status) 更新问题 status 字段。
+// 更新状态
+func (q Question) UpdateQuestion(i uint32, s uint8) (err error) {
+
+	l, err := Class.DB.Prepare(`UPDATE question_list SET question_list.status = ? WHERE question_list.id = ?`)
+	if err != nil {
+		return
+	}
+	defer l.Close()
+
+	_, err = l.Exec(i, s)
+	if err != nil {
+		return
+	}
+
+	return
 }
