@@ -76,6 +76,7 @@ func handleAnswer(m *qq.Msg) {
 		return
 	}
 
+	// TODO 改内存实现
 	ans, err := database.Class.Answer.ReadAnswerList(q.ID)
 	if err != nil {
 		log.Warn().Err(err).Msg("读取答案列表失败")
@@ -95,29 +96,22 @@ func handleAnswer(m *qq.Msg) {
 }
 
 // StopQA 使用 i：问题ID(ID) 停止问答
-func StopQA(i uint32) {
+func StopQA(i uint32) (err error) {
 
-	q, err := getQuestion(i)
+	err = deleteQABasicSrvPoll(i)
+	err = database.Class.Question.UpdateQuestion(i, 2)
 	if err != nil {
-		log.Error().Err(err).Msg("失败")
+		return
 	}
 
-	delete(QABasicSrvPoll, q.Target)
-
-	// TODO 更改数据库 status 字段
-
+	return
 }
 
 // PrepareQA 使用 i：问题ID(ID) 开始准备作答
 func PrepareQA(i uint32) (err error) {
 
-	q, err := getQuestion(i)
-	if err != nil {
-		return
-	}
-
-	q.Status = 0 // FIXME 有问题
-	err = database.Class.Question.WriteQuestionList(q)
+	err = deleteQABasicSrvPoll(i)
+	err = database.Class.Question.UpdateQuestion(i, 0)
 	if err != nil {
 		return
 	}
@@ -127,9 +121,23 @@ func PrepareQA(i uint32) (err error) {
 
 // getQuestion 使用 i：问题ID(ID) 获取问题
 func getQuestion(i uint32) (q *database.QuestionListTab, err error) {
+
 	q, err = database.Class.Question.ReadQuestion(i)
 	if err != nil {
 		return
 	}
+
+	return
+}
+
+// deleteQABasicSrvPoll 使用 i：问题ID(ID) 删除问答基本服务池字段
+func deleteQABasicSrvPoll(i uint32) (err error) {
+
+	q, err := getQuestion(i)
+	if err != nil {
+		return
+	}
+
+	delete(QABasicSrvPoll, q.Target)
 	return
 }
