@@ -21,7 +21,7 @@ func New() chan *class.Question {
 
 	var (
 		qch = make(chan *class.Question, 10)
-		s   = &srv{qch: qch}
+		s   = &srv{connPool: map[uint64][]*websocket.Conn{}, qch: qch}
 	)
 
 	go s.start()
