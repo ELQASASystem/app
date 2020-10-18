@@ -115,6 +115,8 @@ func reportUserAnswer(q *database.QuestionListTab, m *qq.Msg) {
 		log.Error().Err(err).Msg("读取问题信息失败")
 	}
 
+	log.Info().Msg("准备发送回答数据")
+
 	qch <- res
 
 }

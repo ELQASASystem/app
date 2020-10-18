@@ -9,8 +9,10 @@ func (w *srv) sendQuestion() {
 
 		var (
 			q     = <-w.qch
-			conns = w.connPool[q.Target]
+			conns = w.connPool[q.ID]
 		)
+
+		log.Info().Interface("数据", q).Msg("开始推送远程数据")
 
 		for _, v := range conns {
 
@@ -19,6 +21,9 @@ func (w *srv) sendQuestion() {
 				log.Error().Err(err).Msg("推送问题失败")
 				continue
 			}
+
+			log.Info().Interface("客户端", v).Msg("推送数据中")
+
 		}
 
 	}
