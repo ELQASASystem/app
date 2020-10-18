@@ -1,10 +1,9 @@
 package websocket
 
 import (
+	class "github.com/ELQASASystem/app/internal/app"
 	"net/http"
 	"strconv"
-
-	class "github.com/ELQASASystem/app/internal/app"
 
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
@@ -53,27 +52,21 @@ func (w *srv) handleWS(writer http.ResponseWriter, r *http.Request) {
 	}
 	defer wsconn.Close()
 
+	_, msg, err := wsconn.ReadMessage()
+	if err != nil {
+		log.Error().Err(err).Msg("读取消息失败")
+		return
+	}
+
+	i, _ := strconv.ParseUint(string(msg), 10, 64)
+
+	w.addConn(uint32(i), wsconn)
+	defer w.rmConn(uint32(i), wsconn)
+
+	log.Info().Uint64("问题ID", i).Msg("成功添加 WS 问题监听")
+
 	for {
-
-		_, msg, err := wsconn.ReadMessage()
-		if err != nil {
-			log.Error().Err(err).Msg("读取消息失败")
-			return
-		}
-
-		action := string(msg)
-		log.Info().Str("消息", action).Msg("收到 Websocket 消息")
-
-		if action == "keep heart" {
-			continue
-		}
-
-		i, _ := strconv.ParseUint(action, 10, 64)
-
-		w.addConn(uint32(i), wsconn)
-		defer w.rmConn(uint32(i), wsconn)
-		log.Info().Uint64("问题ID", i).Msg("成功添加WS问题监听")
-
+		_, _, _ = wsconn.ReadMessage()
 	}
 
 }
