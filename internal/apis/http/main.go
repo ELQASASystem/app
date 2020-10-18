@@ -173,31 +173,21 @@ func StartAPI() {
 			// 获取问题
 			Question.Get("/a/{i}", func(c *context.Context) {
 
+				c.Header("Access-Control-Allow-Origin", "*")
+
 				i, err := c.Params().GetUint32("i")
 				if err != nil {
 					log.Error().Err(err).Msg("解析问题ID失败")
 					return
 				}
 
-				type Question struct {
-					*database.QuestionListTab
-					Answer []*database.AnswerListTab `json:"answer"`
-				}
-
-				res, err := database.Class.Question.ReadQuestion(i)
+				res, err := class.ReadQuestion(i)
 				if err != nil {
-					log.Error().Err(err).Msg("读取问题失败")
+					log.Error().Err(err).Msg("获取答题失败")
 					return
 				}
 
-				res2, err := database.Class.Answer.ReadAnswerList(i)
-				if err != nil {
-					log.Error().Err(err).Msg("读取回答失败")
-					return
-				}
-
-				c.Header("Access-Control-Allow-Origin", "*")
-				_, _ = c.JSON(Question{res, res2})
+				_, _ = c.JSON(res)
 
 			})
 
