@@ -49,6 +49,51 @@ func StartQA(i uint32) (err error) {
 	return
 }
 
+// StopQA 使用 i：问题ID(ID) 停止问答
+func StopQA(i uint32) (err error) {
+
+	err = deleteQABasicSrvPoll(i)
+	err = database.Class.Question.UpdateQuestion(i, 2)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+// PrepareQA 使用 i：问题ID(ID) 开始准备作答
+func PrepareQA(i uint32) (err error) {
+
+	err = deleteQABasicSrvPoll(i)
+	err = database.Class.Question.UpdateQuestion(i, 0)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+type Question struct {
+	*database.QuestionListTab
+	Answer []*database.AnswerListTab `json:"answer"`
+}
+
+// ReadQuestion 使用 i：问题ID(ID) 读取问答信息
+func ReadQuestion(i uint32) (q *Question, err error) {
+
+	res, err := database.Class.Question.ReadQuestion(i)
+	if err != nil {
+		return
+	}
+
+	res2, err := database.Class.Answer.ReadAnswerList(i)
+	if err != nil {
+		return
+	}
+
+	return &Question{res, res2}, nil
+}
+
 // reportUserAnswer 上报用户答案
 func reportUserAnswer(q *database.QuestionListTab, m *qq.Msg) {
 
@@ -93,30 +138,6 @@ func handleAnswer(m *qq.Msg) {
 		reportUserAnswer(q, m)
 	}
 
-}
-
-// StopQA 使用 i：问题ID(ID) 停止问答
-func StopQA(i uint32) (err error) {
-
-	err = deleteQABasicSrvPoll(i)
-	err = database.Class.Question.UpdateQuestion(i, 2)
-	if err != nil {
-		return
-	}
-
-	return
-}
-
-// PrepareQA 使用 i：问题ID(ID) 开始准备作答
-func PrepareQA(i uint32) (err error) {
-
-	err = deleteQABasicSrvPoll(i)
-	err = database.Class.Question.UpdateQuestion(i, 0)
-	if err != nil {
-		return
-	}
-
-	return
 }
 
 // getQuestion 使用 i：问题ID(ID) 获取问题
