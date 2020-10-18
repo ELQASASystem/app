@@ -44,12 +44,12 @@ export default {
     methods: {
         fetchData() { // API 获取数据
 
-            Axios.get('http://localhost:4040/apis/question/a/' + this.Question.id).then(res => {
+            Axios.get('/apis/question/a/' + this.Question.id).then(res => {
 
                 console.log('成功获取答题数据：')
                 console.log(res.data)
 
-                Axios.get('http://localhost:4040/apis/group/mem/' + res.data.target).then(res => {
+                Axios.get('/apis/group/mem/' + res.data.target).then(res => {
 
                     console.log('成功获取群成员：')
                     console.log(res.data)
@@ -82,6 +82,23 @@ export default {
             }).catch(err => {
                 console.error('获取答题数据失败：' + err)
             })
+
+            let ws = new WebSocket('ws://elqasasystem.qianjunakasumi.cn/question')
+            ws.onopen = () => {
+                ws.send(String(this.Question.id))
+                setInterval(() => {
+                    ws.send('keep heart');
+                    console.log('WS请求保持连接');
+                }, 50000);
+            }
+            ws.onmessage = msg => {
+                console.log('服务器推送问答数据：')
+                console.log(msg)
+            }
+            ws.onclose = () => {
+                console.error('WS连接已被关闭')
+            }
+
 
         },
         displayQuestion() { // 显示问题数据
@@ -183,7 +200,7 @@ export default {
             console.log(text[this.Status.sliderValue])
             if (this.Status.sliderValue === 1) {
 
-                Axios.get(`http://localhost:4040/apis/question/${this.Question.id}/start`).then(res => {
+                Axios.get(`/apis/question/${this.Question.id}/start`).then(res => {
                     if (res.data.message === 'yes') {
                         this.$notification.success({message: '成功发布答题'})
                     } else {
@@ -196,7 +213,7 @@ export default {
 
             } else if (this.Status.sliderValue === 2) {
 
-                Axios.get(`http://localhost:4040/apis/question/${this.Question.id}/stop`).then(res => {
+                Axios.get(`/apis/question/${this.Question.id}/stop`).then(res => {
                     if (res.data.message === 'yes') {
                         this.$notification.success({message: '成功停止答题'})
                     } else {
@@ -221,7 +238,7 @@ export default {
         },
 
         praise() {
-            Axios.get(`http://localhost:4040/apis/group/praise?target=${this.Question.object.target}&mem=${JSON.stringify(this.Statistics.rightStus)}`).then(() => {
+            Axios.get(`/apis/group/praise?target=${this.Question.object.target}&mem=${JSON.stringify(this.Statistics.rightStus)}`).then(() => {
                 this.$notification.success({message: '表扬成功'})
             }).catch(err => {
                 console.error('激励失败：' + err)
