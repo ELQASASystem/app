@@ -73,9 +73,8 @@ export default {
                     this.displayQuestion()
                     console.log('数据初始化成功')
                 } catch (e) {
-                    console.error('执行数据初始化失败：' + e)
+                    console.error('数据初始化失败：' + e)
                 }
-
 
                 this.Question.loading = false
 
@@ -92,24 +91,34 @@ export default {
                 }, 50000);
             }
             ws.onmessage = msg => {
+
+                const data = JSON.parse(msg.data)
+
                 console.log('服务器推送问答数据：')
-                console.log(msg)
+                console.log(data)
+
+                this.Question.object = data
+
+                try {
+                    this.uploadQuestion()
+                    console.log('数据更新成功')
+                } catch (e) {
+                    console.error('数据更新失败：' + e)
+                }
+
             }
             ws.onclose = () => {
-                console.error('WS连接已被关闭')
+                console.error('WS连接已关闭')
             }
-
 
         },
         displayQuestion() { // 显示问题数据
 
-            const type = {0: '选择题', 1: '简答题'}
-
-            this.Question.type = type[this.Question.object.type] // 题目类型
-
             { // 题目
-                this.Question.text = this.Question.object.question
-                this.Question.key = this.Question.object.key
+                this.Question.type = {0: '选择题', 1: '简答题'}[this.Question.object.type] // 类型
+
+                this.Question.text = this.Question.object.question // 题目
+                this.Question.key = this.Question.object.key // 选项
 
                 if (this.Question.object.type === 1) {
                     this.Question.optionsDisplay = false
@@ -118,24 +127,34 @@ export default {
                 }
             }
 
+            this.updateHeader()
+            this.calc()
+
+            { // 图表
+                this.histogram(0, 'data-chart-right_count',
+                    this.Statistics.rightCount, '正确人数 ' + this.Statistics.rightCount)
+                this.histogram(1, 'data-chart-wrong_count',
+                    this.Statistics.wrongCount, '错误人数 ' + this.Statistics.wrongCount)
+            }
+
+        },
+        uploadQuestion() {
+
+            this.updateHeader()
+            this.calc()
+
+            { // 图表
+                this.updateHistogram(0, this.Statistics.rightCount, '正确人数 ' + this.Statistics.rightCount)
+                this.updateHistogram(1, this.Statistics.wrongCount, '错误人数 ' + this.Statistics.wrongCount)
+            }
+
+        },
+        updateHeader() {
             { // 状态
                 this.Status.status = this.Question.object.status
                 this.Status.answererCount = this.Question.object.answer.length
                 this.Status.sliderValue = this.Question.object.status
             }
-
-            this.calc()
-
-
-            { // 图表
-
-                this.histogram('data-chart-right_count',
-                    this.Statistics.rightCount, '正确人数 ' + this.Statistics.rightCount)
-                this.histogram('data-chart-wrong_count',
-                    this.Statistics.wrongCount, '错误人数 ' + this.Statistics.wrongCount)
-
-            }
-
         },
 
         calc() {
@@ -177,7 +196,7 @@ export default {
 
         },
 
-        histogram(elm, data, text) {
+        histogram(id, elm, data, text) {
 
             const chart = new Chart({
                 container: elm,
@@ -190,7 +209,11 @@ export default {
             chart.interval().position('type*value')
 
             chart.render()
+            this.CHARTData[id] = chart
 
+        },
+        updateHistogram(id, data, text) {
+            this.CHARTData[id].changeData([{type: text, value: data}])
         },
 
         changeStatus() {
@@ -241,7 +264,8 @@ export default {
             Axios.get(`/apis/group/praise?target=${this.Question.object.target}&mem=${JSON.stringify(this.Statistics.rightStus)}`).then(() => {
                 this.$notification.success({message: '表扬成功'})
             }).catch(err => {
-                console.error('激励失败：' + err)
+                this.$notification.success({message: '表扬失败'})
+                console.error('表扬失败：' + err)
             })
         }
 
