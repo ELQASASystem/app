@@ -66,7 +66,10 @@ func (w *srv) handleWS(writer http.ResponseWriter, r *http.Request) {
 	log.Info().Uint64("问题ID", i).Msg("成功添加 WS 问题监听")
 
 	for {
-		_, _, _ = wsconn.ReadMessage()
+		if _, _, err := wsconn.ReadMessage(); err != nil {
+			log.Error().Err(err).Msg("读取消息失败")
+			break
+		}
 	}
 
 }

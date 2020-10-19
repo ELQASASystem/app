@@ -1,6 +1,7 @@
 package class
 
 import (
+	"strconv"
 	"strings"
 	"time"
 
@@ -57,6 +58,8 @@ func StopQA(i uint32) (err error) {
 	if err != nil {
 		return
 	}
+
+	log.Info().Msg("问题 " + strconv.Itoa(int(i)) + " 已停止答题")
 
 	return
 }
