@@ -44,6 +44,8 @@ func StartQA(i uint32) (err error) {
 		m.AddText("\n@+回答内容即可作答")
 	}
 
+	log.Info().Msg("问题 " + strconv.Itoa(int(i)) + " 开始监听")
+
 	Bot.SendGroupMsg(m.To(q.Target))
 	QABasicSrvPoll[q.Target] = q
 
