@@ -362,6 +362,49 @@ func StartAPI() {
 
 			})
 
+			// 上传图片前预检请求
+			Upload.Options("/picture", func(c *context.Context) {
+
+				c.Header("Access-Control-Allow-Origin", "*")
+				c.Header("Access-Control-Allow-Headers", "x-requested-with")
+				c.Header("Access-Control-Allow-Methods", "POST")
+
+			})
+
+			// 上传图片
+			Upload.Post("/picture", func(c *context.Context) {
+
+				c.SetMaxRequestBodySize(8388608) // 限制最大上传大小为 8MiB
+
+				_, fileHeader, err := c.FormFile("file")
+				if err != nil {
+					log.Error().Err(err).Msg("文件上传失败")
+					return
+				}
+
+				dest := filepath.Join("assets/temp/userUpload/pictures", fileHeader.Filename)
+
+				log.Info().Str("文件名", fileHeader.Filename).Msg("API：上传文件")
+
+				if _, err := c.SaveFormFile(fileHeader, dest); err != nil {
+					log.Error().Err(err).Msg("保存上传文件失败")
+					return
+				}
+
+				c.Header("Access-Control-Allow-Origin", "*")
+				_, _ = c.JSON(iris.Map{"fileName": fileHeader.Filename})
+
+				// 在一分钟后删除该文件
+				time.AfterFunc(time.Minute, func() {
+
+					log.Info().Str("文件名", fileHeader.Filename).Msg("API：删除上传的文件")
+					if err := os.Remove(dest); err != nil {
+						log.Error().Err(err).Msg("删除文件时发生了意外")
+					}
+
+				})
+			})
+
 		}
 
 	}
