@@ -374,7 +374,9 @@ func StartAPI() {
 			// 上传图片
 			Upload.Post("/picture", func(c *context.Context) {
 
-				c.SetMaxRequestBodySize(8388608) // 限制最大上传大小为 8MiB
+				c.Header("Access-Control-Allow-Origin", "*")
+
+				c.SetMaxRequestBodySize(4194304) // 限制最大上传大小为 4MiB
 
 				_, fileHeader, err := c.FormFile("file")
 				if err != nil {
@@ -382,7 +384,8 @@ func StartAPI() {
 					return
 				}
 
-				dest := filepath.Join("assets/temp/userUpload/pictures", fileHeader.Filename)
+				encodedName := class.HashSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + "-" + fileHeader.Filename
+				dest := filepath.Join("assets/temp/userUpload/pictures/", encodedName)
 
 				log.Info().Str("文件名", fileHeader.Filename).Msg("API：上传文件")
 
@@ -391,18 +394,7 @@ func StartAPI() {
 					return
 				}
 
-				c.Header("Access-Control-Allow-Origin", "*")
 				_, _ = c.JSON(iris.Map{"fileName": fileHeader.Filename})
-
-				// 在一分钟后删除该文件
-				time.AfterFunc(time.Minute, func() {
-
-					log.Info().Str("文件名", fileHeader.Filename).Msg("API：删除上传的文件")
-					if err := os.Remove(dest); err != nil {
-						log.Error().Err(err).Msg("删除文件时发生了意外")
-					}
-
-				})
 			})
 
 		}
