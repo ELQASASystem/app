@@ -147,7 +147,7 @@ func handleAnswer(m *qq.Msg) {
 		}
 	}
 
-	if isAnswer(m.Chain[0].Text) {
+	if checkAnswerForSelect(m.Chain[0].Text) {
 		reportUserAnswer(q, m)
 	}
 

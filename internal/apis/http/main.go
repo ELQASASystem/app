@@ -312,7 +312,7 @@ func StartAPI() {
 					return
 				}
 
-				encodedName := class.HashSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + ".docx"
+				encodedName := class.HashForSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + ".docx"
 				dest := filepath.Join("assets/temp/userUpload/", encodedName)
 
 				log.Info().Str("文件名", encodedName).Msg("API：上传文件")
@@ -384,7 +384,7 @@ func StartAPI() {
 					return
 				}
 
-				encodedName := class.HashSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + "-" + fileHeader.Filename
+				encodedName := class.HashForSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + "-" + fileHeader.Filename
 				dest := filepath.Join("assets/temp/userUpload/pictures/", encodedName)
 
 				log.Info().Str("文件名", fileHeader.Filename).Msg("API：上传文件")
