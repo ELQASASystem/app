@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"regexp"
+	"strings"
 
 	"github.com/rs/zerolog/log"
 )
@@ -20,10 +21,7 @@ func checkAnswerForSelect(answer string) (ok bool) {
 }
 
 // checkAnswerForFill 检查为合法的 [简答题] 答案
-func checkAnswerForFill() (ok bool) {
-
-	return
-}
+func checkAnswerForFill(answer string) bool { return strings.HasPrefix(answer, "#") }
 
 // HashForSHA1 SHA1 散列
 func HashForSHA1(d string) string {

@@ -100,12 +100,12 @@ func ReadQuestion(i uint32) (q *Question, err error) {
 }
 
 // reportUserAnswer 上报用户答案
-func reportUserAnswer(q *database.QuestionListTab, m *qq.Msg) {
+func reportUserAnswer(q *database.QuestionListTab, answerer uint64, ans string) {
 
 	err := database.Class.Answer.WriteAnswerList(&database.AnswerListTab{
 		QuestionID: q.ID,
-		AnswererID: m.User.ID,
-		Answer:     strings.ToUpper(m.Chain[0].Text),
+		AnswererID: answerer,
+		Answer:     ans,
 		Time:       time.Now().Format("2006-01-02 15:04:05"),
 	})
 	if err != nil {
@@ -147,8 +147,17 @@ func handleAnswer(m *qq.Msg) {
 		}
 	}
 
-	if checkAnswerForSelect(m.Chain[0].Text) {
-		reportUserAnswer(q, m)
+	switch q.Type {
+	// 选择题
+	case 0:
+		if checkAnswerForSelect(m.Chain[0].Text) {
+			reportUserAnswer(q, m.User.ID, strings.ToUpper(m.Chain[0].Text))
+		}
+	// 填空题
+	case 1:
+		if checkAnswerForFill(m.Chain[0].Text) {
+			reportUserAnswer(q, m.User.ID, strings.TrimPrefix(m.Chain[0].Text, "#"))
+		}
 	}
 
 }
