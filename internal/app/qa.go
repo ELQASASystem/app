@@ -14,7 +14,7 @@ import (
 
 var QABasicSrvPoll = map[uint64]*database.QuestionListTab{} // QABasicSrvPoll 问答基本服务线程池
 
-// StartQA 使用 i：问题ID(ID) 开始监听问题
+// StartQA 使用 i：问题ID(ID) 开始作答
 func StartQA(i uint32) (err error) {
 
 	q, err := getQuestion(i)
@@ -56,6 +56,9 @@ func StartQA(i uint32) (err error) {
 func StopQA(i uint32) (err error) {
 
 	err = deleteQABasicSrvPoll(i)
+	if err != nil {
+		return
+	}
 	err = database.Class.Question.UpdateQuestion(i, 2)
 	if err != nil {
 		return
@@ -66,10 +69,13 @@ func StopQA(i uint32) (err error) {
 	return
 }
 
-// PrepareQA 使用 i：问题ID(ID) 开始准备作答
+// PrepareQA 使用 i：问题ID(ID) 准备作答
 func PrepareQA(i uint32) (err error) {
 
 	err = deleteQABasicSrvPoll(i)
+	if err != nil {
+		return
+	}
 	err = database.Class.Question.UpdateQuestion(i, 0)
 	if err != nil {
 		return

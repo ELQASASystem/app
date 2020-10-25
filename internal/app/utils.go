@@ -26,6 +26,6 @@ func checkAnswerForFill(answer string) bool { return strings.HasPrefix(answer, "
 // HashForSHA1 SHA1 散列
 func HashForSHA1(d string) string {
 	h := sha1.New()
-	h.Write([]byte(d))
+	_, _ = h.Write([]byte(d))
 	return hex.EncodeToString(h.Sum(nil))
 }
