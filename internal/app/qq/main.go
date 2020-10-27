@@ -83,7 +83,7 @@ func (r Rina) login() (err error) {
 
 		if err != nil {
 			log.Error().Err(err).Msg("登录失败")
-			return
+			return err
 		}
 
 		switch res.Error {
