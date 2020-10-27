@@ -49,7 +49,7 @@ export default {
                 console.log('成功获取答题数据：')
                 console.log(res.data)
 
-                Axios.get('/apis/group/mem/' + res.data.target).then(res => {
+                Axios.get(`/apis/group/${res.data.target}/mem/`).then(res => {
 
                     console.log('成功获取群成员：')
                     console.log(res.data)
@@ -82,12 +82,12 @@ export default {
                 console.error('获取答题数据失败：' + err)
             })
 
-            let ws = new WebSocket('ws://elqasasystem.qianjunakasumi.cn/question')
+            let ws = new WebSocket(`ws://${location.host}/question`)
             ws.onopen = () => {
                 ws.send(String(this.Question.id))
                 setInterval(() => {
                     ws.send('keep heart');
-                    console.log('WS请求保持连接');
+                    console.log('WS保持连接');
                 }, 50000);
             }
             ws.onmessage = msg => {
@@ -219,38 +219,24 @@ export default {
         changeStatus() {
 
             const text = ['准备答题', '发布答题', '停止答题']
+            const code = ['prepare', 'start', 'stop']
+            const c = this.Status.sliderValue
 
-            console.log(text[this.Status.sliderValue])
-            if (this.Status.sliderValue === 1) {
+            console.log(text[c])
 
-                Axios.get(`/apis/question/${this.Question.id}/start`).then(res => {
-                    if (res.data.message === 'yes') {
-                        this.$notification.success({message: '成功发布答题'})
-                    } else {
-                        this.$notification.error({message: '发布答题失败'})
-                    }
-                }).catch(err => {
-                    console.error("发布答题失败：" + err)
-                    this.$notification.error({message: '发布答题失败'})
-                })
-
-            } else if (this.Status.sliderValue === 2) {
-
-                Axios.get(`/apis/question/${this.Question.id}/stop`).then(res => {
-                    if (res.data.message === 'yes') {
-                        this.$notification.success({message: '成功停止答题'})
-                    } else {
-                        this.$notification.error({message: '停止答题失败'})
-                    }
-                }).catch(err => {
-                    console.error("停止答题失败：" + err)
-                    this.$notification.error({message: '停止答题失败'})
-                })
-
-            }
+            Axios.get(`/apis/question/${this.Question.id}/${code[c]}`).then(res => {
+                if (res.data.message === 'yes') {
+                    this.$notification.success({message: `成功${text[c]}`})
+                } else {
+                    this.$notification.error({message: `${text[c]}失败`})
+                }
+            }).catch(err => {
+                console.error(`${text[c]}失败：` + err)
+                this.$notification.error({message: `${text[c]}失败`})
+            })
 
             this.$notification.info({
-                message: `正在${text[this.Status.sliderValue]}中...`
+                message: `正在${text[c]}中...`
             })
 
             this.Status.status = this.Status.sliderValue
@@ -261,7 +247,7 @@ export default {
         },
 
         praise() {
-            Axios.get(`/apis/group/praise?target=${this.Question.object.target}&mem=${JSON.stringify(this.Statistics.rightStus)}`).then(() => {
+            Axios.get(`/apis/group/${this.Question.object.target}/praise?mem=${JSON.stringify(this.Statistics.rightStus)}`).then(() => {
                 this.$notification.success({message: '表扬成功'})
             }).catch(err => {
                 this.$notification.success({message: '表扬失败'})

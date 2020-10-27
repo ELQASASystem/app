@@ -111,7 +111,7 @@ export default {
 
     login(u, p) {
 
-      Axios.get(`/apis/signin/${u}/${p}`).then(res => {
+      Axios.get(`/apis/sign/${u}/in?p=${p}`).then(res => {
 
         console.log("登录返回信息：")
         console.log(res.data)
