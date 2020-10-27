@@ -12,13 +12,20 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var QABasicSrvPoll = map[uint64]*database.QuestionListTab{} // QABasicSrvPoll 问答基本服务线程池
+// Question 问题
+type Question struct {
+	*database.QuestionListTab
+	Answer []*database.AnswerListTab `json:"answer"`
+}
+
+var QABasicSrvPoll = map[uint64]*Question{} // QABasicSrvPoll 问答基本服务线程池
 
 // StartQA 使用 i：问题ID(ID) 开始作答
 func StartQA(i uint32) (err error) {
 
-	q, err := getQuestion(i)
+	q, err := ReadQuestion(i)
 	if err != nil {
+		log.Error().Err(err).Msg("读取问题失败")
 		return
 	}
 
@@ -57,10 +64,12 @@ func StopQA(i uint32) (err error) {
 
 	err = deleteQABasicSrvPoll(i)
 	if err != nil {
+		log.Error().Err(err).Msg("删除问答基本服务监听失败")
 		return
 	}
 	err = database.Class.Question.UpdateQuestion(i, 2)
 	if err != nil {
+		log.Error().Err(err).Msg("更新问答状态字段失败")
 		return
 	}
 
@@ -74,19 +83,16 @@ func PrepareQA(i uint32) (err error) {
 
 	err = deleteQABasicSrvPoll(i)
 	if err != nil {
+		log.Error().Err(err).Msg("删除问答基本服务监听失败")
 		return
 	}
 	err = database.Class.Question.UpdateQuestion(i, 0)
 	if err != nil {
+		log.Error().Err(err).Msg("更新问答状态字段失败")
 		return
 	}
 
 	return
-}
-
-type Question struct {
-	*database.QuestionListTab
-	Answer []*database.AnswerListTab `json:"answer"`
 }
 
 // ReadQuestion 使用 i：问题ID(ID) 读取问答信息
@@ -105,31 +111,26 @@ func ReadQuestion(i uint32) (q *Question, err error) {
 	return &Question{res, res2}, nil
 }
 
-// reportUserAnswer 上报用户答案
-func reportUserAnswer(q *database.QuestionListTab, answerer uint64, ans string) {
+// writeAnswer 写入回答答案
+func writeAnswer(q *Question, stu uint64, ans string) {
 
-	err := database.Class.Answer.WriteAnswerList(&database.AnswerListTab{
+	answer := &database.AnswerListTab{
 		QuestionID: q.ID,
-		AnswererID: answerer,
+		AnswererID: stu,
 		Answer:     ans,
 		Time:       time.Now().Format("2006-01-02 15:04:05"),
-	})
+	}
+
+	err := database.Class.Answer.WriteAnswerList(answer)
 	if err != nil {
 		log.Warn().Err(err).Msg("写入答案失败")
 		return
 	}
 
+	q.Answer = append(q.Answer, answer)
+
 	log.Info().Msg("成功写入回答")
-
-	res, err := ReadQuestion(q.ID)
-	if err != nil {
-		log.Error().Err(err).Msg("读取问题信息失败")
-	}
-
-	log.Info().Msg("准备发送回答数据")
-
-	qch <- res
-
+	qch <- q
 }
 
 // handleAnswer 处理消息中可能存在的答案
@@ -140,14 +141,7 @@ func handleAnswer(m *qq.Msg) {
 		return
 	}
 
-	// TODO 改内存实现
-	ans, err := database.Class.Answer.ReadAnswerList(q.ID)
-	if err != nil {
-		log.Warn().Err(err).Msg("读取答案列表失败")
-		return
-	}
-
-	for _, v := range ans {
+	for _, v := range q.Answer {
 		if v.AnswererID == m.User.ID {
 			return
 		}
@@ -157,32 +151,21 @@ func handleAnswer(m *qq.Msg) {
 	// 选择题
 	case 0:
 		if checkAnswerForSelect(m.Chain[0].Text) {
-			reportUserAnswer(q, m.User.ID, strings.ToUpper(m.Chain[0].Text))
+			writeAnswer(q, m.User.ID, strings.ToUpper(m.Chain[0].Text))
 		}
 	// 填空题
 	case 1:
 		if checkAnswerForFill(m.Chain[0].Text) {
-			reportUserAnswer(q, m.User.ID, strings.TrimPrefix(m.Chain[0].Text, "#"))
+			writeAnswer(q, m.User.ID, strings.TrimPrefix(m.Chain[0].Text, "#"))
 		}
 	}
 
-}
-
-// getQuestion 使用 i：问题ID(ID) 获取问题
-func getQuestion(i uint32) (q *database.QuestionListTab, err error) {
-
-	q, err = database.Class.Question.ReadQuestion(i)
-	if err != nil {
-		return
-	}
-
-	return
 }
 
 // deleteQABasicSrvPoll 使用 i：问题ID(ID) 删除问答基本服务池字段
 func deleteQABasicSrvPoll(i uint32) (err error) {
 
-	q, err := getQuestion(i)
+	q, err := database.Class.Question.ReadQuestion(i)
 	if err != nil {
 		return
 	}
