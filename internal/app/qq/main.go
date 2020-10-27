@@ -79,20 +79,14 @@ func NewRina(i uint64, p string, ch *chan *Msg) (r *Rina) {
 // login 登录
 func (r Rina) login() (err error) {
 
-	res, err := r.C.Login()
-	if err != nil {
-		return
-	}
-	for !res.Success {
+	for res, err := r.C.Login(); err != nil || !res.Success; res, err = r.C.Login() {
+
+		if err != nil {
+			log.Error().Err(err).Msg("登录失败")
+			return
+		}
 
 		switch res.Error {
-		case client.NeedCaptcha:
-			_, err := r.C.SubmitCaptcha(r.needCap(res), res.CaptchaSign)
-			if err != nil {
-				log.Error().Err(err).Msg("提交验证码错误")
-				continue
-			}
-
 		default:
 			log.Panic().Str("原因", res.ErrorMessage).Msg("无法登录")
 		}
