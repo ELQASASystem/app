@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/Joker/hpp v1.0.0 // indirect
-	github.com/Mrs4s/MiraiGo v0.0.0-20201022085944-3c7d90d4a54f
+	github.com/Mrs4s/MiraiGo v0.0.0-20201028112325-d9e1c14a8098
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/json-iterator/go v1.1.10
