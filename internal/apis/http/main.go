@@ -181,7 +181,7 @@ func StartAPI() {
 			// 初始化问题列表, 用于解析 JSON 后储存
 			qlt := database.QuestionListTab{}
 
-			if err := c.ReadJSON(qlt); err != nil {
+			if err := c.ReadJSON(&qlt); err != nil {
 				log.Error().Err(err).Msg("解析传入 JSON 失败")
 				return
 			}
