@@ -82,6 +82,10 @@ func (r Rina) login() (err error) {
 	for res, err := r.C.Login(); err != nil || !res.Success; res, err = r.C.Login() {
 
 		if err != nil {
+			if err == client.ErrAlreadyOnline {
+				return nil
+			}
+
 			log.Error().Err(err).Msg("登录失败")
 			return err
 		}
