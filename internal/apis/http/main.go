@@ -176,18 +176,23 @@ func StartAPI() {
 		})
 
 		// 新增问题
-		Question.Get("/add", func(c *context.Context) {
+		Question.Post("/add", func(c *context.Context) {
 
-			// TODO 新建问题 POST传入
-			/*
-				err := database.Class.Question.WriteQuestionList(&database.QuestionListTab{})
-				if err != nil {
-					log.Error().Err(err).Msg("新增答题失败")
-					return
-				}
+			// 初始化问题列表, 用于解析 JSON 后储存
+			qlt := database.QuestionListTab{}
 
-				_, _ = c.JSON(iris.Map{"message": "yes"})
-			*/
+			if err := c.ReadJSON(qlt); err != nil {
+				log.Error().Err(err).Msg("解析传入 JSON 失败")
+				return
+			}
+
+			err := database.Class.Question.WriteQuestionList(&qlt)
+			if err != nil {
+				log.Error().Err(err).Msg("新增答题失败")
+				return
+			}
+
+			_, _ = c.JSON(iris.Map{"message": "yes"})
 
 		})
 
