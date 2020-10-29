@@ -67,7 +67,7 @@ func StopQA(i uint32) (err error) {
 		log.Error().Err(err).Msg("删除问答基本服务监听失败")
 		return
 	}
-	err = database.Class.Question.UpdateQuestion(i, 2)
+	err = db.Question().UpdateQuestion(i, 2)
 	if err != nil {
 		log.Error().Err(err).Msg("更新问答状态字段失败")
 		return
@@ -86,7 +86,7 @@ func PrepareQA(i uint32) (err error) {
 		log.Error().Err(err).Msg("删除问答基本服务监听失败")
 		return
 	}
-	err = database.Class.Question.UpdateQuestion(i, 0)
+	err = db.Question().UpdateQuestion(i, 0)
 	if err != nil {
 		log.Error().Err(err).Msg("更新问答状态字段失败")
 		return
@@ -98,12 +98,12 @@ func PrepareQA(i uint32) (err error) {
 // ReadQuestion 使用 i：问题ID(ID) 读取问答信息
 func ReadQuestion(i uint32) (q *Question, err error) {
 
-	res, err := database.Class.Question.ReadQuestion(i)
+	res, err := db.Question().ReadQuestion(i)
 	if err != nil {
 		return
 	}
 
-	res2, err := database.Class.Answer.ReadAnswerList(i)
+	res2, err := db.Answer().ReadAnswerList(i)
 	if err != nil {
 		return
 	}
@@ -121,7 +121,7 @@ func writeAnswer(q *Question, stu uint64, ans string) {
 		Time:       time.Now().Format("2006-01-02 15:04:05"),
 	}
 
-	err := database.Class.Answer.WriteAnswerList(answer)
+	err := db.Answer().WriteAnswerList(answer)
 	if err != nil {
 		log.Warn().Err(err).Msg("写入答案失败")
 		return
@@ -165,7 +165,7 @@ func handleAnswer(m *qq.Msg) {
 // deleteQABasicSrvPoll 使用 i：问题ID(ID) 删除问答基本服务池字段
 func deleteQABasicSrvPoll(i uint32) (err error) {
 
-	q, err := database.Class.Question.ReadQuestion(i)
+	q, err := db.Question().ReadQuestion(i)
 	if err != nil {
 		return
 	}

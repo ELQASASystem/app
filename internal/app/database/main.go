@@ -14,17 +14,25 @@ type (
 
 	*/
 
-	// Str 数据库包结构体
-	Str struct {
-		DB       *sql.DB  // DB 数据库指针
-		Account  Account  // Account 帐号相关
-		Question Question // Question 问题相关
-		Answer   Answer   // Answer 回答相关
+	// Database 数据库
+	Database struct {
+		conn *sql.DB // conn 数据库连接
 	}
 
-	Account  struct{} // Account 帐号相关
-	Question struct{} // Question 问题相关
-	Answer   struct{} // Answer 回答相关
+	// account 帐号相关
+	account struct {
+		conn *sql.DB // conn 数据库连接
+	}
+
+	// question 问题相关
+	question struct {
+		conn *sql.DB // conn 数据库连接
+	}
+
+	// answer 回答相关
+	answer struct {
+		conn *sql.DB // conn 数据库连接
+	}
 
 	/*
 
@@ -34,49 +42,53 @@ type (
 
 	// AccountsListTab 帐号
 	AccountsListTab struct {
-		ID       string `json:"id"`       // 唯一标识符
-		Password string `json:"password"` // 密码
-		Class    string `json:"class"`    // 班级
+		ID       string `json:"id"`       // ID 唯一标识符
+		Password string `json:"password"` // Password 密码
+		Class    string `json:"class"`    // Class 班级
 	}
 
 	// QuestionListTab 问题
 	QuestionListTab struct {
-		ID        uint32 `json:"id"`         // 唯一标识符
-		Type      uint   `json:"type"`       // 类型
-		Question  string `json:"question"`   // 问题
-		CreatorID string `json:"creator_id"` // 创建者
-		Target    uint64 `json:"target"`     // 目标
-		Status    uint8  `json:"status"`     // 状态
-		Options   string `json:"options"`    // 选项
-		Key       string `json:"key"`        // 答案
-		Market    bool   `json:"market"`     // 存在市场
+		ID        uint32 `json:"id"`         // ID 唯一标识符
+		Type      uint   `json:"type"`       // Type 类型
+		Question  string `json:"question"`   // Question 问题
+		CreatorID string `json:"creator_id"` // CreatorID 创建者
+		Target    uint64 `json:"target"`     // Target 目标
+		Status    uint8  `json:"status"`     // Status 状态
+		Options   string `json:"options"`    // Options 选项
+		Key       string `json:"key"`        // Key 答案
+		Market    bool   `json:"market"`     // Market 存在市场
 	}
 
 	// AnswerListTab 回答
 	AnswerListTab struct {
-		ID         uint32 `json:"id"`          // 唯一标识符
-		QuestionID uint32 `json:"question_id"` // 问题唯一标识符
-		AnswererID uint64 `json:"answerer_id"` // 回答者
-		Answer     string `json:"answer"`      // 回答内容
-		Time       string `json:"time"`        // 回答时间
+		ID         uint32 `json:"id"`          // ID 唯一标识符
+		QuestionID uint32 `json:"question_id"` // QuestionID 问题唯一标识符
+		AnswererID uint64 `json:"answerer_id"` // AnswererID 回答者
+		Answer     string `json:"answer"`      // Answer 回答内容
+		Time       string `json:"time"`        // Time 回答时间
 	}
 )
 
-var Class = Str{} // Class 数据库相关
+// New 新建一个数据库事务
+func New() *Database { return new(Database) }
 
 // ConnectDB 连接数据库
-func (s *Str) ConnectDB(u string) (err error) {
+func (d *Database) ConnectDB(u string) (err error) {
 
-	s.DB, err = sql.Open("mysql", u)
+	d.conn, err = sql.Open("mysql", u)
 	if err != nil {
 		return
 	}
 
-	err = s.DB.Ping()
-	if err != nil {
-		return
-	}
-
-	return
-
+	return d.conn.Ping()
 }
+
+// Account 帐号相关
+func (d *Database) Account() *account { return &account{conn: d.conn} }
+
+// Question 问题相关
+func (d *Database) Question() *question { return &question{conn: d.conn} }
+
+// Answer 回答相关
+func (d *Database) Answer() *answer { return &answer{conn: d.conn} }

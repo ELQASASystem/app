@@ -10,6 +10,7 @@ import (
 
 var Bot *qq.Rina // Bot 机器人对象
 var qch chan *Question
+var db = database.New()
 
 // New 新建一个机器人
 func New(qc chan *Question) {
@@ -23,10 +24,13 @@ func New(qc chan *Question) {
 	Bot = r
 	qch = qc
 
-	if database.Class.ConnectDB(c.DatabaseUrl) != nil {
+	if db.ConnectDB(c.DatabaseUrl) != nil {
 		log.Panic().Msg("数据库连接失败")
 	}
 	r.RegEventHandle()
 	go monitorGroup()
 
 }
+
+// Database 获取数据库事务实例
+func Database() *database.Database { return db }

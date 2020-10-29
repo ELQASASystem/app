@@ -31,7 +31,7 @@ func StartAPI() {
 	// 登录
 	API.Party("sign").Get("/{u}/in", func(c *context.Context) {
 
-		res, err := database.Class.Account.ReadAccountsList(c.Params().Get("u"))
+		res, err := class.Database().Account().ReadAccountsList(c.Params().Get("u"))
 		if err != nil {
 			log.Error().Err(err).Msg("获取用户帐号失败")
 			_, _ = c.JSON(iris.Map{"message": "no"})
@@ -143,7 +143,7 @@ func StartAPI() {
 		// 获取问题列表
 		Question.Get("/{u}/list", func(c *context.Context) {
 
-			res, err := database.Class.Question.ReadQuestionList(c.Params().Get("u"))
+			res, err := class.Database().Question().ReadQuestionList(c.Params().Get("u"))
 			if err != nil {
 				log.Error().Err(err).Msg("读取问题列表失败")
 				_, _ = c.JSON(iris.Map{"message": "no"})
@@ -186,7 +186,7 @@ func StartAPI() {
 				return
 			}
 
-			err := database.Class.Question.WriteQuestionList(&qlt)
+			err := class.Database().Question().WriteQuestionList(&qlt)
 			if err != nil {
 				log.Error().Err(err).Msg("新增答题失败")
 				return
@@ -254,10 +254,12 @@ func StartAPI() {
 			_, err := c.Params().GetUint64("question_id")
 			if err != nil {
 				log.Error().Err(err).Msg("解析问题ID失败")
+				_, _ = c.JSON(iris.Map{"message": "no"})
+				return
 			}
 
 			// TODO: 调用数据库删除 QJNKSM:这个先咕咕
-			//database.Class.Question.RemoveQuestion(qid)
+			// class.Database().Question().RemoveQuestion(qid)
 
 			_, _ = c.JSON(iris.Map{"message": "yes"})
 
@@ -266,7 +268,7 @@ func StartAPI() {
 		// 获取问题市场
 		Question.Get("/market", func(c *context.Context) {
 
-			res, err := database.Class.Question.ReadQuestionMarket()
+			res, err := class.Database().Question().ReadQuestionMarket()
 			if err != nil {
 				log.Error().Err(err).Msg("读取问题列表失败")
 				return

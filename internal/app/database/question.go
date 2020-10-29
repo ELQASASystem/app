@@ -7,33 +7,32 @@ import (
 
 // ReadQuestionList 使用 u：用户名(ID) 查询 QuestionListTab 表。
 // 列出所有答题
-func (q Question) ReadQuestionList(u string) (tab []*QuestionListTab, err error) {
+func (q *question) ReadQuestionList(u string) (tab []*QuestionListTab, err error) {
 
 	sq := fmt.Sprintf(
 		`SELECT question_list.* FROM question_list WHERE question_list.creator_id = "%v" ORDER BY question_list.id DESC`,
 		u,
 	)
 
-	rows, err := Class.DB.Query(sq)
+	rows, err := q.conn.Query(sq)
 	if err != nil {
 		return
 	}
 
 	tab, err = joinQuestionList(rows)
 	return
-
 }
 
 // ReadQuestion 使用 i：问题ID(ID) 查询 QuestionListTab 表。
 // 答题信息
-func (q Question) ReadQuestion(i uint32) (data *QuestionListTab, err error) {
+func (q *question) ReadQuestion(i uint32) (data *QuestionListTab, err error) {
 
 	sq := fmt.Sprintf(
 		`SELECT question_list.* FROM question_list WHERE question_list.id = %v`,
 		i,
 	)
 
-	row, err := Class.DB.Query(sq)
+	row, err := q.conn.Query(sq)
 	if err != nil {
 		return
 	}
@@ -50,14 +49,13 @@ func (q Question) ReadQuestion(i uint32) (data *QuestionListTab, err error) {
 	}
 
 	return
-
 }
 
 // ReadQuestionMarket 查询 QuestionListTab 表。
 // 答题市场
-func (q Question) ReadQuestionMarket() (tab []*QuestionListTab, err error) {
+func (q *question) ReadQuestionMarket() (tab []*QuestionListTab, err error) {
 
-	rows, err := Class.DB.Query(
+	rows, err := q.conn.Query(
 		`SELECT question_list.* FROM question_list WHERE question_list.market = true ORDER BY question_list.id DESC`,
 	)
 	if err != nil {
@@ -66,7 +64,6 @@ func (q Question) ReadQuestionMarket() (tab []*QuestionListTab, err error) {
 
 	tab, err = joinQuestionList(rows)
 	return
-
 }
 
 // joinQuestionList 复用
@@ -90,14 +87,13 @@ func joinQuestionList(rows *sql.Rows) (tab []*QuestionListTab, err error) {
 
 	tab = data
 	return
-
 }
 
 // WriteQuestionList 写入 QuestionListTab 表。
 // 新建答题
-func (q Question) WriteQuestionList(tab *QuestionListTab) (err error) {
+func (q *question) WriteQuestionList(tab *QuestionListTab) (err error) {
 
-	i, err := Class.DB.Prepare(
+	i, err := q.conn.Prepare(
 		`INSERT INTO question_list 
 (id, type, question, creator_id, target, status, options, key, market) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 	)
@@ -113,14 +109,13 @@ func (q Question) WriteQuestionList(tab *QuestionListTab) (err error) {
 	}
 
 	return
-
 }
 
 // UpdateQuestion 使用 i：问题ID(ID) 、 s：状态码(Status) 更新问题 status 字段。
 // 更新状态
-func (q Question) UpdateQuestion(i uint32, s uint8) (err error) {
+func (q *question) UpdateQuestion(i uint32, s uint8) (err error) {
 
-	l, err := Class.DB.Prepare(`UPDATE question_list SET question_list.status = ? WHERE question_list.id = ?`)
+	l, err := q.conn.Prepare(`UPDATE question_list SET question_list.status = ? WHERE question_list.id = ?`)
 	if err != nil {
 		return
 	}

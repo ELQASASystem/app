@@ -2,16 +2,16 @@ package database
 
 import "fmt"
 
-// ReadAnswerList 使用 i：问题ID(ID) 查询 AnswerListTab 表
+// ReadAnswerList 使用 i：问题ID(ID) 查询 AnswerListTab 表。
 // 回答信息
-func (a Answer) ReadAnswerList(i uint32) (tab []*AnswerListTab, err error) {
+func (a *answer) ReadAnswerList(i uint32) (tab []*AnswerListTab, err error) {
 
 	sq := fmt.Sprintf(
 		`SELECT answer_list.* FROM answer_list WHERE answer_list.question_id = %v ORDER BY answer_list.time DESC`,
 		i,
 	)
 
-	rows, err := Class.DB.Query(sq)
+	rows, err := a.conn.Query(sq)
 	if err != nil {
 		return
 	}
@@ -34,14 +34,13 @@ func (a Answer) ReadAnswerList(i uint32) (tab []*AnswerListTab, err error) {
 
 	tab = data
 	return
-
 }
 
 // WriteAnswerList 写入 AnswerListTab 表。
 // 写入回答
-func (a Answer) WriteAnswerList(d *AnswerListTab) (err error) {
+func (a *answer) WriteAnswerList(d *AnswerListTab) (err error) {
 
-	i, err := Class.DB.Prepare(
+	i, err := a.conn.Prepare(
 		`INSERT INTO answer_list (id, question_id, answerer_id, answer, time) VALUES (?, ?, ?, ?, ?)`,
 	)
 	if err != nil {
@@ -55,5 +54,4 @@ func (a Answer) WriteAnswerList(d *AnswerListTab) (err error) {
 	}
 
 	return
-
 }
