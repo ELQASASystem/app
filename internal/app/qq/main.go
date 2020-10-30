@@ -1,11 +1,7 @@
 package qq
 
 import (
-	"bytes"
-	"fmt"
-	"io"
 	"net"
-	"os"
 	"time"
 
 	"github.com/Mrs4s/MiraiGo/client"
@@ -115,30 +111,6 @@ func (r Rina) login() (err error) {
 	log.Info().Int("个数", len(r.C.FriendList)).Msg("加载好友列表成功")
 
 	return
-
-}
-
-// needCap 触发输入验证码
-func (r Rina) needCap(res *client.LoginResponse) string {
-
-	file, err := os.Create("ca.jpg")
-	if err != nil {
-		log.Error().Err(err).Msg("创建验证码图片失败")
-	}
-
-	_, err = io.Copy(file, bytes.NewReader(res.CaptchaImage))
-	if err != nil {
-		log.Error().Err(err).Msg("写入验证码图片失败")
-	}
-
-	log.Info().Msg("请打开图片（ca.jpg）填写验证码")
-
-	var c string
-	if _, err := fmt.Scanln(&c); err != nil {
-		log.Error().Err(err).Msg("读取错误，写的什么东西，爬")
-	}
-
-	return c
 
 }
 
@@ -279,7 +251,7 @@ func (r Rina) SendGroupMsg(m *Message) {
 
 	}
 
-	log.Info().Msg("发送群消息")
+	log.Info().Interface("内容", m).Msg("发送群消息")
 
 	r.C.SendGroupMessage(int64(m.target), &m.chain)
 
