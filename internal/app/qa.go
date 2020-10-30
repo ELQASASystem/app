@@ -29,6 +29,24 @@ func StartQA(i uint32) (err error) {
 		return
 	}
 
+	if err = db.Question().UpdateQuestion(i, 1); err != nil {
+		log.Error().Err(err).Msg("更新问答状态字段失败")
+		return
+	}
+
+	log.Info().Msg("问题 " + strconv.Itoa(int(i)) + " 开始监听")
+	if err = sendQuestionMsg(q); err != nil {
+		return
+	}
+
+	q.Status = 1
+	QABasicSrvPoll[q.Target] = q
+	return
+}
+
+// sendQuestionMsg 发送问答问题消息
+func sendQuestionMsg(q *Question) (err error) {
+
 	var (
 		options []struct {
 			Type string `json:"type"` // 选项号
@@ -36,6 +54,8 @@ func StartQA(i uint32) (err error) {
 		}
 		m = Bot.NewMsg().AddText("问题:\n").AddText(q.Question).AddText("\n选项:\n")
 	)
+
+	// TODO 解析Json问题
 
 	if err = jsoniter.ConfigCompatibleWithStandardLibrary.UnmarshalFromString(q.Options, &options); err != nil {
 		log.Error().Err(err).Msg("解析选项失败")
@@ -51,16 +71,7 @@ func StartQA(i uint32) (err error) {
 		m.AddText("\n@+回答内容即可作答")
 	}
 
-	if err = db.Question().UpdateQuestion(i, 1); err != nil {
-		log.Error().Err(err).Msg("更新问答状态字段失败")
-		return
-	}
-
-	log.Info().Msg("问题 " + strconv.Itoa(int(i)) + " 开始监听")
-
 	Bot.SendGroupMsg(m.To(q.Target))
-	QABasicSrvPoll[q.Target] = q
-
 	return
 }
 
