@@ -49,7 +49,7 @@ export default {
                 console.log('成功获取答题数据：')
                 console.log(res.data)
 
-                Axios.get(`/apis/group/${res.data.target}/mem/`).then(res => {
+                Axios.get(`/apis/group/${res.data.target}/mem`).then(res => {
 
                     console.log('成功获取群成员：')
                     console.log(res.data)
