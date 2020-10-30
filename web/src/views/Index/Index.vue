@@ -18,7 +18,7 @@
           <h1>在线教育问答统计深度学习分析系统</h1>
           <span>ELQASASystem 是帮助教师、家长和学生在线学习，易于使用的教育跟踪深度学习分析系统</span>
           <div class="banner-btn">
-            <router-link to="/start">
+            <router-link to="/home">
               <a class="banner-btn1">开始使用</a>
             </router-link>
             <a :href="GitHubAddr">

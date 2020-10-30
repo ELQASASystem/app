@@ -4,11 +4,13 @@
     <a-page-header
         title="答题详情"
         sub-title="查看答题详细数据"
-        @back="() => null"
+        @back="() => history.back()"
     >
 
       <template slot="extra">
-        <a-button type="primary">答题列表</a-button>
+        <router-link to="/answer/tea/list">
+          <a-button type="primary">答题列表</a-button>
+        </router-link>
       </template>
 
       <a-spin :spinning="Question.loading">

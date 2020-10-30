@@ -4,7 +4,7 @@
     <a-page-header
         title="答题列表"
         sub-title="存储您所有新建过的答题"
-        @back="() => null"
+        @back="() => history.back()"
     >
       <template slot="extra">
         <a-button type="primary">

@@ -4,7 +4,7 @@
     <a-page-header
         title="新建答题"
         sub-title="新建一个答题"
-        @back="() => null"
+        @back="() => history.back()"
     >
       <template slot="extra">
         <a-button type="primary">答题列表</a-button>
