@@ -51,6 +51,11 @@ func StartQA(i uint32) (err error) {
 		m.AddText("\n@+回答内容即可作答")
 	}
 
+	if err = db.Question().UpdateQuestion(i, 1); err != nil {
+		log.Error().Err(err).Msg("更新问答状态字段失败")
+		return
+	}
+
 	log.Info().Msg("问题 " + strconv.Itoa(int(i)) + " 开始监听")
 
 	Bot.SendGroupMsg(m.To(q.Target))
@@ -62,32 +67,27 @@ func StartQA(i uint32) (err error) {
 // StopQA 使用 i：问题ID(ID) 停止问答
 func StopQA(i uint32) (err error) {
 
-	err = deleteQABasicSrvPoll(i)
-	if err != nil {
+	if err = deleteQABasicSrvPoll(i); err != nil {
 		log.Error().Err(err).Msg("删除问答基本服务监听失败")
 		return
 	}
-	err = db.Question().UpdateQuestion(i, 2)
-	if err != nil {
+	if err = db.Question().UpdateQuestion(i, 2); err != nil {
 		log.Error().Err(err).Msg("更新问答状态字段失败")
 		return
 	}
 
 	log.Info().Msg("问题 " + strconv.Itoa(int(i)) + " 已停止答题")
-
 	return
 }
 
 // PrepareQA 使用 i：问题ID(ID) 准备作答
 func PrepareQA(i uint32) (err error) {
 
-	err = deleteQABasicSrvPoll(i)
-	if err != nil {
+	if err = deleteQABasicSrvPoll(i); err != nil {
 		log.Error().Err(err).Msg("删除问答基本服务监听失败")
 		return
 	}
-	err = db.Question().UpdateQuestion(i, 0)
-	if err != nil {
+	if err = db.Question().UpdateQuestion(i, 0); err != nil {
 		log.Error().Err(err).Msg("更新问答状态字段失败")
 		return
 	}

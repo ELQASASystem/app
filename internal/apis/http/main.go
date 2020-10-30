@@ -231,6 +231,7 @@ func StartAPI() {
 
 		})
 
+		// 准备问答
 		Question.Get("/{question_id}/prepare", func(c *context.Context) {
 
 			qid, err := c.Params().GetUint32("question_id")
