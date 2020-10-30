@@ -19,8 +19,7 @@ func (q *question) ReadQuestionList(u string) (tab []*QuestionListTab, err error
 		return
 	}
 
-	tab, err = joinQuestionList(rows)
-	return
+	return joinQuestionList(rows)
 }
 
 // ReadQuestion 使用 i：问题ID(ID) 查询 QuestionListTab 表。
@@ -42,9 +41,10 @@ func (q *question) ReadQuestion(i uint32) (data *QuestionListTab, err error) {
 		return
 	}
 	data = new(QuestionListTab)
-	err = row.Scan(&data.ID, &data.Type, &data.Question, &data.CreatorID, &data.Target, &data.Status, &data.Options,
-		&data.Key, &data.Market)
-	if err != nil {
+	if row.Scan(
+		&data.ID, &data.Type, &data.Question, &data.CreatorID, &data.Target, &data.Status, &data.Options, &data.Key,
+		&data.Market,
+	) != nil {
 		return
 	}
 
@@ -62,8 +62,7 @@ func (q *question) ReadQuestionMarket() (tab []*QuestionListTab, err error) {
 		return
 	}
 
-	tab, err = joinQuestionList(rows)
-	return
+	return joinQuestionList(rows)
 }
 
 // joinQuestionList 复用
@@ -74,10 +73,10 @@ func joinQuestionList(rows *sql.Rows) (tab []*QuestionListTab, err error) {
 	for rows.Next() {
 
 		data0 := new(QuestionListTab)
-		err = rows.Scan(
+		if rows.Scan(
 			&data0.ID, &data0.Type, &data0.Question, &data0.CreatorID, &data0.Target, &data0.Status, &data0.Options,
-			&data0.Key, &data0.Market)
-		if err != nil {
+			&data0.Key, &data0.Market,
+		) != nil {
 			return
 		}
 
@@ -103,8 +102,10 @@ func (q *question) WriteQuestionList(tab *QuestionListTab) (err error) {
 	defer i.Close()
 
 	// Tips： ID 自增无需输入、Status 默认为 0
-	_, err = i.Exec(nil, tab.Type, tab.Question, tab.CreatorID, tab.Target, 0, tab.Options, tab.Key, tab.Market)
-	if err != nil {
+
+	if _, err = i.Exec(
+		nil, tab.Type, tab.Question, tab.CreatorID, tab.Target, 0, tab.Options, tab.Key, tab.Market,
+	); err != nil {
 		return
 	}
 
@@ -121,8 +122,7 @@ func (q *question) UpdateQuestion(i uint32, s uint8) (err error) {
 	}
 	defer l.Close()
 
-	_, err = l.Exec(i, s)
-	if err != nil {
+	if _, err = l.Exec(s, i); err != nil {
 		return
 	}
 
