@@ -86,6 +86,11 @@ export default {
                 console.error('获取答题数据失败：' + err)
             })
 
+            this.openws()
+
+        },
+        openws() { // 开启 WS 连接
+
             let ws = new WebSocket(`ws://${location.host}/question`)
             ws.onopen = () => {
                 ws.send(String(this.Question.id))
@@ -120,6 +125,7 @@ export default {
             }
 
         },
+
         displayQuestion() { // 显示问题数据
 
             { // 题目
@@ -167,16 +173,16 @@ export default {
 
         calc() {
 
-            const answer = this.Question.object.answer
-            const options = this.Question.options
+            const answer = this.Question.object.answer, options = this.Question.options
+            let rightCount = 0, wrongCount = 0, rightStus = [], wrongStus = {}
 
             for (let i = 0; i < answer.length; i++) {
 
                 if (answer[i].answer === this.Question.key) {
-                    this.Statistics.rightCount++
-                    this.Statistics.rightStus.push(answer[i].answerer_id)
+                    rightCount++
+                    rightStus.push(answer[i].answerer_id)
                 } else {
-                    this.Statistics.wrongCount++
+                    wrongCount++
 
                     // 寻找错误的选项
                     for (let ii = 0; ii < options.length; ii++) {
@@ -184,22 +190,23 @@ export default {
                             continue
                         }
 
-                        let list = this.Statistics.wrongStus[options[ii].type]
+                        let list = wrongStus[options[ii].type]
                         if (list === undefined) {
                             list = []
                         }
 
                         list.push(answer[i].answerer_id)
-                        this.Statistics.wrongStus[options[ii].type] = list
+                        wrongStus[options[ii].type] = list
                     }
                 }
-
             }
 
-            console.log(this.Statistics.rightStus)
-            console.log(this.Statistics.wrongStus)
+            this.Statistics.rightCount = rightCount
+            this.Statistics.wrongCount = wrongCount
+            this.Statistics.rightStus = rightStus
+            this.Statistics.wrongStus = wrongStus
 
-            this.Statistics.rightRate = Math.floor(this.Statistics.rightCount / this.Status.answererCount * 100)
+            this.Statistics.rightRate = Math.floor(rightCount / this.Status.answererCount * 100)
             this.Statistics.wrongRate = 100 - this.Statistics.rightRate
 
         },
