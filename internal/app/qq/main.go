@@ -251,8 +251,6 @@ func (r Rina) SendGroupMsg(m *Message) {
 
 	}
 
-	log.Info().Interface("内容", m).Msg("发送群消息")
-
+	log.Info().Msg("发送群消息")
 	r.C.SendGroupMessage(int64(m.target), &m.chain)
-
 }
