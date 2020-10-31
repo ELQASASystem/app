@@ -74,7 +74,7 @@ func sendQuestionMsg(q *Question) (err error) {
 		if v.Type == "text" {
 			m.AddText(v.Text + "\n")
 		} else {
-			m.AddImage("assets/question/pictures/" + v.Path).AddText("\n")
+			m.AddImage("web/assets/question/pictures/" + v.Path).AddText("\n")
 		}
 	}
 
