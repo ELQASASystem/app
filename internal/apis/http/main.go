@@ -362,9 +362,8 @@ func StartAPI() {
 		})
 
 		Upload.Get("/{text}/split", func(c *context.Context) {
-			text := c.Params().Get("text")
+			words, err := class.Bot.C.GetWordSegmentation(c.Params().Get("text"))
 
-			res, err := class.Bot.C.GetWordSegmentation(text)
 			if err != nil {
 				log.Error().Err(err).Msg("分词时出错")
 				_, _ = c.JSON(iris.Map{"message": "no"})
@@ -373,14 +372,14 @@ func StartAPI() {
 
 			var cache []string
 
-			for k, v := range res {
-				res[k] = strings.ReplaceAll(v, "\u0000", "")
+			for k, v := range words {
+				words[k] = strings.ReplaceAll(v, "\u0000", "")
 				cache = append(cache, "\""+v+"\"")
 			}
 
 			result := "[" + strings.Join(cache, ",") + "]"
 
-			strings.Join(res, ",")
+			strings.Join(words, ",")
 
 			_, _ = c.JSON(iris.Map{"message": "yes", "result": result})
 		})
