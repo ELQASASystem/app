@@ -370,18 +370,11 @@ func StartAPI() {
 				return
 			}
 
-			var cache []string
-
 			for k, v := range words {
 				words[k] = strings.ReplaceAll(v, "\u0000", "")
-				cache = append(cache, "\""+v+"\"")
 			}
 
-			result := "[" + strings.Join(cache, ",") + "]"
-
-			strings.Join(words, ",")
-
-			_, _ = c.JSON(iris.Map{"message": "yes", "result": result})
+			_, _ = c.JSON(words)
 		})
 
 	}
