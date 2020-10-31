@@ -44,7 +44,6 @@ func StartAPI() {
 		}
 
 		_, _ = c.JSON(iris.Map{"message": "yes"})
-
 	})
 
 	Group := API.Party("group")
@@ -52,13 +51,6 @@ func StartAPI() {
 
 		// 获取群列表
 		Group.Get("/list", func(c *context.Context) {
-
-			err := class.Bot.C.ReloadGroupList()
-			if err != nil {
-				log.Error().Err(err).Msg("重新载入群列表失败")
-				_, _ = c.JSON(iris.Map{"message": "no"})
-				return
-			}
 
 			type groupList struct {
 				ID       uint64 `json:"id"`        // 群号
@@ -72,7 +64,6 @@ func StartAPI() {
 			}
 
 			_, _ = c.JSON(data)
-
 		})
 
 		// 获取群成员
@@ -105,7 +96,6 @@ func StartAPI() {
 			}
 
 			_, _ = c.JSON(data)
-
 		})
 
 		// 表扬
@@ -132,7 +122,6 @@ func StartAPI() {
 			}
 			class.Bot.SendGroupMsg(m.AddText("\n希望同学们再接再厉!").To(i))
 			_, _ = c.JSON(iris.Map{"message": "yes"})
-
 		})
 
 	}
@@ -151,7 +140,6 @@ func StartAPI() {
 			}
 
 			_, _ = c.JSON(res)
-
 		})
 
 		// 获取问题
@@ -172,7 +160,6 @@ func StartAPI() {
 			}
 
 			_, _ = c.JSON(res)
-
 		})
 
 		// 新增问题
@@ -193,7 +180,6 @@ func StartAPI() {
 			}
 
 			_, _ = c.JSON(iris.Map{"message": "yes"})
-
 		})
 
 		// 开始问答
@@ -210,7 +196,6 @@ func StartAPI() {
 				_, _ = c.JSON(iris.Map{"message": "no"})
 			}
 			_, _ = c.JSON(iris.Map{"message": "yes"})
-
 		})
 
 		// 停止问答
@@ -228,7 +213,6 @@ func StartAPI() {
 				return
 			}
 			_, _ = c.JSON(iris.Map{"message": "yes"})
-
 		})
 
 		// 准备问答
@@ -246,7 +230,6 @@ func StartAPI() {
 				return
 			}
 			_, _ = c.JSON(iris.Map{"message": "yes"})
-
 		})
 
 		// 删除问题
@@ -263,7 +246,6 @@ func StartAPI() {
 			// class.Database().Question().RemoveQuestion(qid)
 
 			_, _ = c.JSON(iris.Map{"message": "yes"})
-
 		})
 
 		// 获取问题市场
@@ -276,7 +258,6 @@ func StartAPI() {
 			}
 
 			_, _ = c.JSON(res)
-
 		})
 
 	}
@@ -289,7 +270,6 @@ func StartAPI() {
 
 			c.Header("Access-Control-Allow-Headers", "x-requested-with")
 			c.Header("Access-Control-Allow-Methods", "POST")
-
 		})
 
 		// 上传 Docx
@@ -348,7 +328,6 @@ func StartAPI() {
 			}
 
 			_, _ = c.JSON(data)
-
 		})
 
 		// 上传图片前预检请求
@@ -356,7 +335,6 @@ func StartAPI() {
 
 			c.Header("Access-Control-Allow-Headers", "x-requested-with")
 			c.Header("Access-Control-Allow-Methods", "POST")
-
 		})
 
 		// 上传图片
