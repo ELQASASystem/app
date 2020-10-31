@@ -10,7 +10,7 @@ export default {
                 id: this.$route.params.id, // ID
                 object: {}, // 对象
                 type: '', // 类型
-                text: '', // 题干
+                text: [], // 题干
                 optionsDisplay: true, // 是否显示选项
                 options: [], // 选项[仅选择题]
                 key: '' // 答案
@@ -67,6 +67,10 @@ export default {
                     console.error('获取群成员失败：' + err)
                 })
 
+                if (res.data.answer === null) {
+                    console.log('没有作答')
+                    res.data.answer = []
+                }
                 this.Question.object = res.data
 
                 try {
@@ -97,6 +101,10 @@ export default {
                 console.log('服务器推送问答数据：')
                 console.log(data)
 
+                if (data.answer === null) {
+                    console.log('没有作答')
+                    data.answer = []
+                }
                 this.Question.object = data
 
                 try {
@@ -117,7 +125,7 @@ export default {
             { // 题目
                 this.Question.type = {0: '选择题', 1: '简答题'}[this.Question.object.type] // 类型
 
-                this.Question.text = this.Question.object.question // 题目
+                this.Question.text = JSON.parse(this.Question.object.question) // 题目
                 this.Question.key = this.Question.object.key // 选项
 
                 if (this.Question.object.type === 1) {

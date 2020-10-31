@@ -4,7 +4,7 @@
     <a-page-header
         title="答题列表"
         sub-title="存储您所有新建过的答题"
-        @back="() => history.back()"
+        @back="() => window.history.go(-1)"
     >
       <template slot="extra">
         <a-button type="primary">
@@ -20,7 +20,7 @@
 
             <router-link slot="title" :to="questionAddr(item.id)">
               <a-tag :color="tipColor(item.status)">{{ tipText(item.status) }}</a-tag>
-              {{ item.question }}
+              {{ questionText(item.question) }}
             </router-link>
 
           </a-list-item-meta>
@@ -57,6 +57,22 @@ export default {
         console.log("拉取答题数据失败：" + err)
       })
 
+    },
+    questionText(a) {
+
+      a = JSON.parse(a)
+      let text = ""
+
+      for (let i = 0; i < a.length; i++) {
+        if (a[i].type === "img") {
+          text += "[图片]"
+          continue
+        }
+
+        text += a[i].text
+      }
+
+      return text
     },
     questionAddr(s) {
       return "/answer/tea/a/" + s

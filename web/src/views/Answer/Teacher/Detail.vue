@@ -4,7 +4,7 @@
     <a-page-header
         title="答题详情"
         sub-title="查看答题详细数据"
-        @back="() => history.back()"
+        @back="() => window.history.go(-1)"
     >
 
       <template slot="extra">
@@ -18,7 +18,13 @@
         <div class="question-info">
           <h2>题目 <span class="question-type">[{{ Question.type }}]</span></h2>
 
-          <h3>问题：{{ Question.text }}</h3>
+          <h3>
+            问题：
+            <template v-for="item in Question.text" :key="item.id">
+              <span v-if="item.type === 'text'">{{ item.text }}</span>
+              <img v-else :src="'/assets/question/pictures/'+item.path" class="question-img">
+            </template>
+          </h3>
           <h3 v-if="Question.optionsDisplay">
             选项：
             <a-tag
