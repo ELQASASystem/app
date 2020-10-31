@@ -15,7 +15,15 @@ import (
 // Question 问题
 type Question struct {
 	*database.QuestionListTab
-	Answer []*database.AnswerListTab `json:"answer"`
+	Mems      []*memInfo                `json:"mems"`
+	GroupName string                    `json:"group_name"`
+	Answer    []*database.AnswerListTab `json:"answer"`
+}
+
+// memInfo 成员信息
+type memInfo struct {
+	ID   uint64 `json:"id"`   // 群员帐号
+	Name string `json:"name"` // 群员名片
 }
 
 var QABasicSrvPoll = map[uint64]*Question{} // QABasicSrvPoll 问答基本服务线程池
@@ -133,12 +141,26 @@ func ReadQuestion(i uint32) (q *Question, err error) {
 		return
 	}
 
-	res2, err := db.Answer().ReadAnswerList(i)
+	answer, err := db.Answer().ReadAnswerList(i)
 	if err != nil {
 		return
 	}
 
-	return &Question{res, res2}, nil
+	groupInfo := Bot.C.FindGroupByUin(int64(res.Target))
+	mems := ReadMemInfo(uint64(groupInfo.Uin))
+
+	return &Question{res, mems, groupInfo.Name, answer}, nil
+}
+
+// ReadMemInfo 使用 i：群ID(ID) 读取群成员信息
+func ReadMemInfo(i uint64) []*memInfo {
+
+	var data []*memInfo
+	for _, v := range Bot.C.FindGroupByUin(int64(i)).Members {
+		data = append(data, &memInfo{uint64(v.Uin), v.DisplayName()})
+	}
+
+	return data
 }
 
 // writeAnswer 写入回答答案

@@ -69,33 +69,14 @@ func StartAPI() {
 		// 获取群成员
 		Group.Get("/{i}/mem", func(c *context.Context) {
 
-			i, err := c.Params().GetInt64("i")
+			i, err := c.Params().GetUint64("i")
 			if err != nil {
 				log.Error().Err(err).Msg("解析群号失败")
 				_, _ = c.JSON(iris.Map{"message": "no"})
 				return
 			}
 
-			type memList struct {
-				ID   uint64 `json:"id"`   // 群员帐号
-				Name string `json:"name"` // 群员名片
-			}
-
-			var data []memList
-			for _, v := range class.Bot.C.FindGroupByUin(i).Members {
-
-				var name string
-				if n := v.CardName; n != "" {
-					name = n
-				} else {
-					name = v.Nickname
-				}
-
-				data = append(data, memList{uint64(v.Uin), name})
-
-			}
-
-			_, _ = c.JSON(data)
+			_, _ = c.JSON(class.ReadMemInfo(i))
 		})
 
 		// 表扬
