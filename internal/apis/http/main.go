@@ -304,7 +304,7 @@ func StartAPI() {
 			}
 
 			encodedName := class.HashForSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + ".docx"
-			dest := filepath.Join("assets/temp/userUpload/", encodedName)
+			dest := filepath.Join("assets/temp/docx/", encodedName)
 
 			log.Info().Str("文件名", encodedName).Msg("API：上传文件")
 
@@ -327,9 +327,9 @@ func StartAPI() {
 		})
 
 		// 解析 docx 文件
-		Upload.Get("/docx/parse/{p}", func(c *context.Context) {
+		Upload.Get("/docx/{p}/parse", func(c *context.Context) {
 
-			doc, err := document.Open("assets/temp/userUpload/" + c.Params().Get("p"))
+			doc, err := document.Open("assets/temp/docx/" + c.Params().Get("p"))
 			if err != nil {
 				log.Error().Err(err).Msg("打开 Docx 失败")
 				return
@@ -371,7 +371,7 @@ func StartAPI() {
 			}
 
 			encodedName := class.HashForSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + "-" + fileHeader.Filename
-			dest := filepath.Join("assets/temp/userUpload/pictures/", encodedName)
+			dest := filepath.Join("assets/question/pictures/", encodedName)
 
 			log.Info().Str("文件名", fileHeader.Filename).Msg("API：上传文件")
 
