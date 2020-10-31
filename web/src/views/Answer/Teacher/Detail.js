@@ -50,6 +50,16 @@ export default {
                 console.log('成功获取答题数据：')
                 console.log(res.data)
 
+                let list = {}
+
+                for (let i = 0; i < res.data.mems.length; i++) {
+                    list[res.data.mems[i].id] = res.data.mems[i]
+                }
+
+                console.log(list)
+                this.groupMemList = list
+
+
                 if (res.data.answer === null) {
                     console.log('没有作答')
                     res.data.answer = []
@@ -69,23 +79,6 @@ export default {
                 console.error('获取答题数据失败：' + err)
             })
 
-            Axios.get(`/apis/group/${res.data.target}/mem`).then(res => {
-
-                console.log('成功获取群成员：')
-                console.log(res.data)
-
-                let list = {}
-
-                for (let i = 0; i < res.data.length; i++) {
-                    list[res.data[i].id] = res.data[i]
-                }
-
-                console.log(list)
-                this.groupMemList = list
-
-            }).catch(err => {
-                console.error('获取群成员失败：' + err)
-            })
 
             this.openws()
         },
