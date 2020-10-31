@@ -35,7 +35,8 @@ export default {
                 wrongRate: 0, // 错误率
                 wrongCount: 0, // 错误人数
                 rightStus: [], // 回答正确的学生
-                wrongStus: {} // 回答错误的学生
+                wrongStus: {}, // 回答错误的学生
+                wrongList: [{type: '计算中'}] // 回答错误有序列表
             },
 
             CHARTData: {}
@@ -48,24 +49,6 @@ export default {
 
                 console.log('成功获取答题数据：')
                 console.log(res.data)
-
-                Axios.get(`/apis/group/${res.data.target}/mem`).then(res => {
-
-                    console.log('成功获取群成员：')
-                    console.log(res.data)
-
-                    let list = {}
-
-                    for (let i = 0; i < res.data.length; i++) {
-                        list[res.data[i].id] = res.data[i]
-                    }
-
-                    console.log(list)
-                    this.groupMemList = list
-
-                }).catch(err => {
-                    console.error('获取群成员失败：' + err)
-                })
 
                 if (res.data.answer === null) {
                     console.log('没有作答')
@@ -86,8 +69,25 @@ export default {
                 console.error('获取答题数据失败：' + err)
             })
 
-            this.openws()
+            Axios.get(`/apis/group/${res.data.target}/mem`).then(res => {
 
+                console.log('成功获取群成员：')
+                console.log(res.data)
+
+                let list = {}
+
+                for (let i = 0; i < res.data.length; i++) {
+                    list[res.data[i].id] = res.data[i]
+                }
+
+                console.log(list)
+                this.groupMemList = list
+
+            }).catch(err => {
+                console.error('获取群成员失败：' + err)
+            })
+
+            this.openws()
         },
         openws() { // 开启 WS 连接
 
@@ -145,10 +145,13 @@ export default {
             this.calc()
 
             { // 图表
-                this.histogram(0, 'data-chart-right_count',
-                    this.Statistics.rightCount, '正确人数 ' + this.Statistics.rightCount)
-                this.histogram(1, 'data-chart-wrong_count',
-                    this.Statistics.wrongCount, '错误人数 ' + this.Statistics.wrongCount)
+                this.histogram(0, 'data-chart-right_count', [{
+                    type: '正确人数 ' + this.Statistics.rightCount, value: this.Statistics.rightCount
+                }])
+                this.histogram(1, 'data-chart-wrong_count', [{
+                    type: '错误人数 ' + this.Statistics.wrongCount, value: this.Statistics.wrongCount
+                }])
+                this.histogram(2, 'data-chart-easy_wrong', this.Statistics.wrongList)
             }
 
         },
@@ -158,8 +161,13 @@ export default {
             this.calc()
 
             { // 图表
-                this.updateHistogram(0, this.Statistics.rightCount, '正确人数 ' + this.Statistics.rightCount)
-                this.updateHistogram(1, this.Statistics.wrongCount, '错误人数 ' + this.Statistics.wrongCount)
+                this.updateHistogram(0, [{
+                    type: '正确人数 ' + this.Statistics.rightCount, value: this.Statistics.rightCount
+                }])
+                this.updateHistogram(1, [{
+                    type: '错误人数 ' + this.Statistics.wrongCount, value: this.Statistics.wrongCount
+                }])
+                this.updateHistogram(2, 'data-chart-easy_wrong', this.Statistics.wrongList)
             }
 
         },
@@ -168,6 +176,13 @@ export default {
                 this.Status.status = this.Question.object.status
                 this.Status.answererCount = this.Question.object.answer.length
                 this.Status.sliderValue = this.Question.object.status
+            }
+        },
+        getEasyWrong() {
+            try {
+                return this.Statistics.wrongList[0].type
+            } catch {
+                return '暂无数据'
             }
         },
 
@@ -209,9 +224,23 @@ export default {
             this.Statistics.rightRate = Math.floor(rightCount / this.Status.answererCount * 100)
             this.Statistics.wrongRate = 100 - this.Statistics.rightRate
 
+
+            const d = this.Statistics.wrongStus, keys = Object.keys(d)
+            let res = []
+
+            for (let i = 0; i < keys.length; i++) {
+                res.push({type: keys[i], value: d[keys[i]].length})
+            }
+
+            res.sort((a, b) => {
+                return a.count - b.count
+            })
+            res.reverse()
+
+            this.Statistics.wrongList = res
         },
 
-        histogram(id, elm, data, text) {
+        histogram(id, elm, data) {
 
             const chart = new Chart({
                 container: elm,
@@ -219,7 +248,7 @@ export default {
                 width: 240
             })
 
-            chart.data([{type: text, value: data}])
+            chart.data(data)
             chart.scale('sales', {nice: true})
             chart.interval().position('type*value')
 
@@ -227,8 +256,8 @@ export default {
             this.CHARTData[id] = chart
 
         },
-        updateHistogram(id, data, text) {
-            this.CHARTData[id].changeData([{type: text, value: data}])
+        updateHistogram(id, data) {
+            this.CHARTData[id].changeData(data)
         },
 
         changeStatus() {

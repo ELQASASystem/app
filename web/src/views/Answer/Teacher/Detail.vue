@@ -74,15 +74,6 @@
           </div>
         </div>
 
-        <div class="question-time">
-
-          <a-statistic-countdown
-              title="停止作答倒计时"
-              :value="Date.now() + 1000 * 60 * 60"
-          />
-
-        </div>
-
       </a-spin>
     </a-page-header>
 
@@ -155,6 +146,18 @@
 
               </a-collapse-panel>
             </a-collapse>
+
+          </div>
+
+          <div class="detail-block data-chart">
+            <a-card
+                size="small" title="易错选项"
+                class="question-easy_wrong"
+            >
+              {{ getEasyWrong() }}
+            </a-card>
+
+            <div id="data-chart-easy_wrong"/>
           </div>
 
         </a-tab-pane>
@@ -170,7 +173,6 @@
               </div>
             </a-list-item>
           </a-list>
-
 
         </a-tab-pane>
 

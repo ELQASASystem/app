@@ -15,11 +15,15 @@
 }
 
 .question-img {
-    width: 100%;
+    max-width: 100%;
 }
 
 .question-status {
     margin-bottom: 48px;
+}
+
+.question-easy_wrong {
+    text-align: center
 }
 
 .question-status-change {
