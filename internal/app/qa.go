@@ -71,11 +71,12 @@ func sendQuestionMsg(q *Question) (err error) {
 
 	m := Bot.NewText("问题:\n")
 	for _, v := range question {
-		if v.Type == "text" {
-			m.AddText(v.Text + "\n")
-		} else {
+		if v.Type == "img" {
 			m.AddImage("web/assets/question/pictures/" + v.Path).AddText("\n")
+			continue
 		}
+
+		m.AddText(v.Text + "\n")
 	}
 
 	m.AddText("选项:\n")
