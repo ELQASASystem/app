@@ -361,6 +361,30 @@ func StartAPI() {
 			_, _ = c.JSON(iris.Map{"fileName": fileHeader.Filename})
 		})
 
+		Upload.Get("/{text}/split", func(c *context.Context) {
+			text := c.Params().Get("text")
+
+			res, err := class.Bot.C.GetWordSegmentation(text)
+			if err != nil {
+				log.Error().Err(err).Msg("分词时出错")
+				_, _ = c.JSON(iris.Map{"message": "no"})
+				return
+			}
+
+			var cache []string
+
+			for k, v := range res {
+				res[k] = strings.ReplaceAll(v, "\u0000", "")
+				cache = append(cache, "\""+v+"\"")
+			}
+
+			result := "[" + strings.Join(cache, ",") + "]"
+
+			strings.Join(res, ",")
+
+			_, _ = c.JSON(iris.Map{"message": "yes", "result": result})
+		})
+
 	}
 
 	if err := app.Listen(":4040"); err != nil {
