@@ -48,19 +48,37 @@ func StartQA(i uint32) (err error) {
 func sendQuestionMsg(q *Question) (err error) {
 
 	var (
+		question []struct {
+			Type string `json:"type"` // 类型
+			Text string `json:"text"` // 文本
+			Path string `json:"path"` // 路径[图片]
+		}
 		options []struct {
 			Type string `json:"type"` // 选项号
 			Body string `json:"body"` // 选项内容
 		}
-		m = Bot.NewMsg().AddText("问题:\n").AddText(q.Question).AddText("\n选项:\n")
+		json = jsoniter.ConfigCompatibleWithStandardLibrary
 	)
 
-	// TODO 解析Json问题
-
-	if err = jsoniter.ConfigCompatibleWithStandardLibrary.UnmarshalFromString(q.Options, &options); err != nil {
+	if err = json.UnmarshalFromString(q.Question, &question); err != nil {
+		log.Error().Err(err).Msg("解析问题失败")
+		return
+	}
+	if err = json.UnmarshalFromString(q.Options, &options); err != nil {
 		log.Error().Err(err).Msg("解析选项失败")
 		return
 	}
+
+	m := Bot.NewText("问题:\n")
+	for _, v := range question {
+		if v.Type == "text" {
+			m.AddText(v.Text + "\n")
+		} else {
+			m.AddImage("assets/question/pictures/" + v.Path).AddText("\n")
+		}
+	}
+
+	m.AddText("选项:\n")
 	for _, v := range options {
 		m.AddText(v.Type + ". " + v.Body + "\n")
 	}
