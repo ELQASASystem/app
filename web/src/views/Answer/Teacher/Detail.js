@@ -199,7 +199,7 @@ export default {
             console.log(this.Statistics.rightStus)
             console.log(this.Statistics.wrongStus)
 
-            this.Statistics.rightRate = parseInt(this.Statistics.rightCount / this.Status.answererCount * 100)
+            this.Statistics.rightRate = Math.floor(this.Statistics.rightCount / this.Status.answererCount * 100)
             this.Statistics.wrongRate = 100 - this.Statistics.rightRate
 
         },

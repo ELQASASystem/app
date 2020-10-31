@@ -27,7 +27,7 @@
           </div>
         </div>
         <div class="banner-img">
-          <img :src="BannerImg">
+          <img :src="BannerImg" alt="宣传图">
         </div>
 
       </div>
