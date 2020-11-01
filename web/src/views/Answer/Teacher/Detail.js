@@ -226,7 +226,7 @@ export default {
             }
 
             res.sort((a, b) => {
-                return a.count - b.count
+                return a.value - b.value
             })
             res.reverse()
 
