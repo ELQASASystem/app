@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <main class="wrapper">
 
     <a-page-header
         title="答题详情"
@@ -154,7 +154,7 @@
                 size="small" title="易错选项"
                 class="question-easy_wrong"
             >
-              {{ getEasyWrong() }}
+              {{ this.Statistics.wrongList[0].type }}
             </a-card>
 
             <div id="data-chart-easy_wrong"/>
@@ -181,7 +181,7 @@
 
     </div>
 
-  </div>
+  </main>
 </template>
 
 <script src="./Detail.js"/>

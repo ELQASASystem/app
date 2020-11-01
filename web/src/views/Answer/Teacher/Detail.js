@@ -36,7 +36,7 @@ export default {
                 wrongCount: 0, // 错误人数
                 rightStus: [], // 回答正确的学生
                 wrongStus: {}, // 回答错误的学生
-                wrongList: [{type: '计算中'}] // 回答错误有序列表
+                wrongList: [{type: '暂无数据', value: 0}] // 回答错误有序列表
             },
 
             CHARTData: {}
@@ -171,13 +171,6 @@ export default {
                 this.Status.sliderValue = this.Question.object.status
             }
         },
-        getEasyWrong() {
-            try {
-                return this.Statistics.wrongList[0].type
-            } catch {
-                return '暂无数据'
-            }
-        },
 
         calc() {
 
@@ -230,7 +223,12 @@ export default {
             })
             res.reverse()
 
-            this.Statistics.wrongList = res
+            try {
+                res[0].type
+                this.Statistics.wrongList = res
+            } catch {
+                this.Statistics.wrongList = [{type: '暂无数据', value: 0}]
+            }
         },
 
         histogram(id, elm, data) {
