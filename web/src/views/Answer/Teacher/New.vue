@@ -1,10 +1,10 @@
 <template>
-  <div class="wrapper">
+  <main class="wrapper">
 
     <a-page-header
         title="新建答题"
         sub-title="新建一个答题"
-        @back="() => history.back()"
+        @back="() => $router.push({path: '/answer/tea/list'})"
     >
       <template slot="extra">
         <a-button type="primary">答题列表</a-button>
@@ -36,7 +36,7 @@
     </div>
 
 
-  </div>
+  </main>
 
 
 </template>

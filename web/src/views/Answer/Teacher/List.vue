@@ -1,10 +1,10 @@
 <template>
-  <div class="wrapper">
+  <main class="wrapper">
 
     <a-page-header
         title="答题列表"
         sub-title="存储您所有新建过的答题"
-        @back="() => window.history.go(-1)"
+        @back="() => $router.push({path: '/answer/home'})"
     >
       <template slot="extra">
         <a-button type="primary">
@@ -28,7 +28,7 @@
       </a-list>
     </div>
 
-  </div>
+  </main>
 </template>
 
 <script>

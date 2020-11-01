@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <main class="wrapper">
     <header class="header">
       <a href="/" class="logo">ELQASA</a>
       <div>
@@ -75,7 +75,7 @@
         我们的功能
       </div>
     </main>
-  </div>
+  </main>
 </template>
 
 <script>
