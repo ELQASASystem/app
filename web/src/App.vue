@@ -2,7 +2,8 @@
   <div id="app">
     <router-view/>
     <footer class="footer">
-      Copyright ©2020 ELQASASystem. All Rights Reserved. 侵权必究.<br>
+      Copyright ©2020 <a href="https://github.com/ELQASASystem">ELQASASystem</a>. All Rights Reserved.<br>
+      第 13 届龙岩市青少年科技创新大赛作品. 版权所有，侵权必究.
     </footer>
   </div>
 </template>
@@ -28,6 +29,7 @@ body {
 }
 
 .footer {
+  margin: 16px;
   text-align: center;
   word-break: break-all;
 }
