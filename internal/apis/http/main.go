@@ -105,6 +105,25 @@ func StartAPI() {
 			_, _ = c.JSON(iris.Map{"message": "yes"})
 		})
 
+		Group.Get("/{i}/name", func(c *context.Context) {
+
+			i, err := c.Params().GetUint64("i")
+			if err != nil {
+				log.Error().Err(err).Msg("解析目标群失败")
+				_, _ = c.JSON(iris.Map{"message": "no"})
+				return
+			}
+
+			gi, err := class.Bot.C.GetGroupInfo(int64(i))
+			if err != nil {
+				log.Error().Err(err).Msg("获取目标群信息失败")
+				_, _ = c.JSON(iris.Map{"message": "no"})
+				return
+			}
+
+			_, _ = c.JSON(iris.Map{"message": "yes", "name": gi.Name})
+		})
+
 	}
 
 	Question := API.Party("question")
