@@ -15,7 +15,9 @@ export default {
                 options: [], // 选项[仅选择题]
                 key: '' // 答案
             },
+            groupName: '', // 群名称
             groupMemList: [], // 群成员
+
             Status: { // 状态信息
                 Tab: {
                     0: {label: '等待发布答题', color: 'green', badge: 'success'},
@@ -123,6 +125,7 @@ export default {
 
             { // 题目
                 this.Question.type = {0: '选择题', 1: '简答题'}[this.Question.object.type] // 类型
+                this.groupName = this.Question.object.group_name // 群名称
 
                 this.Question.text = JSON.parse(this.Question.object.question) // 题目
                 this.Question.key = this.Question.object.key // 选项

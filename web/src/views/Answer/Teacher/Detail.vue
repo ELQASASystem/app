@@ -16,7 +16,10 @@
       <a-spin :spinning="Question.loading">
 
         <div class="question-info">
-          <h2>题目 <span class="question-type">[{{ Question.type }}]</span></h2>
+          <h2>题目
+            <span class="question-type">[{{ Question.type }}]</span>
+            <a-tag>{{ groupName }}</a-tag>
+          </h2>
 
           <h3>
             问题：
