@@ -20,6 +20,7 @@
 
             <router-link slot="title" :to="questionAddr(item.id)">
               <a-tag :color="tipColor(item.status)">{{ tipText(item.status) }}</a-tag>
+              <a-tag>{{ groupNameTip(item.target) }}</a-tag>
               {{ questionText(item.question) }}
             </router-link>
 
@@ -38,6 +39,7 @@ export default {
   name: "List",
   data() {
     return {
+      groupList: {},
       questionListLoad: true,
       questionList: []
     }
@@ -45,19 +47,32 @@ export default {
   methods: {
     fetchQuestionList() {
 
-      Axios.get(`/apis/question/${this.$cookies.get('account')}/list`).then(res => {
+      Axios.get('/apis/group/list').then(res => {
 
-        this.questionList = res.data
-        this.questionListLoad = false
+        for (let i = 0; i < res.data.length; i++) {
+          this.groupList[res.data[i].id] = res.data[i].name
+        }
 
-        console.log("成功拉取答题数据：")
-        console.log(res.data)
+        console.log("成功拉取群列表：")
+        console.log(this.groupList)
+
+        Axios.get(`/apis/question/${this.$cookies.get('account')}/list`).then(res => {
+
+          this.questionList = res.data
+          this.questionListLoad = false
+
+          console.log("成功拉取答题数据：")
+          console.log(res.data)
+
+        }).catch(err => {
+          console.error("拉取答题数据失败：" + err)
+        })
 
       }).catch(err => {
-        console.log("拉取答题数据失败：" + err)
+        console.error("拉取答题数据失败：" + err)
       })
-
     },
+
     questionText(a) {
 
       a = JSON.parse(a)
@@ -82,6 +97,9 @@ export default {
     },
     tipColor(s) {
       return {0: '#87d068', 1: '#2db7f5', 2: '#f50'}[s]
+    },
+    groupNameTip(s) {
+      return this.groupList[s]
     }
   },
   mounted() {
