@@ -11,7 +11,7 @@ const routes = [
     },
     {
         path: '/answer/tea/list',
-        name: 'List',
+        name: 'AnswerList',
         component: () => import('../views/Answer/Teacher/List')
     },
     {
@@ -23,6 +23,11 @@ const routes = [
         path: '/answer/tea/new',
         name: 'New',
         component: () => import('../views/Answer/Teacher/New')
+    },
+    {
+        path: '/market/list',
+        name: 'MarketList',
+        component: () => import('../views/Market/List')
     },
 ]
 
