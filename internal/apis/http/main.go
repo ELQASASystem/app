@@ -231,8 +231,13 @@ func StartAPI() {
 			_, _ = c.JSON(iris.Map{"message": "yes"})
 		})
 
+	}
+
+	Market := API.Party("market")
+	{
+
 		// 获取问题市场
-		Question.Get("/market", func(c *context.Context) {
+		Market.Get("/list", func(c *context.Context) {
 
 			res, err := class.Database().Question().ReadQuestionMarket()
 			if err != nil {
@@ -241,6 +246,14 @@ func StartAPI() {
 			}
 
 			_, _ = c.JSON(res)
+		})
+
+		// 复制问题
+		Market.Get("/{i}/copy", func(c *context.Context) {
+
+			// TODO 调用 Market.go
+			// c.URLParam("user")
+
 		})
 
 	}
