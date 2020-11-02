@@ -67,17 +67,19 @@ func StartAPI() {
 		})
 
 		// 获取群成员
-		Group.Get("/{i}/mem", func(c *context.Context) {
+		/*
+			Group.Get("/{i}/mem", func(c *context.Context) {
 
-			i, err := c.Params().GetUint64("i")
-			if err != nil {
-				log.Error().Err(err).Msg("解析群号失败")
-				_, _ = c.JSON(iris.Map{"message": "no"})
-				return
-			}
+				i, err := c.Params().GetUint64("i")
+				if err != nil {
+					log.Error().Err(err).Msg("解析群号失败")
+					_, _ = c.JSON(iris.Map{"message": "no"})
+					return
+				}
 
-			_, _ = c.JSON(class.ReadMemInfo(i))
-		})
+				_, _ = c.JSON(class.ReadMemInfo(i))
+			})
+		*/
 
 		// 表扬
 		Group.Get("/{i}/praise", func(c *context.Context) {
@@ -103,25 +105,6 @@ func StartAPI() {
 			}
 			class.Bot.SendGroupMsg(m.AddText("\n希望同学们再接再厉!").To(i))
 			_, _ = c.JSON(iris.Map{"message": "yes"})
-		})
-
-		Group.Get("/{i}/name", func(c *context.Context) {
-
-			i, err := c.Params().GetUint64("i")
-			if err != nil {
-				log.Error().Err(err).Msg("解析目标群失败")
-				_, _ = c.JSON(iris.Map{"message": "no"})
-				return
-			}
-
-			gi, err := class.Bot.C.GetGroupInfo(int64(i))
-			if err != nil {
-				log.Error().Err(err).Msg("获取目标群信息失败")
-				_, _ = c.JSON(iris.Map{"message": "no"})
-				return
-			}
-
-			_, _ = c.JSON(iris.Map{"message": "yes", "name": gi.Name})
 		})
 
 	}
@@ -361,6 +344,7 @@ func StartAPI() {
 			_, _ = c.JSON(iris.Map{"fileName": fileHeader.Filename})
 		})
 
+		// 分词 API
 		Upload.Get("/{text}/split", func(c *context.Context) {
 			words, err := class.Bot.C.GetWordSegmentation(c.Params().Get("text"))
 
