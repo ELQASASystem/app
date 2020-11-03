@@ -50,7 +50,8 @@ type (
 	// QuestionListTab 问题
 	QuestionListTab struct {
 		ID        uint32 `json:"id"`         // ID 唯一标识符
-		Type      uint   `json:"type"`       // Type 类型
+		Type      uint8  `json:"type"`       // Type 类型
+		Subject   uint8  `json:"subject"`    // Subject 学科
 		Question  string `json:"question"`   // Question 问题
 		CreatorID string `json:"creator_id"` // CreatorID 创建者
 		Target    uint64 `json:"target"`     // Target 目标
