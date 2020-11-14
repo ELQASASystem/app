@@ -237,9 +237,9 @@ func StartAPI() {
 	{
 
 		// 获取问题市场
-		Market.Get("/list", func(c *context.Context) {
+		Market.Get("/{subject}/list", func(c *context.Context) {
 
-			res, err := class.Database().Question().ReadQuestionMarket()
+			res, err := class.Database().Question().ReadQuestionMarket(c.Params().GetUint8Default("subject", 0))
 			if err != nil {
 				log.Error().Err(err).Msg("读取问题列表失败")
 				return

@@ -51,13 +51,16 @@ func (q *question) ReadQuestion(i uint32) (data *QuestionListTab, err error) {
 	return
 }
 
-// ReadQuestionMarket 查询 QuestionListTab 表。
+// ReadQuestionMarket 使用 s：学科(Subject) 查询 QuestionListTab 表。
 // 答题市场
-func (q *question) ReadQuestionMarket() (tab []*QuestionListTab, err error) {
+func (q *question) ReadQuestionMarket(s uint8) (tab []*QuestionListTab, err error) {
 
-	rows, err := q.conn.Query(
-		`SELECT question_list.* FROM question_list WHERE question_list.market = true ORDER BY question_list.id DESC`,
+	sq := fmt.Sprintf(
+		`SELECT question_list.* FROM question_list WHERE question_list.market = TRUE AND question_list.subject = %v ORDER BY question_list.id DESC`,
+		s,
 	)
+
+	rows, err := q.conn.Query(sq)
 	if err != nil {
 		return
 	}
