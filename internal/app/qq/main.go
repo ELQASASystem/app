@@ -1,7 +1,6 @@
 package qq
 
 import (
-	"net"
 	"time"
 
 	"github.com/Mrs4s/MiraiGo/client"
@@ -137,23 +136,9 @@ func (r Rina) RegEventHandle() {
 	})
 
 	// 更新服务器
-	r.C.OnServerUpdated(func(q *client.QQClient, e *client.ServerUpdatedEvent) {
+	r.C.OnServerUpdated(func(q *client.QQClient, e *client.ServerUpdatedEvent) bool {
 		log.Warn().Interface("数据", e.Servers).Msg("更新服务器")
-
-		if len(e.Servers) < 1 {
-			log.Error().Str("原因", "服务器地址长度为 0").Msg("更新服务器失败")
-			return
-		}
-
-		var a []*net.TCPAddr
-		for _, v := range e.Servers {
-			a = append(a, &net.TCPAddr{
-				IP:   net.ParseIP(v.Server),
-				Port: int(v.Port),
-			})
-		}
-
-		r.C.SetCustomServer(a)
+		return true
 	})
 
 }
