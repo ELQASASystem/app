@@ -96,7 +96,7 @@ func joinQuestionList(rows *sql.Rows) (tab []*QuestionListTab, err error) {
 func (q *question) WriteQuestionList(tab *QuestionListTab) (err error) {
 
 	i, err := q.conn.Prepare(
-		`INSERT INTO question_list (id, type, subject, question, creator_id, target, status, options, key, market) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		"INSERT INTO question_list (id, type, subject, question, creator_id, target, status, options, `key`, market) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 	)
 	if err != nil {
 		return
