@@ -72,6 +72,9 @@ export default {
     fetchMarket() {
       Axios.get(`/apis/market/${this.subject}/list`).then(res => {
 
+        if (res.data === null) {
+          throw '数据为空'
+        }
         console.log('成功获取问题市场数据：')
         console.log(res.data)
 
