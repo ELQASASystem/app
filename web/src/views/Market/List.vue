@@ -47,7 +47,11 @@
               >
             </div>
           </div>
-          <a-button class="btn-add">添加</a-button>
+          <a-button
+              :data-id="item.id"
+              @click="copy(item.id)"
+              class="btn-add">添加
+          </a-button>
 
         </a-list-item>
       </a-list>
@@ -70,27 +74,50 @@ export default {
   },
   methods: {
     fetchMarket() {
+
       Axios.get(`/apis/market/${this.subject}/list`).then(res => {
 
         if (res.data === null) {
           throw '数据为空'
         }
+
         console.log('成功获取问题市场数据：')
         console.log(res.data)
 
         this.questionList = res.data
 
       }).catch(err => {
+
         console.error('获取问题市场失败：' + err)
-        this.$notification.error({message: '这个领域还没有人哦'})
+        this.$notification.error({message: '这个领域还没有人上传哦'})
         this.questionList = []
+
       }).finally(() => {
         this.questionListLoad = false
       })
-
     },
     onSubjectChange() {
       this.fetchMarket()
+    },
+
+    copy(i) {
+
+      Axios.get(`/apis/market/${i}/copy?user=${this.$cookies.get('account')}`).then(res => {
+
+        if (res.message === 'no') {
+          throw '系统失败'
+        }
+
+        let scs = '成功复制问题'
+        console.log(scs)
+        this.$notification.success({message: scs})
+
+      }).catch(err => {
+
+        console.error('复制问题失败：' + err)
+        this.$notification.error({message: '现在无法完成问题复制'})
+
+      })
     }
   },
   mounted() {
