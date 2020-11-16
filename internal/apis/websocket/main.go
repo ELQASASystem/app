@@ -1,9 +1,10 @@
 package websocket
 
 import (
-	class "github.com/ELQASASystem/app/internal/app"
 	"net/http"
 	"strconv"
+
+	"github.com/ELQASASystem/app/internal/app"
 
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
@@ -31,7 +32,7 @@ func New() chan *class.Question {
 // start 启动 Websocket 服务
 func (w *srv) start() {
 
-	http.HandleFunc("/question", w.handleWS)
+	http.HandleFunc("/question", w.handle)
 	go w.sendQuestion()
 
 	err := http.ListenAndServe(":4041", nil)
@@ -41,11 +42,10 @@ func (w *srv) start() {
 
 }
 
-func (w *srv) handleWS(writer http.ResponseWriter, r *http.Request) {
+// handle 处理请求
+func (w *srv) handle(writer http.ResponseWriter, r *http.Request) {
 
-	upgrader := websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }} // 允许跨域
-
-	wsconn, err := upgrader.Upgrade(writer, r, nil)
+	wsconn, err := new(websocket.Upgrader).Upgrade(writer, r, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("处理 WebSocket 连接时出现异常")
 		return
@@ -101,5 +101,4 @@ func (w *srv) rmConn(i uint32, conn *websocket.Conn) {
 	}
 
 	log.Info().Msg("WS客户端下线")
-
 }
