@@ -66,21 +66,6 @@ func StartAPI() {
 			_, _ = c.JSON(data)
 		})
 
-		// 获取群成员
-		/*
-			Group.Get("/{i}/mem", func(c *context.Context) {
-
-				i, err := c.Params().GetUint64("i")
-				if err != nil {
-					log.Error().Err(err).Msg("解析群号失败")
-					_, _ = c.JSON(iris.Map{"message": "no"})
-					return
-				}
-
-				_, _ = c.JSON(class.ReadMemInfo(i))
-			})
-		*/
-
 		// 表扬
 		Group.Get("/{i}/praise", func(c *context.Context) {
 
