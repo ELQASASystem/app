@@ -3,7 +3,7 @@ package class
 import (
 	"github.com/ELQASASystem/app/configs"
 	"github.com/ELQASASystem/app/internal/app/database"
-	"github.com/ELQASASystem/app/internal/app/qq"
+	"github.com/ELQASASystem/app/internal/qq"
 
 	"github.com/rs/zerolog/log"
 )

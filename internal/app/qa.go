@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/ELQASASystem/app/internal/app/database"
-	"github.com/ELQASASystem/app/internal/app/qq"
+	"github.com/ELQASASystem/app/internal/qq"
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/rs/zerolog/log"
@@ -185,6 +185,10 @@ func writeAnswer(q *Question, stu uint64, ans string) {
 	qch <- q
 }
 
+func writeAnswerOverFill() {
+	//
+}
+
 // handleAnswer 处理消息中可能存在的答案
 func handleAnswer(m *qq.Msg) {
 
@@ -205,11 +209,17 @@ func handleAnswer(m *qq.Msg) {
 		if checkAnswerForSelect(m.Chain[0].Text) {
 			writeAnswer(q, m.User.ID, strings.ToUpper(m.Chain[0].Text))
 		}
-	// 填空题
+	// 简答题
 	case 1:
 		if checkAnswerForFill(m.Chain[0].Text) {
 			writeAnswer(q, m.User.ID, strings.TrimPrefix(m.Chain[0].Text, "#"))
 		}
+	// 多选题
+	case 2:
+
+	// 填空题
+	case 3:
+
 	}
 
 }
