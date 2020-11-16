@@ -9,6 +9,6 @@ import (
 func Main() {
 
 	class.New(websocket.New())
-	go http.StartAPI()
+	go http.New()
 
 }
