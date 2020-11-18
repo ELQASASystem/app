@@ -9,10 +9,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type group struct{}
+type group struct{ *app.App }
 
 // Group 群
-func Group() *group { return new(group) }
+func Group() *group { return &group{app.AC} }
 
 // list 群列表
 func (g *group) list(c *context.Context) {
@@ -24,7 +24,7 @@ func (g *group) list(c *context.Context) {
 	}
 
 	var data []groupList
-	for _, v := range class.Bot.C.GroupList {
+	for _, v := range g.Cli.C.GroupList {
 		data = append(data, groupList{uint64(v.Uin), v.Name, v.MemberCount})
 	}
 
@@ -49,11 +49,11 @@ func (g *group) praise(c *context.Context) {
 		return
 	}
 
-	m := class.Bot.NewMsg().AddText("表扬以下答对的同学:\n")
+	m := g.Cli.NewMsg().AddText("表扬以下答对的同学:\n")
 	for _, id := range ids {
 		m.AddAt(id)
 	}
-	class.Bot.SendGroupMsg(m.AddText("\n希望同学们再接再厉!").To(i))
+	g.Cli.SendGroupMsg(m.AddText("\n希望同学们再接再厉!").To(i))
 
 	_, _ = c.JSON(iris.Map{"message": "yes"})
 }

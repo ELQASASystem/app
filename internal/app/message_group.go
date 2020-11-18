@@ -1,4 +1,4 @@
-package class
+package app
 
 import (
 	"github.com/ELQASASystem/app/internal/qq"
@@ -8,27 +8,27 @@ import (
 )
 
 // monitorGroup 监听群消息
-func monitorGroup() {
+func (a *App) monitorGroup() {
 	for {
-		go processGroup(<-*Bot.MsgChan)
+		go a.processGroup(<-a.mch)
 	}
 }
 
 // processGroup 处理群消息
-func processGroup(m *qq.Msg) {
+func (a *App) processGroup(m *qq.Msg) {
 
-	if block(m) {
+	if a.block(m) {
 		return
 	}
 
 	if m.Chain[0].Text == ".hello" {
-		Bot.SendGroupMsg(Bot.NewText("Hello, Client!").To(m.Group.ID))
+		a.Cli.SendGroupMsg(a.Cli.NewText("Hello, Client!").To(m.Group.ID))
 		return
 	}
 
 	if strings.HasPrefix(m.Chain[0].Text, ".fenci ") {
 
-		res, err := Bot.C.GetWordSegmentation(m.Chain[0].Text[7:])
+		res, err := a.Cli.C.GetWordSegmentation(m.Chain[0].Text[7:])
 		if err != nil {
 			log.Error().Err(err).Msg("分词时出错")
 			return
@@ -38,23 +38,23 @@ func processGroup(m *qq.Msg) {
 			res[k] = strings.ReplaceAll(v, "\u0000", "")
 		}
 
-		Bot.SendGroupMsg(Bot.NewText(strings.Join(res, " | ")).To(m.Group.ID))
+		a.Cli.SendGroupMsg(a.Cli.NewText(strings.Join(res, " | ")).To(m.Group.ID))
 		return
 
 	}
 
 	if strings.HasPrefix(m.Chain[0].Text, ".tts ") {
 
-		Bot.SendGroupMsg(Bot.NewTTSAudio(m.Chain[0].Text[5:]).To(m.Group.ID))
+		a.Cli.SendGroupMsg(a.Cli.NewTTSAudio(m.Chain[0].Text[5:]).To(m.Group.ID))
 		return
 
 	}
 
-	handleAnswer(m) // 处理答案
+	a.handleAnswer(m) // 处理答案
 }
 
 // block 阻止可能的意外
-func block(m *qq.Msg) bool {
+func (a *App) block(m *qq.Msg) bool {
 
 	// 当长度小于1时消息无法获取
 	if len(m.Chain) < 1 {

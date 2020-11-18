@@ -9,15 +9,15 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type question struct{}
+type question struct{ *app.App }
 
 // Question 问题
-func Question() *question { return new(question) }
+func Question() *question { return &question{app.AC} }
 
 // list 问题列表
 func (q *question) list(c *context.Context) {
 
-	res, err := class.Database().Question().ReadQuestionList(c.Params().Get("u"))
+	res, err := q.DB.Question().ReadQuestionList(c.Params().Get("u"))
 	if err != nil {
 		log.Error().Err(err).Msg("读取问题列表失败")
 		_, _ = c.JSON(iris.Map{"message": "no"})
@@ -37,7 +37,7 @@ func (q *question) read(c *context.Context) {
 		return
 	}
 
-	res, err := class.ReadQuestion(i)
+	res, err := q.ReadQuestion(i)
 	if err != nil {
 		log.Error().Err(err).Msg("获取答题失败")
 		_, _ = c.JSON(iris.Map{"message": "no"})
@@ -57,7 +57,7 @@ func (q *question) start(c *context.Context) {
 		return
 	}
 
-	if err = class.StartQA(qid); err != nil {
+	if err = q.StartQA(qid); err != nil {
 		log.Error().Err(err).Msg("开启问答失败")
 		_, _ = c.JSON(iris.Map{"message": "no"})
 		return
@@ -76,7 +76,7 @@ func (q *question) stop(c *context.Context) {
 		return
 	}
 
-	if err = class.StopQA(qid); err != nil {
+	if err = q.StopQA(qid); err != nil {
 		log.Error().Err(err).Msg("停止答题失败")
 		_, _ = c.JSON(iris.Map{"message": "no"})
 		return
@@ -95,7 +95,7 @@ func (q *question) prepare(c *context.Context) {
 		return
 	}
 
-	if err = class.PrepareQA(qid); err != nil {
+	if err = q.PrepareQA(qid); err != nil {
 		log.Error().Err(err).Msg("准备答题失败")
 		_, _ = c.JSON(iris.Map{"message": "no"})
 		return
@@ -116,7 +116,7 @@ func (q *question) add(c *context.Context) {
 		return
 	}
 
-	err := class.Database().Question().WriteQuestionList(&que)
+	err := q.DB.Question().WriteQuestionList(&que)
 	if err != nil {
 		log.Error().Err(err).Msg("新增答题失败")
 		_, _ = c.JSON(iris.Map{"message": "no"})

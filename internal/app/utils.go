@@ -1,4 +1,4 @@
-package class
+package app
 
 import (
 	"crypto/sha1"

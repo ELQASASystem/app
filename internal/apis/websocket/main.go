@@ -13,14 +13,14 @@ import (
 // srv Websocket 服务。文档： https://godoc.org/github.com/gorilla/websocket
 type srv struct {
 	connPool map[uint32][]*websocket.Conn // connPool 已连接的客户端
-	qch      chan *class.Question         // qch 问题管道
+	qch      chan *app.Question           // qch 问题管道
 }
 
 // New 新建 Websocket 服务
-func New() chan *class.Question {
+func New() chan *app.Question {
 
 	var (
-		qch = make(chan *class.Question, 10)
+		qch = make(chan *app.Question, 10)
 		s   = &srv{connPool: map[uint32][]*websocket.Conn{}, qch: qch}
 	)
 

@@ -1,4 +1,4 @@
-package class
+package app
 
 import (
 	"strconv"
@@ -29,21 +29,21 @@ type memInfo struct {
 var QABasicSrvPoll = map[uint64]*Question{} // QABasicSrvPoll 问答基本服务线程池
 
 // StartQA 使用 i：问题ID(ID) 开始作答
-func StartQA(i uint32) (err error) {
+func (a *App) StartQA(i uint32) (err error) {
 
-	q, err := ReadQuestion(i)
+	q, err := a.ReadQuestion(i)
 	if err != nil {
 		log.Error().Err(err).Msg("读取问题失败")
 		return
 	}
 
-	if err = db.Question().UpdateQuestion(i, 1); err != nil {
+	if err = a.DB.Question().UpdateQuestion(i, 1); err != nil {
 		log.Error().Err(err).Msg("更新问答状态字段失败")
 		return
 	}
 
 	log.Info().Msg("问题 " + strconv.Itoa(int(i)) + " 开始监听")
-	if err = sendQuestionMsg(q); err != nil {
+	if err = a.sendQuestionMsg(q); err != nil {
 		return
 	}
 
@@ -53,7 +53,7 @@ func StartQA(i uint32) (err error) {
 }
 
 // sendQuestionMsg 发送问答问题消息
-func sendQuestionMsg(q *Question) (err error) {
+func (a *App) sendQuestionMsg(q *Question) (err error) {
 
 	var (
 		question []struct {
@@ -77,7 +77,7 @@ func sendQuestionMsg(q *Question) (err error) {
 		return
 	}
 
-	m := Bot.NewText("问题:\n")
+	m := a.Cli.NewText("问题:\n")
 	for _, v := range question {
 		if v.Type == "img" {
 			m.AddImage("web/assets/question/pictures/" + v.Path).AddText("\n")
@@ -98,18 +98,18 @@ func sendQuestionMsg(q *Question) (err error) {
 		m.AddText("\n@+回答内容即可作答")
 	}
 
-	Bot.SendGroupMsg(m.To(q.Target))
+	a.Cli.SendGroupMsg(m.To(q.Target))
 	return
 }
 
 // StopQA 使用 i：问题ID(ID) 停止问答
-func StopQA(i uint32) (err error) {
+func (a *App) StopQA(i uint32) (err error) {
 
-	if err = deleteQABasicSrvPoll(i); err != nil {
+	if err = a.deleteQABasicSrvPoll(i); err != nil {
 		log.Error().Err(err).Msg("删除问答基本服务监听失败")
 		return
 	}
-	if err = db.Question().UpdateQuestion(i, 2); err != nil {
+	if err = a.DB.Question().UpdateQuestion(i, 2); err != nil {
 		log.Error().Err(err).Msg("更新问答状态字段失败")
 		return
 	}
@@ -119,13 +119,13 @@ func StopQA(i uint32) (err error) {
 }
 
 // PrepareQA 使用 i：问题ID(ID) 准备作答
-func PrepareQA(i uint32) (err error) {
+func (a *App) PrepareQA(i uint32) (err error) {
 
-	if err = deleteQABasicSrvPoll(i); err != nil {
+	if err = a.deleteQABasicSrvPoll(i); err != nil {
 		log.Error().Err(err).Msg("删除问答基本服务监听失败")
 		return
 	}
-	if err = db.Question().UpdateQuestion(i, 0); err != nil {
+	if err = a.DB.Question().UpdateQuestion(i, 0); err != nil {
 		log.Error().Err(err).Msg("更新问答状态字段失败")
 		return
 	}
@@ -134,29 +134,29 @@ func PrepareQA(i uint32) (err error) {
 }
 
 // ReadQuestion 使用 i：问题ID(ID) 读取问答信息
-func ReadQuestion(i uint32) (q *Question, err error) {
+func (a *App) ReadQuestion(i uint32) (q *Question, err error) {
 
-	res, err := db.Question().ReadQuestion(i)
+	res, err := a.DB.Question().ReadQuestion(i)
 	if err != nil {
 		return
 	}
 
-	answer, err := db.Answer().ReadAnswerList(i)
+	answer, err := a.DB.Answer().ReadAnswerList(i)
 	if err != nil {
 		return
 	}
 
-	groupInfo := Bot.C.FindGroupByUin(int64(res.Target))
-	mems := ReadMemInfo(uint64(groupInfo.Uin))
+	groupInfo := a.Cli.C.FindGroupByUin(int64(res.Target))
+	mems := a.ReadMemInfo(uint64(groupInfo.Uin))
 
 	return &Question{res, mems, groupInfo.Name, answer}, nil
 }
 
 // ReadMemInfo 使用 i：群ID(ID) 读取群成员信息
-func ReadMemInfo(i uint64) []*memInfo {
+func (a *App) ReadMemInfo(i uint64) []*memInfo {
 
 	var data []*memInfo
-	for _, v := range Bot.C.FindGroupByUin(int64(i)).Members {
+	for _, v := range a.Cli.C.FindGroupByUin(int64(i)).Members {
 		data = append(data, &memInfo{uint64(v.Uin), v.DisplayName()})
 	}
 
@@ -164,7 +164,7 @@ func ReadMemInfo(i uint64) []*memInfo {
 }
 
 // writeAnswer 写入回答答案
-func writeAnswer(q *Question, stu uint64, ans string) {
+func (a *App) writeAnswer(q *Question, stu uint64, ans string) {
 
 	answer := &database.AnswerListTab{
 		QuestionID: q.ID,
@@ -173,7 +173,7 @@ func writeAnswer(q *Question, stu uint64, ans string) {
 		Time:       time.Now().Format("2006-01-02 15:04:05"),
 	}
 
-	err := db.Answer().WriteAnswerList(answer)
+	err := a.DB.Answer().WriteAnswerList(answer)
 	if err != nil {
 		log.Warn().Err(err).Msg("写入答案失败")
 		return
@@ -182,15 +182,16 @@ func writeAnswer(q *Question, stu uint64, ans string) {
 	q.Answer = append(q.Answer, answer)
 
 	log.Info().Msg("成功写入回答")
-	qch <- q
+	a.qch <- q
 }
 
-func writeAnswerOverFill() {
+// writeAnswerOverFill 写入答案
+func (a *App) writeAnswerOverFill() {
 	//
 }
 
 // handleAnswer 处理消息中可能存在的答案
-func handleAnswer(m *qq.Msg) {
+func (a *App) handleAnswer(m *qq.Msg) {
 
 	q, ok := QABasicSrvPoll[m.Group.ID]
 	if !ok {
@@ -207,12 +208,12 @@ func handleAnswer(m *qq.Msg) {
 	// 选择题
 	case 0:
 		if checkAnswerForSelect(m.Chain[0].Text) {
-			writeAnswer(q, m.User.ID, strings.ToUpper(m.Chain[0].Text))
+			a.writeAnswer(q, m.User.ID, strings.ToUpper(m.Chain[0].Text))
 		}
 	// 简答题
 	case 1:
 		if checkAnswerForFill(m.Chain[0].Text) {
-			writeAnswer(q, m.User.ID, strings.TrimPrefix(m.Chain[0].Text, "#"))
+			a.writeAnswer(q, m.User.ID, strings.TrimPrefix(m.Chain[0].Text, "#"))
 		}
 	// 多选题
 	case 2:
@@ -225,9 +226,9 @@ func handleAnswer(m *qq.Msg) {
 }
 
 // deleteQABasicSrvPoll 使用 i：问题ID(ID) 删除问答基本服务池字段
-func deleteQABasicSrvPoll(i uint32) (err error) {
+func (a *App) deleteQABasicSrvPoll(i uint32) (err error) {
 
-	q, err := db.Question().ReadQuestion(i)
+	q, err := a.DB.Question().ReadQuestion(i)
 	if err != nil {
 		return
 	}

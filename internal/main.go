@@ -8,7 +8,7 @@ import (
 
 func Main() {
 
-	class.New(websocket.New())
+	app.New(websocket.New())
 	go http.New()
 
 }

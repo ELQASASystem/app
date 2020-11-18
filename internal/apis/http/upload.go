@@ -15,10 +15,10 @@ import (
 	"github.com/unidoc/unioffice/document"
 )
 
-type upload struct{}
+type upload struct{ *app.App }
 
 // Upload 上传
-func Upload() *upload { return new(upload) }
+func Upload() *upload { return &upload{app.AC} }
 
 // options 上传预检
 func (u *upload) options(c *context.Context) {
@@ -38,7 +38,7 @@ func (u *upload) docx(c *context.Context) {
 		return
 	}
 
-	encodedName := class.HashForSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + ".docx"
+	encodedName := app.HashForSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + ".docx"
 	dest := filepath.Join("web/assets/temp/docx/", encodedName)
 
 	log.Info().Str("文件名", encodedName).Msg("API：上传文件")
@@ -97,7 +97,7 @@ func (u *upload) picture(c *context.Context) {
 		return
 	}
 
-	encodedName := class.HashForSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + "-" + fileHeader.Filename
+	encodedName := app.HashForSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + "-" + fileHeader.Filename
 	dest := filepath.Join("web/assets/question/pictures/", encodedName)
 
 	log.Info().Str("文件名", fileHeader.Filename).Msg("API：上传文件")
@@ -114,7 +114,7 @@ func (u *upload) picture(c *context.Context) {
 // split 分词
 func (u *upload) split(c *context.Context) {
 
-	words, err := class.Bot.C.GetWordSegmentation(c.Params().Get("text"))
+	words, err := u.Cli.C.GetWordSegmentation(c.Params().Get("text"))
 
 	if err != nil {
 		log.Error().Err(err).Msg("分词时出错")
