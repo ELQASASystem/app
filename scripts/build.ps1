@@ -1,6 +1,6 @@
 cd ../
 
-$root = "github.com/CCServe/class/"
+$root = "github.com/ELQASASystem/app"
 $mainapp = "cmd/class/main.go"
 $commitid = git rev-parse --short master
 
@@ -13,8 +13,6 @@ scripts/golangci-lint.exe run
 [Console]::ReadKey() | Out-Null
 
 "¿ªÊ¼±àÒë..."
-
-go build -ldflags "-w -X ${root}configs.CommitId=${commitid}" -o build/main.exe ${mainapp}
 
 $env:GOOS="linux"
 go build -ldflags "-w -X ${root}configs.CommitId=${commitid}" -o build/main ${mainapp}
