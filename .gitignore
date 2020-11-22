@@ -1,12 +1,8 @@
 # Binaries for programs and plugins
 *.exe
-
-# dependencies
-node_modules
+build/
 
 # ELQASA System
 .idea/
 configs/configs.yml
-build/
-dist/
 *.lnk
