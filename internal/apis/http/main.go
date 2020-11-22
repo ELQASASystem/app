@@ -17,7 +17,7 @@ func New() {
 		_, _ = c.JSON(iris.Map{"message": "hello"})
 	})
 
-	API.Party("sign").Get("/{u}/in", Sign().in)
+	API.Post("login/{user}", Sign().in)
 
 	{
 		G := API.Party("group")
