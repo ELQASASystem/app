@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ELQASASystem/app/configs"
+	"github.com/ELQASASystem/server/configs"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -19,7 +19,7 @@ func init() {
 
 	log.Logger = log.Output(writer).With().Caller().Logger()
 
-	log.Info().Msg("Copyright (C) 2020-present  CCServe  AGPL-3.0 License | version：" + configs.CommitId)
+	log.Info().Msg("Copyright (C) 2020-present  ELQASASystem  AGPL-3.0 License | version：" + configs.CommitID)
 
 	err := configs.ReadConfigs()
 	if err != nil {

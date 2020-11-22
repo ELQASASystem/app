@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ELQASASystem/app/internal/app"
+	"github.com/ELQASASystem/server/internal/app"
 
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/context"

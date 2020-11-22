@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/ELQASASystem/app/internal/app"
+	"github.com/ELQASASystem/server/internal/app"
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/kataras/iris/v12"

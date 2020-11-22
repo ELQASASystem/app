@@ -1,8 +1,8 @@
 package http
 
 import (
-	"github.com/ELQASASystem/app/internal/app"
-	"github.com/ELQASASystem/app/internal/app/database"
+	"github.com/ELQASASystem/server/internal/app"
+	"github.com/ELQASASystem/server/internal/app/database"
 
 	"github.com/kataras/iris/v12/context"
 	"github.com/rs/zerolog/log"

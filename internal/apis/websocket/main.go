@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/ELQASASystem/app/internal/app"
+	"github.com/ELQASASystem/server/internal/app"
 
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"

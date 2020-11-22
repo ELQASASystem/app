@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/ELQASASystem/app/internal/qq"
+	"github.com/ELQASASystem/server/internal/qq"
 
 	"github.com/rs/zerolog/log"
 	"strings"

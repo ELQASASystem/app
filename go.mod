@@ -1,4 +1,4 @@
-module github.com/ELQASASystem/app
+module github.com/ELQASASystem/server
 
 go 1.15
 

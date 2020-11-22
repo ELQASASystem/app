@@ -13,7 +13,7 @@ type Conf struct {
 }
 
 var (
-	CommitId string // CommitId 提交的短ID
+	CommitID string // CommitID 提交的短ID
 	confs    *Conf  // confs 配置信息
 )
 

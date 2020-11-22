@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ELQASASystem/app/internal/app/database"
-	"github.com/ELQASASystem/app/internal/qq"
+	"github.com/ELQASASystem/server/internal/app/database"
+	"github.com/ELQASASystem/server/internal/qq"
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/rs/zerolog/log"

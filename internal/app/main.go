@@ -1,9 +1,9 @@
 package app
 
 import (
-	"github.com/ELQASASystem/app/configs"
-	"github.com/ELQASASystem/app/internal/app/database"
-	"github.com/ELQASASystem/app/internal/qq"
+	"github.com/ELQASASystem/server/configs"
+	"github.com/ELQASASystem/server/internal/app/database"
+	"github.com/ELQASASystem/server/internal/qq"
 
 	"github.com/rs/zerolog/log"
 )

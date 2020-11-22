@@ -1,6 +1,6 @@
 cd ../
 
-$root = "github.com/ELQASASystem/app"
+$root = "github.com/ELQASASystem/server/"
 $mainapp = "cmd/class/main.go"
 $commitid = git rev-parse --short master
 
@@ -15,7 +15,7 @@ scripts/golangci-lint.exe run
 "开始编译..."
 
 $env:GOOS="linux"
-go build -ldflags "-w -X ${root}configs.CommitId=${commitid}" -o build/main ${mainapp}
+go build -ldflags "-w -X ${root}configs.CommitID=${commitid}" -o build/main ${mainapp}
 
 "编译完成，按任意键退出..."
 [Console]::ReadKey() | Out-Null
