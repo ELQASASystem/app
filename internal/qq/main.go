@@ -131,7 +131,6 @@ func (r Rina) RegEventHandle() {
 			}
 
 			return
-
 		}
 	})
 

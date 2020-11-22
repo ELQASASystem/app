@@ -27,17 +27,15 @@ func New() {
 	}
 
 	{
-		Q := API.Party("question")
+		Q := API.Party("questions")
 
-		Q.Get("/{u}/list", Question().list)
-		Q.Get("/a/{i}", Question().read)
+		Q.Get("/list", Question().list)
+		Q.Get("/question/{question_id}", Question().detail)
 
-		Q.Get("/{question_id}/start", Question().start)
-		Q.Get("/{question_id}/stop", Question().stop)
-		Q.Get("/{question_id}/prepare", Question().prepare)
-
-		Q.Post("/add", Question().add)
-		Q.Get("/{question_id}/delete", Question().delete)
+		Q.Post("/", Question().new)
+		Q.Put("/question/{question_id}", Question().edit)
+		Q.Put("/question/{question_id}/status", Question().status)
+		Q.Delete("/question/{question_id}", Question().delete)
 	}
 
 	{
