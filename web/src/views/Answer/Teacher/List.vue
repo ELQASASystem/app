@@ -8,6 +8,9 @@
     >
       <template slot="extra">
         <a-button type="primary">
+          <router-link to="/market/list">答题市场</router-link>
+        </a-button>
+        <a-button type="primary">
           <router-link to="/answer/tea/new">新增答题</router-link>
         </a-button>
       </template>
@@ -47,29 +50,22 @@ export default {
   methods: {
     fetchQuestionList() {
 
-      Axios.get('/apis/group/list').then(res => {
+      Axios.get('/apis/questions/list?u=' + this.$cookies.get('account')).then(res => {
 
-        for (let i = 0; i < res.data.length; i++) {
-          this.groupList[res.data[i].id] = res.data[i].name
+        for (let i = 0; i < res.data.groups.length; i++) {
+          this.groupList[res.data.groups[i].id] = res.data.groups[i].name
         }
 
-        console.log("成功拉取群列表：")
-        console.log(this.groupList)
+        console.log("成功拉取群列表：", this.groupList)
 
-        Axios.get(`/apis/question/${this.$cookies.get('account')}/list`).then(res => {
+        this.questionList = res.data.questions
+        this.questionListLoad = false
 
-          this.questionList = res.data
-          this.questionListLoad = false
-
-          console.log("成功拉取答题数据：")
-          console.log(res.data)
-
-        }).catch(err => {
-          console.error("拉取答题数据失败：" + err)
-        })
+        console.log("成功拉取答题数据：", res.data.questions)
 
       }).catch(err => {
-        console.error("拉取答题数据失败：" + err)
+        console.error("获取数据失败：", err)
+        this.questionListLoad = false
       })
     },
 
