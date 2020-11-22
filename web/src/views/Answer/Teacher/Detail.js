@@ -47,18 +47,16 @@ export default {
     methods: {
         fetchData() { // API 获取数据
 
-            Axios.get('/apis/question/a/' + this.Question.id).then(res => {
+            Axios.get('/apis/questions/question/' + this.Question.id).then(res => {
 
-                console.log('成功获取答题数据：')
-                console.log(res.data)
+                console.log('成功获取答题数据：', res.data)
 
                 let list = {}
-
                 for (let i = 0; i < res.data.mems.length; i++) {
                     list[res.data.mems[i].id] = res.data.mems[i]
                 }
 
-                console.log(list)
+                console.log("群成员数据：", list)
                 this.groupMemList = list
 
 
@@ -79,14 +77,14 @@ export default {
 
             }).catch(err => {
                 console.error('获取答题数据失败：' + err)
+                this.Question.loading = false
             })
-
 
             this.openws()
         },
         openws() { // 开启 WS 连接
 
-            let ws = new WebSocket(`ws://${location.host}/question`)
+            let ws = new WebSocket(`wss://${location.host}/question`)
             ws.onopen = () => {
                 ws.send(String(this.Question.id))
                 setInterval(() => {
@@ -257,26 +255,18 @@ export default {
         changeStatus() {
 
             const text = ['准备答题', '发布答题', '停止答题']
-            const code = ['prepare', 'start', 'stop']
             const c = this.Status.sliderValue
 
             console.log(text[c])
 
-            Axios.get(`/apis/question/${this.Question.id}/${code[c]}`).then(res => {
-                if (res.data.message === 'yes') {
-                    this.$notification.success({message: `成功${text[c]}`})
-                } else {
-                    this.$notification.error({message: `${text[c]}失败`})
-                }
+            Axios.put(`/apis/questions/question/${this.Question.id}/status?c=` + c).then(() => {
+                this.$notification.success({message: `成功${text[c]}`})
             }).catch(err => {
-                console.error(`${text[c]}失败：` + err)
+                console.error(`${text[c]}失败：`, err)
                 this.$notification.error({message: `${text[c]}失败`})
             })
 
-            this.$notification.info({
-                message: `正在${text[c]}中...`
-            })
-
+            this.$notification.info({message: `正在${text[c]}中...`})
             this.Status.status = this.Status.sliderValue
 
         },
