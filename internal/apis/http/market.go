@@ -43,7 +43,8 @@ func (m *market) copy(c *context.Context) {
 		return
 	}
 
-	q.CreatorID = c.URLParam("user")
+	q.CreatorID = c.URLParam("u")
+	q.Target = c.URLParamUint64("t")
 	q.Market = false
 
 	if err := m.DB.Question().WriteQuestionList(q); err != nil {
