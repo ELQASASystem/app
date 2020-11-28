@@ -39,7 +39,7 @@ func (u *upload) docx(c *context.Context) {
 	}
 
 	encodedName := app.HashForSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + ".docx"
-	dest := filepath.Join("web/assets/temp/docx/", encodedName)
+	dest := filepath.Join("assets/temp/docx/", encodedName)
 
 	log.Info().Str("文件名", encodedName).Msg("API：上传文件")
 
@@ -63,7 +63,7 @@ func (u *upload) docx(c *context.Context) {
 // parseDocx 解析 Docx
 func (u *upload) parseDocx(c *context.Context) {
 
-	doc, err := document.Open("web/assets/temp/docx/" + c.Params().Get("p"))
+	doc, err := document.Open("assets/temp/docx/" + c.Params().Get("p"))
 	if err != nil {
 		log.Error().Err(err).Msg("打开 Docx 失败")
 		_, _ = c.JSON(iris.Map{"message": "no"})
@@ -98,7 +98,7 @@ func (u *upload) picture(c *context.Context) {
 	}
 
 	encodedName := app.HashForSHA1(fileHeader.Filename+strconv.FormatInt(time.Now().Unix(), 10)) + "-" + fileHeader.Filename
-	dest := filepath.Join("web/assets/question/pictures/", encodedName)
+	dest := filepath.Join("assets/question/pictures/", encodedName)
 
 	log.Info().Str("文件名", fileHeader.Filename).Msg("API：上传文件")
 
