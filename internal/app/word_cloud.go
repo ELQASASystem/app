@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var ls map[uint64][]*websocket.Conn // ls 监听词汇的客户端
+var ls = map[uint64][]*websocket.Conn{} // ls 监听词汇的客户端
 
 func (a *App) handleWordCloud(m *qq.Msg) {
 
