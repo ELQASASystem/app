@@ -42,13 +42,6 @@ func AddConn(gid uint64, c *websocket.Conn) {
 		ls[gid] = append(ls[gid], c)
 	}
 
-	for _, v := range ls[gid] {
-		if v == c {
-			log.Info().Interface("客户端", v).Msg("重复注册客户端")
-			return
-		}
-	}
-
 	ls[gid] = append(ls[gid], c)
 }
 
