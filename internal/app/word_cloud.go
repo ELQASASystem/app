@@ -1,37 +1,42 @@
 package app
 
 import (
+	"strings"
+
 	"github.com/ELQASASystem/server/internal/qq"
+
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
-	"strings"
 )
 
-var ls map[uint64][]*websocket.Conn // 监听词汇的客户端
+var ls map[uint64][]*websocket.Conn // ls 监听词汇的客户端
 
 func (a *App) handleWordCloud(m *qq.Msg) {
-	// 无人监听时不分词, 不处理命令
-	if len(ls) == 0 || strings.HasPrefix(m.Chain[0].Text, ".") {
+
+	// 不处理命令
+	if strings.HasPrefix(m.Chain[0].Text, ".") {
 		return
 	}
 
-	if v, ok := ls[m.Group.ID]; ok {
+	v, ok := ls[m.Group.ID]
+	if !ok {
+		return
+	}
 
-		res, err := a.Cli.C.GetWordSegmentation(m.Chain[0].Text)
+	res, err := a.Cli.C.GetWordSegmentation(m.Chain[0].Text)
+	if err != nil {
+		log.Error().Err(err).Msg("分词时出错")
+		return
+	}
 
+	for _, conn := range v {
+
+		err := conn.WriteJSON(res)
 		if err != nil {
-			log.Error().Err(err).Msg("分词时出错")
-			return
+			log.Error().Err(err).Msg("推送词云数据失败")
 		}
 
-		for _, conn := range v {
-			err := conn.WriteJSON(res)
-			if err != nil {
-				log.Error().Err(err).Msg("推送词云数据失败")
-			}
-
-			log.Info().Interface("客户端", v).Msg("推送词云数据中")
-		}
+		log.Info().Interface("客户端", v).Msg("推送词云数据中")
 	}
 }
 
