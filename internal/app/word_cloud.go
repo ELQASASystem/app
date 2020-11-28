@@ -13,8 +13,8 @@ var ls map[uint64][]*websocket.Conn // ls 监听词汇的客户端
 
 func (a *App) handleWordCloud(m *qq.Msg) {
 
-	// 不处理命令
-	if strings.HasPrefix(m.Chain[0].Text, ".") {
+	// 不处理命令和空消息
+	if len(m.Chain[0].Text) == 0 || strings.HasPrefix(m.Chain[0].Text, ".") {
 		return
 	}
 
