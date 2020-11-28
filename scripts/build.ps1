@@ -2,7 +2,7 @@ cd ../
 
 $root = "github.com/ELQASASystem/server/"
 $mainapp = "cmd/class/main.go"
-$commitid = git rev-parse --short master
+$commitid = git rev-parse --short HEAD
 
 "开始检查代码错误..."
 
