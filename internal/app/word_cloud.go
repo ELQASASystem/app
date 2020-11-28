@@ -23,7 +23,7 @@ func (a *App) handleWordCloud(m *qq.Msg) {
 		return
 	}
 
-	res, err := a.Cli.C.GetWordSegmentation(m.Chain[0].Text)
+	words, err := DoWordSplit(m.Chain[0].Text)
 	if err != nil {
 		log.Error().Err(err).Msg("分词时出错")
 		return
@@ -31,7 +31,7 @@ func (a *App) handleWordCloud(m *qq.Msg) {
 
 	for _, conn := range v {
 
-		err := conn.WriteJSON(res)
+		err := conn.WriteJSON(words)
 		if err != nil {
 			log.Error().Err(err).Msg("推送词云数据失败")
 		}
@@ -42,11 +42,6 @@ func (a *App) handleWordCloud(m *qq.Msg) {
 
 // AddConn 使用 gid：群ID 新增一个连入的客户端
 func AddConn(gid uint64, c *websocket.Conn) {
-
-	if _, ok := ls[gid]; !ok {
-		ls[gid] = append(ls[gid], c)
-	}
-
 	ls[gid] = append(ls[gid], c)
 }
 

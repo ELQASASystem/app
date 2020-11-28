@@ -29,3 +29,17 @@ func HashForSHA1(d string) string {
 	_, _ = h.Write([]byte(d))
 	return hex.EncodeToString(h.Sum(nil))
 }
+
+func DoWordSplit(s string) (words []string, err error) {
+	words, err = AC.Cli.C.GetWordSegmentation(s)
+
+	if err != nil {
+		return
+	}
+
+	for k, v := range words {
+		words[k] = strings.ReplaceAll(v, "\u0000", "")
+	}
+
+	return words, nil
+}
