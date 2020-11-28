@@ -50,7 +50,8 @@ func (a *App) processGroup(m *qq.Msg) {
 
 	}
 
-	a.handleAnswer(m) // 处理答案
+	a.handleAnswer(m)    // 处理答案
+	a.handleWordCloud(m) // 处理词云
 }
 
 // block 阻止可能的意外

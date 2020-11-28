@@ -33,6 +33,7 @@ func New() chan *app.Question {
 func (w *srv) start() {
 
 	http.HandleFunc("/question", w.handle)
+	http.HandleFunc("/stream/word_statistics", w.handleWordCloud)
 	go w.sendQuestion()
 
 	err := http.ListenAndServe(":4041", nil)
@@ -65,6 +66,38 @@ func (w *srv) handle(writer http.ResponseWriter, r *http.Request) {
 	defer w.rmConn(uint32(i), wsconn)
 
 	log.Info().Uint64("问题ID", i).Msg("成功添加 WS 问题监听")
+
+	for {
+		if _, _, err := wsconn.ReadMessage(); err != nil {
+			log.Error().Err(err).Msg("读取消息失败")
+			break
+		}
+	}
+
+}
+
+// handleWordCloud 处理请求
+func (w *srv) handleWordCloud(writer http.ResponseWriter, r *http.Request) {
+
+	up := &websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
+	wsconn, err := up.Upgrade(writer, r, nil)
+	if err != nil {
+		log.Error().Err(err).Msg("处理 WebSocket 连接时出现异常")
+		return
+	}
+
+	_, msg, err := wsconn.ReadMessage()
+	if err != nil {
+		log.Error().Err(err).Msg("读取消息失败")
+		return
+	}
+
+	i, _ := strconv.ParseUint(string(msg), 10, 64) // 群号
+
+	app.AddConn(i, wsconn)
+	defer app.RmConn(i, wsconn)
+
+	log.Info().Uint64("问题ID", i).Msg("成功添加词云词汇监听")
 
 	for {
 		if _, _, err := wsconn.ReadMessage(); err != nil {
