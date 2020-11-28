@@ -60,9 +60,10 @@ func (w *srv) handle(writer http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	i, _ := strconv.ParseUint(string(msg), 10, 64)
+	i, _ := strconv.ParseUint(string(msg), 10, 32)
+	id := uint32(i)
 
-	w.addConn(uint32(i), wsconn)
+	w.connPool[id] = append(w.connPool[id], wsconn)
 	defer w.rmConn(uint32(i), wsconn)
 
 	log.Info().Uint64("问题ID", i).Msg("成功添加 WS 问题监听")
@@ -105,18 +106,6 @@ func (w *srv) handleWordCloud(writer http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
-
-}
-
-// addConn 使用 i：问题ID(ID) 新增一个连入的客户端
-func (w *srv) addConn(i uint32, c *websocket.Conn) {
-
-	if _, ok := w.connPool[i]; !ok {
-		w.connPool[i] = []*websocket.Conn{c}
-		return
-	}
-
-	w.connPool[i] = append(w.connPool[i], c)
 }
 
 // rmConn 使用 i：问题ID(ID) 移出一个连入的客户端
