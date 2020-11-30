@@ -33,7 +33,7 @@ func New() chan *app.Question {
 func (w *srv) start() {
 
 	http.HandleFunc("/question", w.handle)
-	http.HandleFunc("/stream/word_statistics", w.handleWordCloud)
+	http.HandleFunc("/stream/word_statistics", w.handleWordStat)
 	go w.sendQuestion()
 
 	err := http.ListenAndServe(":4041", nil)
@@ -77,8 +77,8 @@ func (w *srv) handle(writer http.ResponseWriter, r *http.Request) {
 
 }
 
-// handleWordCloud 处理请求
-func (w *srv) handleWordCloud(writer http.ResponseWriter, r *http.Request) {
+// handleWordStat 处理请求
+func (w *srv) handleWordStat(writer http.ResponseWriter, r *http.Request) {
 
 	up := &websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
 	wsconn, err := up.Upgrade(writer, r, nil)

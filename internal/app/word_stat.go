@@ -11,15 +11,16 @@ import (
 
 var ls = map[uint64][]*websocket.Conn{} // ls 监听词汇的客户端
 
-func (a *App) handleWordCloud(m *qq.Msg) {
-
-	// 不处理命令和空消息
-	if len(m.Chain[0].Text) == 0 || strings.HasPrefix(m.Chain[0].Text, ".") {
-		return
-	}
+// handleWordStat 处理词云
+func (a *App) handleWordStat(m *qq.Msg) {
 
 	v, ok := ls[m.Group.ID]
 	if !ok {
+		return
+	}
+
+	// 不处理命令和空消息
+	if len(m.Chain[0].Text) == 0 || strings.HasPrefix(m.Chain[0].Text, ".") {
 		return
 	}
 
@@ -30,13 +31,9 @@ func (a *App) handleWordCloud(m *qq.Msg) {
 	}
 
 	for _, conn := range v {
-
-		err := conn.WriteJSON(words)
-		if err != nil {
-			log.Error().Err(err).Msg("推送词云数据失败")
+		if err := conn.WriteJSON(words); err != nil {
+			log.Error().Err(err).Str("客户端", conn.RemoteAddr().String()).Msg("推送词云数据失败")
 		}
-
-		log.Info().Interface("客户端", v).Msg("推送词云数据中")
 	}
 }
 
@@ -45,7 +42,7 @@ func AddConn(gid uint64, c *websocket.Conn) {
 	ls[gid] = append(ls[gid], c)
 }
 
-// rmConn 使用 gid：群ID 移出一个连入的客户端
+// RmConn 使用 gid：群ID 移出一个连入的客户端
 func RmConn(gid uint64, conn *websocket.Conn) {
 	if pool, ok := ls[gid]; ok {
 		for k, wsconn := range pool {
