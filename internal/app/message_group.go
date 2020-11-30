@@ -3,7 +3,6 @@ package app
 import (
 	"github.com/ELQASASystem/server/internal/qq"
 
-	"github.com/rs/zerolog/log"
 	"strings"
 )
 
@@ -24,23 +23,6 @@ func (a *App) processGroup(m *qq.Msg) {
 	if m.Chain[0].Text == ".hello" {
 		a.Cli.SendGroupMsg(a.Cli.NewText("Hello, Client!").To(m.Group.ID))
 		return
-	}
-
-	if strings.HasPrefix(m.Chain[0].Text, ".fenci ") {
-
-		res, err := a.Cli.C.GetWordSegmentation(m.Chain[0].Text[7:])
-		if err != nil {
-			log.Error().Err(err).Msg("分词时出错")
-			return
-		}
-
-		for k, v := range res {
-			res[k] = strings.ReplaceAll(v, "\u0000", "")
-		}
-
-		a.Cli.SendGroupMsg(a.Cli.NewText(strings.Join(res, " | ")).To(m.Group.ID))
-		return
-
 	}
 
 	if strings.HasPrefix(m.Chain[0].Text, ".tts ") {
