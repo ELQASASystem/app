@@ -34,7 +34,7 @@ func (w *srv) start() {
 
 	http.HandleFunc("/question", w.handle)
 	http.HandleFunc("/stream/word_statistics", w.handleWordStat)
-	go w.sendQuestion()
+	go w.pushRemoteQA()
 
 	err := http.ListenAndServe(":4041", nil)
 	if err != nil {
