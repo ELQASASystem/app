@@ -7,7 +7,7 @@ import (
 
 var (
 	wls = map[uint64][]*websocket.Conn{} // wls 监听词汇的客户端
-	wch = make(chan WordStat, 10)
+	wch = make(chan WordStat, 100)
 )
 
 type WordStat struct {
