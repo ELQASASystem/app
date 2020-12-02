@@ -39,7 +39,7 @@ func (s *sign) in(c *context.Context) {
 
 	c.SetCookie(&http.Cookie{
 		Name: "user", Value: u,
-		Expires: time.Now().AddDate(0, 1, 0), Secure: true,
+		Path: "/", Expires: time.Now().AddDate(0, 1, 0), Secure: true,
 	})
 	c.StatusCode(200)
 }

@@ -57,7 +57,7 @@ func (a *auth) generateLoginToken(u string, c *context.Context) {
 
 	c.SetCookie(&http.Cookie{
 		Name: "loginToken", Value: string(t),
-		Expires: time.Now().AddDate(0, 1, 0), Secure: true,
+		Path: "/", Expires: time.Now().AddDate(0, 1, 0), Secure: true,
 	})
 
 	_ = a.generateOnlineToken(u, t, c, false)
@@ -88,7 +88,7 @@ func (a *auth) generateOnlineToken(u string, lt loginToken, c *context.Context, 
 	a.onlineTokenList[u] = t
 	c.SetCookie(&http.Cookie{
 		Name: "onlineToken", Value: string(t),
-		Expires: time.Now().Add(time.Hour), Secure: true,
+		Path: "/", Expires: time.Now().Add(time.Hour), Secure: true,
 	})
 	return
 }
