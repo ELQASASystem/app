@@ -15,7 +15,20 @@ func New() {
 
 	// 测试
 	API.Party("hello").Get("/", func(c *context.Context) {
-		_, _ = c.JSON(iris.Map{"message": "hello"})
+
+		type info struct {
+			Message           string `json:"message"`
+			CookieUser        string `json:"cookie_user"`
+			CookieLoginToken  string `json:"cookie_login_token"`
+			CookieOnlineToken string `json:"cookie_online_token"`
+		}
+
+		_, _ = c.JSON(info{
+			"Hello",
+			c.GetCookie("user"),
+			c.GetCookie("loginToken"),
+			c.GetCookie("onlineToken"),
+		})
 	})
 
 	API.Post("login/{user}", Sign(auth).in)
