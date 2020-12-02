@@ -87,8 +87,8 @@ func (a *auth) generateOnlineToken(u string, lt loginToken, c *context.Context, 
 
 	a.onlineTokenList[u] = t
 	c.SetCookie(&http.Cookie{
-		Name: "loginToken", Value: string(t),
-		Expires: time.Now().AddDate(0, 1, 0), Secure: true,
+		Name: "onlineToken", Value: string(t),
+		Expires: time.Now().Add(time.Hour), Secure: true,
 	})
 	return
 }
@@ -113,7 +113,13 @@ func (a *auth) checkLoginToken(u string, t loginToken) (right bool) {
 // bool 值返回鉴权结果 T：允许 F：禁止
 func (a *auth) verifyOnlineToken(c *context.Context) (r bool) {
 
-	if c.GetCookie("onlineToken") == string(a.onlineTokenList[c.GetCookie("user")]) {
+	u := c.GetCookie("user")
+
+	if c.GetCookie("onlineToken") == string(a.onlineTokenList[u]) {
+		return true
+	}
+
+	if a.generateOnlineToken(u, loginToken(c.GetCookie("loginToken")), c, true) == nil {
 		return true
 	}
 
