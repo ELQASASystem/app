@@ -18,8 +18,25 @@ func (a *account) ReadAccountsList(u string) (data *AccountsListTab, err error) 
 		return
 	}
 	data = new(AccountsListTab)
-	err = row.Scan(&data.ID, &data.Password, &data.Class)
+	err = row.Scan(&data.ID, &data.Password, &data.Class, &data.LoginToken)
 	if err != nil {
+		return
+	}
+
+	return
+}
+
+// UpdateLoginToken 更新 AccountsListTab 表中 u：用户名 的 loginToken 字段为 t：loginToken。
+// 更新 loginToken
+func (a *account) UpdateLoginToken(t, u string) (err error) {
+
+	l, err := a.conn.Prepare(`UPDATE accounts_list SET accounts_list.login_token = ? WHERE accounts_list.id = ?`)
+	if err != nil {
+		return
+	}
+	defer l.Close()
+
+	if _, err = l.Exec(t, u); err != nil {
 		return
 	}
 
