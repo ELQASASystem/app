@@ -68,6 +68,7 @@ func (a *auth) generateOnlineToken(u string, lt loginToken, c *context.Context, 
 
 	if check {
 		if !a.checkLoginToken(u, lt) {
+			c.StatusCode(401)
 			return Banned
 		}
 	}
