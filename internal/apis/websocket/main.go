@@ -96,8 +96,8 @@ func (w *srv) handleWordStat(writer http.ResponseWriter, r *http.Request) {
 
 	i, _ := strconv.ParseUint(string(msg), 10, 64) // 群号
 
-	app.AddConn(i, wsconn)
-	defer app.RmConn(i, wsconn)
+	AddConn(i, wsconn)
+	defer RmConn(i, wsconn)
 
 	log.Info().Uint64("问题ID", i).Msg("成功添加词云词汇监听")
 
