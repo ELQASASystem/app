@@ -1,6 +1,15 @@
 package http
 
 import (
+	"bytes"
+	"crypto/rand"
+	"crypto/sha256"
+	"fmt"
+	"github.com/ELQASASystem/server/internal/app"
+	"github.com/rs/zerolog/log"
+	"net/http"
+	"time"
+
 	"github.com/kataras/iris/v12/context"
 )
 
@@ -18,8 +27,33 @@ type (
 func NewAuth() *auth { return &auth{} }
 
 // generateLoginToken 使用 u：用户名 生成 loginToken
-func (a *auth) generateLoginToken(u string) loginToken {
-	return ""
+func (a *auth) generateLoginToken(u string, c *context.Context) {
+
+	var (
+		original = bytes.NewBuffer(nil)
+		ti, _    = time.Now().MarshalText()
+		salt     = make([]byte, 16)
+	)
+
+	_, _ = rand.Read(salt)
+	original.WriteString(u)
+	original.Write(ti)
+	original.Write(salt)
+
+	token := sha256.Sum256(original.Bytes())
+	t := loginToken(fmt.Sprintf("%x", token))
+
+	err := app.AC.DB.Account().UpdateLoginToken(string(t), u)
+	if err != nil {
+		log.Error().Err(err).Msg("更新数据库 LoginToken 失败")
+		return
+	}
+
+	c.SetCookie(&http.Cookie{
+		Name: "loginToken", Value: string(t),
+		Expires: time.Now().AddDate(0, 1, 0), Secure: true,
+	})
+	return
 }
 
 // generateOnlineToken 使用 u：用户名 t：loginToken 生成 onlineToken
