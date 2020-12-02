@@ -5,16 +5,18 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
-	"github.com/ELQASASystem/server/internal/app"
-	"github.com/rs/zerolog/log"
 	"net/http"
 	"time"
 
+	"github.com/ELQASASystem/server/internal/app"
+
 	"github.com/kataras/iris/v12/context"
+	"github.com/rs/zerolog/log"
 )
 
 // auth 鉴权
 type auth struct {
+	app             *app.App
 	onlineTokenList map[string]onlineToken // onlineTokenList 用户在线 Token 列表
 }
 
@@ -24,7 +26,7 @@ type (
 )
 
 // NewAuth 新建一个鉴权
-func NewAuth() *auth { return &auth{} }
+func NewAuth() *auth { return &auth{app.AC, map[string]onlineToken{}} }
 
 // generateLoginToken 使用 u：用户名 生成 loginToken
 func (a *auth) generateLoginToken(u string, c *context.Context) {
@@ -43,7 +45,7 @@ func (a *auth) generateLoginToken(u string, c *context.Context) {
 	token := sha256.Sum256(original.Bytes())
 	t := loginToken(fmt.Sprintf("%x", token))
 
-	err := app.AC.DB.Account().UpdateLoginToken(string(t), u)
+	err := a.app.DB.Account().UpdateLoginToken(string(t), u)
 	if err != nil {
 		log.Error().Err(err).Msg("更新数据库 LoginToken 失败")
 		return

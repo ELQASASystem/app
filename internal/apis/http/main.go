@@ -10,6 +10,7 @@ import (
 func New() {
 
 	app := iris.New()
+	auth := NewAuth()
 	API := app.Party("apis/")
 
 	// 测试
@@ -17,7 +18,7 @@ func New() {
 		_, _ = c.JSON(iris.Map{"message": "hello"})
 	})
 
-	API.Post("login/{user}", Sign().in)
+	API.Post("login/{user}", Sign(auth).in)
 
 	{
 		G := API.Party("group")
