@@ -1,20 +1,16 @@
 package app
 
 import (
-	"strings"
-
+	ws "github.com/ELQASASystem/server/internal/apis/websocket"
 	"github.com/ELQASASystem/server/internal/qq"
-
-	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
+	"strings"
 )
-
-var ls = map[uint64][]*websocket.Conn{} // ls 监听词汇的客户端
 
 // handleWordStat 处理词云
 func (a *App) handleWordStat(m *qq.Msg) {
 
-	v, ok := ls[m.Group.ID]
+	ok := ws.HasConn(m.Group.ID)
 	if !ok {
 		return
 	}
@@ -30,25 +26,8 @@ func (a *App) handleWordStat(m *qq.Msg) {
 		return
 	}
 
-	for _, conn := range v {
-		if err := conn.WriteJSON(words); err != nil {
-			log.Error().Err(err).Str("客户端", conn.RemoteAddr().String()).Msg("推送词云数据失败")
-		}
-	}
-}
-
-// AddConn 使用 gid：群ID 新增一个连入的客户端
-func AddConn(gid uint64, c *websocket.Conn) {
-	ls[gid] = append(ls[gid], c)
-}
-
-// RmConn 使用 gid：群ID 移出一个连入的客户端
-func RmConn(gid uint64, conn *websocket.Conn) {
-	if pool, ok := ls[gid]; ok {
-		for k, wsconn := range pool {
-			if wsconn == conn {
-				ls[gid] = append(ls[gid][:k], ls[gid][k+1:]...)
-			}
-		}
-	}
+	ws.PushWordStat(ws.WordStat{
+		Gid:     m.Group.ID,
+		Context: words,
+	})
 }
