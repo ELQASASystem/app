@@ -8,13 +8,21 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type question struct{ *app.App }
+type question struct {
+	*app.App
+	Auth *auth
+}
 
 // Question 问题
-func Question() *question { return &question{app.AC} }
+func Question(a *auth) *question { return &question{app.AC, a} }
 
 // list 列表
 func (q *question) list(c *context.Context) {
+
+	if !q.Auth.verifyOnlineToken(c) {
+		log.Error().Msg("鉴权失败")
+		return
+	}
 
 	type list []*database.QuestionListTab
 	type group struct {
@@ -46,6 +54,11 @@ func (q *question) list(c *context.Context) {
 // detail 详情
 func (q *question) detail(c *context.Context) {
 
+	if !q.Auth.verifyOnlineToken(c) {
+		log.Error().Msg("鉴权失败")
+		return
+	}
+
 	queID, err := c.Params().GetUint32("question_id")
 	if err != nil {
 		log.Error().Err(err).Str("字段", "Question ID").Msg("读取字段失败")
@@ -65,6 +78,11 @@ func (q *question) detail(c *context.Context) {
 
 // new 新建
 func (q *question) new(c *context.Context) {
+
+	if !q.Auth.verifyOnlineToken(c) {
+		log.Error().Msg("鉴权失败")
+		return
+	}
 
 	que := database.QuestionListTab{}
 
@@ -87,6 +105,11 @@ func (q *question) new(c *context.Context) {
 // edit 编辑问题
 func (q *question) edit(c *context.Context) {
 
+	if !q.Auth.verifyOnlineToken(c) {
+		log.Error().Msg("鉴权失败")
+		return
+	}
+
 	_, err := c.Params().GetUint32("question_id")
 	if err != nil {
 		log.Error().Err(err).Str("字段", "Question ID").Msg("读取字段失败")
@@ -102,6 +125,11 @@ func (q *question) edit(c *context.Context) {
 
 // status 状态
 func (q *question) status(c *context.Context) {
+
+	if !q.Auth.verifyOnlineToken(c) {
+		log.Error().Msg("鉴权失败")
+		return
+	}
 
 	queID, err := c.Params().GetUint32("question_id")
 	if err != nil {
@@ -139,6 +167,11 @@ func (q *question) status(c *context.Context) {
 
 // delete 删除问题
 func (q *question) delete(c *context.Context) {
+
+	if !q.Auth.verifyOnlineToken(c) {
+		log.Error().Msg("鉴权失败")
+		return
+	}
 
 	_, err := c.Params().GetUint32("question_id")
 	if err != nil {

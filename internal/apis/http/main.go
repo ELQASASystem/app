@@ -31,45 +31,52 @@ func New() {
 		})
 	})
 
-	API.Post("login/{user}", Sign(auth).in)
+	{
+		sign := Sign(auth)
+		API.Post("login/{user}", sign.in)
+	}
 
 	{
 		G := API.Party("group")
+		group := Group(auth)
 
-		G.Get("/list", Group().list)
-		G.Get("/{i}/praise", Group().praise)
+		G.Get("/list", group.list)
+		G.Get("/{i}/praise", group.praise)
 	}
 
 	{
 		Q := API.Party("questions")
+		questions := Question(auth)
 
-		Q.Get("/list", Question().list)
-		Q.Get("/question/{question_id}", Question().detail)
+		Q.Get("/list", questions.list)
+		Q.Get("/question/{question_id}", questions.detail)
 
-		Q.Post("/", Question().new)
-		Q.Put("/question/{question_id}", Question().edit)
-		Q.Put("/question/{question_id}/status", Question().status)
-		Q.Delete("/question/{question_id}", Question().delete)
+		Q.Post("/", questions.new)
+		Q.Put("/question/{question_id}", questions.edit)
+		Q.Put("/question/{question_id}/status", questions.status)
+		Q.Delete("/question/{question_id}", questions.delete)
 	}
 
 	{
 		M := API.Party("market")
+		market := Market(auth)
 
-		M.Get("/{subject}/list", Market().list)
-		M.Get("/{i}/copy", Market().copy)
+		M.Get("/{subject}/list", market.list)
+		M.Get("/{i}/copy", market.copy)
 	}
 
 	{
 		U := API.Party("upload")
+		upload := Upload(auth)
 
-		U.Options("/docx", Upload().options)
-		U.Post("/docx", Upload().docx)
-		U.Get("/docx/{p}/parse", Upload().parseDocx)
+		U.Options("/docx", upload.options)
+		U.Post("/docx", upload.docx)
+		U.Get("/docx/{p}/parse", upload.parseDocx)
 
-		U.Options("/picture", Upload().options)
-		U.Post("/picture", Upload().picture)
+		U.Options("/picture", upload.options)
+		U.Post("/picture", upload.picture)
 
-		U.Get("/{text}/split", Upload().split)
+		U.Get("/{text}/split", upload.split)
 	}
 
 	if err := app.Listen(":4040"); err != nil {

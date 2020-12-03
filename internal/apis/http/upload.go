@@ -15,10 +15,13 @@ import (
 	"github.com/unidoc/unioffice/document"
 )
 
-type upload struct{ *app.App }
+type upload struct {
+	*app.App
+	Auth *auth
+}
 
 // Upload 上传
-func Upload() *upload { return &upload{app.AC} }
+func Upload(a *auth) *upload { return &upload{app.AC, a} }
 
 // options 上传预检
 func (u *upload) options(c *context.Context) {
@@ -28,6 +31,11 @@ func (u *upload) options(c *context.Context) {
 
 // docx 上传 Docx
 func (u *upload) docx(c *context.Context) {
+
+	if !u.Auth.verifyOnlineToken(c) {
+		log.Error().Msg("鉴权失败")
+		return
+	}
 
 	c.SetMaxRequestBodySize(10485760) // 限制最大上传大小为 10MiB
 
@@ -63,6 +71,11 @@ func (u *upload) docx(c *context.Context) {
 // parseDocx 解析 Docx
 func (u *upload) parseDocx(c *context.Context) {
 
+	if !u.Auth.verifyOnlineToken(c) {
+		log.Error().Msg("鉴权失败")
+		return
+	}
+
 	doc, err := document.Open("assets/temp/docx/" + c.Params().Get("p"))
 	if err != nil {
 		log.Error().Err(err).Msg("打开 Docx 失败")
@@ -87,6 +100,11 @@ func (u *upload) parseDocx(c *context.Context) {
 
 // picture 上传图片
 func (u *upload) picture(c *context.Context) {
+
+	if !u.Auth.verifyOnlineToken(c) {
+		log.Error().Msg("鉴权失败")
+		return
+	}
 
 	c.SetMaxRequestBodySize(4194304) // 限制最大上传大小为 4MiB
 
@@ -113,6 +131,12 @@ func (u *upload) picture(c *context.Context) {
 
 // split 分词
 func (u *upload) split(c *context.Context) {
+
+	if !u.Auth.verifyOnlineToken(c) {
+		log.Error().Msg("鉴权失败")
+		return
+	}
+
 	words, err := app.DoWordSplit(c.Params().Get("text"))
 
 	if err != nil {
