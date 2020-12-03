@@ -53,18 +53,18 @@ func (w *ws) pushWordStat() {
 
 		conns, ok := w.pool[m.Group.ID]
 		if !ok {
-			return
+			continue
 		}
 
 		// 不处理空消息
 		if len(m.Chain[0].Text) == 0 {
-			return
+			continue
 		}
 
 		words, err := app.DoWordSplit(m.Chain[0].Text)
 		if err != nil {
 			log.Error().Err(err).Msg("分词时出错")
-			return
+			continue
 		}
 
 		for _, v := range conns {
