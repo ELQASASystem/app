@@ -52,7 +52,7 @@ func (w *ws) pushWordStat() {
 		m := <-w.ch.WordStat
 
 		conns, ok := w.pool[m.Group.ID]
-		if !ok {
+		if !ok || len(conns) == 0 {
 			continue
 		}
 
@@ -67,13 +67,13 @@ func (w *ws) pushWordStat() {
 			continue
 		}
 
+		log.Info().Msg("推送词云数据")
 		for _, v := range conns {
 			if err := v.WriteJSON(words); err != nil {
 				log.Error().Err(err).Str("客户端", v.RemoteAddr().String()).Msg("推送词云数据失败")
 				continue
 			}
 		}
-		log.Info().Msg("推送词云数据")
 	}
 }
 
