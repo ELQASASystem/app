@@ -10,15 +10,22 @@ import (
 
 var AC *App
 
+// WordStat 词云
+type WordStat struct {
+	GroupID uint64   // GroupID 群号
+	Data    []string // Data 数据
+}
+
 type App struct {
 	Cli *qq.Rina           // Cli QQ 客户端
 	mch chan *qq.Msg       // mch 消息同步管道
+	wch chan *qq.Msg       // wch 词云同步管道
 	qch chan *Question     // qch 问答同步管道
 	DB  *database.Database // DB 数据库
 }
 
 // New 新建一个机器人
-func New(qc chan *Question) (app *App) {
+func New(qc chan *Question, wc chan *qq.Msg) (app *App) {
 
 	var (
 		conf = configs.GetAllConf()
@@ -31,11 +38,10 @@ func New(qc chan *Question) (app *App) {
 		log.Panic().Msg("数据库连接失败")
 	}
 
-	app = &App{r, mch, qc, db}
+	app = &App{r, mch, wc, qc, db}
 	AC = app
 
 	r.RegEventHandle()
 	go app.monitorGroup()
-
 	return
 }

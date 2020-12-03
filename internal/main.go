@@ -10,6 +10,6 @@ func Main() {
 
 	w := websocket.New()
 
-	app.New(w.GetChannel().Question)
+	app.New(w.GetChannel().Question, w.GetChannel().WordStat)
 	go http.New()
 }
