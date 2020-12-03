@@ -10,12 +10,6 @@ import (
 
 var AC *App
 
-// WordStat 词云
-type WordStat struct {
-	GroupID uint64   // GroupID 群号
-	Data    []string // Data 数据
-}
-
 type App struct {
 	Cli *qq.Rina           // Cli QQ 客户端
 	mch chan *qq.Msg       // mch 消息同步管道
