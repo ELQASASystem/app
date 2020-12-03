@@ -78,6 +78,7 @@ func (a *auth) generateOnlineToken(u string, lt loginToken, c *context.Context, 
 		salt     = make([]byte, 8)
 	)
 
+	_, _ = rand.Read(salt)
 	original.WriteString(string(lt))
 	original.WriteString(u)
 	original.Write(salt)
