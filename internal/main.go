@@ -8,7 +8,8 @@ import (
 
 func Main() {
 
-	app.New(websocket.New())
-	go http.New()
+	w := websocket.New()
 
+	app.New(w.GetChannel().Question)
+	go http.New()
 }

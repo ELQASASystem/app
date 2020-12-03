@@ -16,7 +16,7 @@ type WordStat struct {
 }
 
 // sendQuestion 发送问题
-func (w *srv) sendWordStat() {
+func (w *wsSRV) sendWordStat() {
 
 	for {
 
