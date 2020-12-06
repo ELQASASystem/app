@@ -8,21 +8,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type market struct {
-	*app.App
-	Auth *auth
-}
+type market struct{ *app.App }
 
 // Market 问题市场
-func Market(a *auth) *market { return &market{app.AC, a} }
+func Market() *market { return &market{app.AC} }
 
 // list 问题市场列表
 func (m *market) list(c *context.Context) {
-
-	if !m.Auth.verifyOnlineToken(c) {
-		log.Error().Msg("鉴权失败")
-		return
-	}
 
 	res, err := m.DB.Question().ReadQuestionMarket(c.Params().GetUint8Default("subject", 0))
 	if err != nil {
@@ -36,11 +28,6 @@ func (m *market) list(c *context.Context) {
 
 // copy 复制问题
 func (m *market) copy(c *context.Context) {
-
-	if !m.Auth.verifyOnlineToken(c) {
-		log.Error().Msg("鉴权失败")
-		return
-	}
 
 	qid, err := c.Params().GetUint32("i")
 	if err != nil {

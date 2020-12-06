@@ -9,21 +9,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type group struct {
-	*app.App
-	Auth *auth
-}
+type group struct{ *app.App }
 
 // Group 群
-func Group(a *auth) *group { return &group{app.AC, a} }
+func Group() *group { return &group{app.AC} }
 
 // list 群列表
 func (g *group) list(c *context.Context) {
-
-	if !g.Auth.verifyOnlineToken(c) {
-		log.Error().Msg("鉴权失败")
-		return
-	}
 
 	type groupList struct {
 		ID       uint64 `json:"id"`        // 群号
@@ -41,11 +33,6 @@ func (g *group) list(c *context.Context) {
 
 // praise 表扬
 func (g *group) praise(c *context.Context) {
-
-	if !g.Auth.verifyOnlineToken(c) {
-		log.Error().Msg("鉴权失败")
-		return
-	}
 
 	i, err := c.Params().GetUint64("i")
 	if err != nil {

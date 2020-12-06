@@ -127,3 +127,16 @@ func (a *auth) verifyOnlineToken(c *context.Context) (r bool) {
 	c.StatusCode(401)
 	return
 }
+
+// auth 鉴权
+func (a *auth) auth(f func(*context.Context)) func(*context.Context) {
+
+	return func(c *context.Context) {
+		if !a.verifyOnlineToken(c) {
+			log.Error().Str("请求", c.String()).Msg("鉴权失败")
+			return
+		}
+
+		f(c)
+	}
+}
