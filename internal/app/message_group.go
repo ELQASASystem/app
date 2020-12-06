@@ -30,8 +30,8 @@ func (a *App) processGroup(m *qq.Msg) {
 		return
 	}
 
-	a.handleAnswer(m)   // 处理答案
-	a.handleWordStat(m) // 处理词云
+	a.handleAnswer(m) // 处理答案
+	a.wch <- m        // 处理词云
 }
 
 // block 阻止可能的意外

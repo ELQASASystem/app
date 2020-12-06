@@ -2,126 +2,75 @@ package websocket
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/ELQASASystem/server/internal/app"
+	"github.com/ELQASASystem/server/internal/qq"
 
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"
 )
 
-// srv Websocket 服务。文档： https://godoc.org/github.com/gorilla/websocket
-type srv struct {
-	connPool map[uint32][]*websocket.Conn // connPool 已连接的客户端
-	qch      chan *app.Question           // qch 问题管道
-}
+// 文档： https://godoc.org/github.com/gorilla/websocket
+
+type (
+	// wsSRV Websocket 服务。
+	wsSRV struct {
+		ch *ch // ch 管道
+		qa *qa // qa 问答
+		ws *ws // ws 词云
+	}
+
+	// ch 管道
+	ch struct {
+		Question chan *app.Question // Question 问题管道
+		WordStat chan *qq.Msg       // WordStat 词云管道
+	}
+
+	// qa 问答
+	qa struct {
+		pool map[uint32][]*websocket.Conn // pool 客户端池
+		ch   *ch                          // ch 管道
+	}
+
+	// ws 词云
+	ws struct {
+		pool map[uint64][]*websocket.Conn // pool 客户端池
+		ch   *ch                          // ch 管道
+	}
+)
 
 // New 新建 Websocket 服务
-func New() chan *app.Question {
+func New() (w *wsSRV) {
 
 	var (
 		qch = make(chan *app.Question, 10)
-		s   = &srv{connPool: map[uint32][]*websocket.Conn{}, qch: qch}
+		wch = make(chan *qq.Msg, 50)
+		ch  = &ch{qch, wch}
 	)
 
-	go s.start()
+	w = &wsSRV{
+		ch,
+		&qa{map[uint32][]*websocket.Conn{}, ch},
+		&ws{map[uint64][]*websocket.Conn{}, ch},
+	}
 
-	return qch
+	go w.start()
+	return
 }
+
+// GetChannel 获取管道
+func (w *wsSRV) GetChannel() *ch { return w.ch }
 
 // start 启动 Websocket 服务
-func (w *srv) start() {
+func (w *wsSRV) start() {
 
-	http.HandleFunc("/question", w.handle)
-	http.HandleFunc("/stream/word_statistics", w.handleWordStat)
-	go w.sendQuestion()
+	go w.qa.pushQA()
+	go w.ws.pushWordStat()
 
-	err := http.ListenAndServe(":4041", nil)
-	if err != nil {
-		log.Error().Err(err).Msg("失败")
+	http.HandleFunc("/question", w.qa.handleQuestion)
+	http.HandleFunc("/stream/word_statistics", w.ws.handleWordStat)
+
+	if err := http.ListenAndServe(":4041", nil); err != nil {
+		log.Panic().Err(err).Msg("启动 Websocket API 服务 失败")
 	}
-
-}
-
-// handle 处理请求
-func (w *srv) handle(writer http.ResponseWriter, r *http.Request) {
-
-	up := &websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
-	wsconn, err := up.Upgrade(writer, r, nil)
-	if err != nil {
-		log.Error().Err(err).Msg("处理 WebSocket 连接时出现异常")
-		return
-	}
-	defer wsconn.Close()
-
-	_, msg, err := wsconn.ReadMessage()
-	if err != nil {
-		log.Error().Err(err).Msg("读取消息失败")
-		return
-	}
-
-	i, _ := strconv.ParseUint(string(msg), 10, 32)
-	id := uint32(i)
-
-	w.connPool[id] = append(w.connPool[id], wsconn)
-	defer w.rmConn(uint32(i), wsconn)
-
-	log.Info().Uint64("问题ID", i).Msg("成功添加 WS 问题监听")
-
-	for {
-		if _, _, err := wsconn.ReadMessage(); err != nil {
-			log.Error().Err(err).Msg("读取消息失败")
-			break
-		}
-	}
-
-}
-
-// handleWordStat 处理请求
-func (w *srv) handleWordStat(writer http.ResponseWriter, r *http.Request) {
-
-	up := &websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
-	wsconn, err := up.Upgrade(writer, r, nil)
-	if err != nil {
-		log.Error().Err(err).Msg("处理 WebSocket 连接时出现异常")
-		return
-	}
-
-	_, msg, err := wsconn.ReadMessage()
-	if err != nil {
-		log.Error().Err(err).Msg("读取消息失败")
-		return
-	}
-
-	i, _ := strconv.ParseUint(string(msg), 10, 64) // 群号
-
-	app.AddConn(i, wsconn)
-	defer app.RmConn(i, wsconn)
-
-	log.Info().Uint64("问题ID", i).Msg("成功添加词云词汇监听")
-
-	for {
-		if _, _, err := wsconn.ReadMessage(); err != nil {
-			log.Error().Err(err).Msg("读取消息失败")
-			break
-		}
-	}
-}
-
-// rmConn 使用 i：问题ID(ID) 移出一个连入的客户端
-func (w *srv) rmConn(i uint32, conn *websocket.Conn) {
-
-	conns := w.connPool[i]
-
-	for k, wsconn := range conns {
-		if wsconn == conn {
-			w.connPool[i] = append(w.connPool[i][:k], w.connPool[i][k+1:]...)
-		}
-	}
-
-	if len(conns) == 0 {
-		delete(w.connPool, i)
-	}
-
-	log.Info().Msg("WS客户端下线")
 }

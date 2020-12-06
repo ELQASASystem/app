@@ -42,9 +42,10 @@ type (
 
 	// AccountsListTab 帐号
 	AccountsListTab struct {
-		ID       string `json:"id"`       // ID 唯一标识符
-		Password string `json:"password"` // Password 密码
-		Class    string `json:"class"`    // Class 班级
+		ID         string `json:"id"`          // ID 唯一标识符
+		Password   string `json:"password"`    // Password 密码
+		Class      string `json:"class"`       // Class 班级
+		LoginToken string `json:"login_token"` // LoginToken 永久登录 Token
 	}
 
 	// QuestionListTab 问题
