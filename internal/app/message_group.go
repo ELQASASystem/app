@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/ELQASASystem/server/configs"
 	"github.com/ELQASASystem/server/internal/qq"
 
 	"strings"
@@ -20,8 +21,8 @@ func (a *App) processGroup(m *qq.Msg) {
 		return
 	}
 
-	if m.Chain[0].Text == ".hello" {
-		a.Cli.SendGroupMsg(a.Cli.NewText("Hello, Client!").To(m.Group.ID))
+	if m.Chain[0].Text == ".version" {
+		a.Cli.SendGroupMsg(a.Cli.NewText(configs.CommitID).To(m.Group.ID))
 		return
 	}
 
