@@ -69,8 +69,6 @@ func New() {
 
 		U.Options("/picture", auth.auth(u.options))
 		U.Post("/picture", auth.auth(u.picture))
-
-		U.Get("/{text}/split", auth.auth(u.split))
 	}
 
 	if err := app.Listen(":4040"); err != nil {

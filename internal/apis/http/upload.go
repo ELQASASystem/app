@@ -110,16 +110,3 @@ func (u *upload) picture(c *context.Context) {
 
 	_, _ = c.JSON(iris.Map{"fileName": fileHeader.Filename})
 }
-
-// split 分词
-func (u *upload) split(c *context.Context) {
-
-	words, err := app.DoWordSplit(c.Params().Get("text"))
-	if err != nil {
-		log.Error().Err(err).Msg("分词时出错")
-		_, _ = c.JSON(iris.Map{"message": "no"})
-		return
-	}
-
-	_, _ = c.JSON(words)
-}
