@@ -27,7 +27,7 @@
 
 ## 许可证
 
-![License](https://img.shields.io/github/license/qianjunakasumi/project-shizuku?style=flat-square)
+![License](https://img.shields.io/github/license/ELQASASystem/server?style=flat-square)
 
 GNU Affero General Public License v3.0
 
